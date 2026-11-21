@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
 import { safeHtml } from './files.mjs';
 import { openWorkbook } from './workbooks.mjs';
+import { inspectOfficeFile } from './office-inspection.mjs';
 
 const LIMIT = 48 * 1024 * 1024;
 export async function exportBackup(records) {
@@ -12,7 +13,7 @@ export async function exportBackup(records) {
     const payload = typeof record.payload === 'string' ? new TextEncoder().encode(record.payload) : new Uint8Array(record.payload);
     total += payload.byteLength; if (total > LIMIT) throw new Error('Il backup supera 48 MB. Esporta separatamente i file più grandi.');
     zip.file(path, payload);
-    manifest.files.push({ path, name: record.name, kind: record.kind, updated: record.updated, imported: record.imported === true });
+    manifest.files.push({ path, name: record.name, kind: record.kind, updated: record.updated, imported: record.imported === true, compatibilityWarnings: record.compatibilityWarnings || [] });
   }
   zip.file('manifest.json', JSON.stringify(manifest));
   return new Uint8Array(await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE', compressionOptions: { level: 4 } }));
@@ -34,9 +35,10 @@ export async function importBackup(bytes) {
     const file = zip.file(item.path); if (!file || file._data?.uncompressedSize > 50 * 1024 * 1024) throw new Error('File mancante o troppo grande nel backup.');
     const data = await file.async('uint8array'); let payload = data;
     if (item.kind === 'write') payload = safeHtml(new TextDecoder().decode(data));
-    else if (item.kind === 'grid') await openWorkbook(data);
-    else if (!new TextDecoder().decode(data.slice(0, 1024)).includes('%PDF-')) throw new Error('PDF non valido nel backup.');
-    restored.push({ id: crypto.randomUUID(), kind: item.kind, name: item.name, updated: Number.isFinite(item.updated) ? item.updated : Date.now(), imported: item.imported === true, payload });
+    else if (item.kind === 'grid') { await inspectOfficeFile(data, 'grid'); await openWorkbook(data); }
+    else { const { validatePdf } = await import('./pdf-engine.mjs'); await validatePdf(data); }
+    const compatibilityWarnings = Array.isArray(item.compatibilityWarnings) ? item.compatibilityWarnings.filter(value => typeof value === 'string' && value.length <= 1000).slice(0, 20) : [];
+    restored.push({ id: crypto.randomUUID(), kind: item.kind, name: item.name, updated: Number.isFinite(item.updated) ? item.updated : Date.now(), imported: item.imported === true, compatibilityWarnings, payload });
   }
   return restored;
 }

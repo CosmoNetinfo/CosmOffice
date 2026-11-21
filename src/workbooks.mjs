@@ -67,6 +67,17 @@ export async function openWorkbook(bytes) {
   if (!book.worksheets.length) book.addWorksheet('Foglio 1');
   return book;
 }
+export function snapshotWorksheet(sheet) {
+  const model = structuredClone(sheet.model);
+  // ExcelJS exposes "merges" in the getter but consumes "mergeCells" in the setter.
+  model.mergeCells = [...(model.merges || model.mergeCells || [])];
+  return model;
+}
+export function snapshotWorkbook(book) {
+  const model = structuredClone(book.model);
+  for (const sheet of model.worksheets) sheet.mergeCells = [...(sheet.merges || sheet.mergeCells || [])];
+  return model;
+}
 export function newWorkbook(template = 'blank') {
   const book = new ExcelJS.Workbook();
   book.creator = 'Cosmonet';
@@ -82,9 +93,11 @@ export function newWorkbook(template = 'blank') {
   return book;
 }
 export async function exportWorkbook(book) {
+  const copy = new ExcelJS.Workbook();
+  copy.model = snapshotWorkbook(book);
   // Excel will recalculate full formulas on open; this app only caches its supported subset.
-  book.calcProperties.fullCalcOnLoad = true;
-  for (const sheet of book.worksheets) {
+  copy.calcProperties.fullCalcOnLoad = true;
+  for (const sheet of copy.worksheets) {
     const calc = calculatorFor(sheet);
     sheet.eachRow(row => row.eachCell(cell => {
       if (cell.type === ExcelJS.ValueType.Formula) {
@@ -94,5 +107,5 @@ export async function exportWorkbook(book) {
       }
     }));
   }
-  return new Uint8Array(await book.xlsx.writeBuffer());
+  return new Uint8Array(await copy.xlsx.writeBuffer());
 }

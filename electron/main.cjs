@@ -51,6 +51,7 @@ function createWindow() {
   });
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   window.webContents.on('will-navigate', (event) => event.preventDefault());
+  window.webContents.on('render-process-gone', () => { closeAllowed = true; });
   window.webContents.session.setPermissionRequestHandler((_, __, callback) => callback(false));
   // Neither documents nor pasted HTML can load remote assets or make network requests.
   window.webContents.session.webRequest.onBeforeRequest((details, callback) => {

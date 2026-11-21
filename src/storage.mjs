@@ -4,8 +4,13 @@ function database() {
   if (!connection) connection = new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1);
     request.onupgradeneeded = () => request.result.createObjectStore('documents', { keyPath: 'id' });
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result;
+      db.onversionchange = () => { db.close(); connection = undefined; };
+      db.onclose = () => { connection = undefined; };
+      resolve(db);
+    };
+    request.onerror = () => { connection = undefined; reject(request.error); };
   });
   return connection;
 }
@@ -13,7 +18,8 @@ export async function storeDraft(record) {
   const db = await database();
   return new Promise((resolve, reject) => {
     const tx = db.transaction('documents', 'readwrite');
-    tx.objectStore('documents').put(record);
+    try { tx.objectStore('documents').put(record); }
+    catch (error) { tx.abort(); reject(error); return; }
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
     tx.onabort = () => reject(tx.error || new Error('Salvataggio locale interrotto.'));
@@ -39,7 +45,8 @@ export async function storeDrafts(records) {
   const db = await database();
   return new Promise((resolve, reject) => {
     const tx = db.transaction('documents', 'readwrite');
-    for (const record of records) tx.objectStore('documents').put(record);
+    try { for (const record of records) tx.objectStore('documents').put(record); }
+    catch (error) { tx.abort(); reject(error); return; }
     tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error || new Error('Ripristino annullato.'));
   });
 }

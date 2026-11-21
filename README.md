@@ -2,9 +2,19 @@
 
 Suite desktop offline Cosmonet: **CosmoWrite**, **CosmoGrid** e **CosmoView**.
 
-**Stato: anteprima 0.2.0.** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Android e iOS sono pianificati, non implementati.
+**Stato: anteprima 0.2.1.** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Android e iOS sono pianificati, non implementati.
 
 ![Loghi della suite](docs/preview/00-loghi.png)
+
+## Priorità attuale: compatibilità e affidabilità
+
+La versione 0.2.1 consolida apertura, modifica essenziale e salvataggio di DOCX, XLSX e PDF. Grafici, presentazioni, macro e nuove funzioni distintive restano per una fase successiva.
+
+- Le esportazioni Excel lavorano su una copia, senza modificare la cartella aperta. Celle unite, formule condivise, date, collegamenti e immagini sono inclusi nei test di conservazione.
+- Se la bozza non si salva, il documento rimane aperto e il cambio schermata è bloccato fino al recupero; è possibile riprovare o esportare una copia prima della chiusura.
+- DOCX/XLSX vengono controllati prima della conversione. I PDF non protetti vengono letti dal motore prima di entrare nell’archivio; quelli protetti vengono sbloccati nel lettore.
+- I file con commenti/note, revisioni, grafici, pivot, macro, oggetti incorporati o collegamenti esterni mostrano avvisi specifici quando queste parti sono rilevate. Il controllo non garantisce di riconoscere ogni possibile incompatibilità.
+- Il ripristino di un backup è atomico e ne conserva gli avvisi di compatibilità. Un errore di esportazione su disco non deve sostituire il file di destinazione con dati incompleti.
 
 ## Cosa funziona
 

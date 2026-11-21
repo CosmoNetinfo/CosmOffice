@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { getDocument, GlobalWorkerOptions, TextLayer } from 'pdfjs-dist';
+import { TextLayer } from 'pdfjs-dist';
 import { usePreferences } from './preferences.jsx';
-import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import { createPdfTask } from './pdf-engine.mjs';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Search, LoaderCircle, FileLock2, Printer } from 'lucide-react';
 
-GlobalWorkerOptions.workerSrc = workerUrl;
 
 export default function PdfViewer({ record, api, onError }) {
   const { settings } = usePreferences();
@@ -33,8 +32,7 @@ export default function PdfViewer({ record, api, onError }) {
 
   useEffect(() => {
     // PDF.js transfers the buffer to its worker: copy it so the original can still be saved.
-    const assets = new URL('./pdfjs/', document.baseURI).href;
-    const task = getDocument({ data: new Uint8Array(record.payload).slice(), isEvalSupported: false, useSystemFonts: true, enableXfa: false, cMapUrl: `${assets}cmaps/`, cMapPacked: true, standardFontDataUrl: `${assets}standard_fonts/`, wasmUrl: `${assets}wasm/` });
+    const task = createPdfTask(record.payload);
     let cancelled = false;
     task.onPassword = (callback, reason) => {
       if (cancelled) return;

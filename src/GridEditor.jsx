@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Bold, Italic, Euro, Percent, Plus, Check, Undo2, Redo2, Download, Copy, Trash2, Pencil, LoaderCircle } from 'lucide-react';
 import Papa from 'papaparse';
 import { usePreferences } from './preferences.jsx';
-import { openWorkbook, exportWorkbook, rawValue, setCellInput, calculatorFor, exportDelimited, pasteRange } from './workbooks.mjs';
+import { openWorkbook, exportWorkbook, rawValue, setCellInput, calculatorFor, exportDelimited, pasteRange, snapshotWorkbook, snapshotWorksheet } from './workbooks.mjs';
 import { columnName, parseAddress, SUPPORTED_FUNCTIONS } from './formulas.mjs';
 import { saveFile, downloadName } from './files.mjs';
 
@@ -42,7 +42,7 @@ export default function GridEditor({ record, onEdit, api, onError }) {
     setRows(Math.max(settings.gridRows, Math.min(target.rowCount + 5, 500))); setCols(Math.max(settings.gridCols, Math.min(target.columnCount + 2, 40)));
   }
   function checkpoint() {
-    const model = structuredClone(book.model);
+    const model = snapshotWorkbook(book);
     if (JSON.stringify(model).length > 8 * 1024 * 1024) { history.current = { undo: [], redo: [] }; onError('Annulla non disponibile per questa cartella grande. Esporta una copia prima di modifiche importanti.'); return; }
     history.current.undo.push({ model, sheetId });
     if (history.current.undo.length > 15) history.current.undo.shift();
@@ -51,7 +51,7 @@ export default function GridEditor({ record, onEdit, api, onError }) {
   function changed() { setRevision(n => n + 1); onEdit(async () => new Uint8Array(await book.xlsx.writeBuffer())); }
   function restore(direction) {
     const stack = history.current[direction]; if (!stack.length) return;
-    const entry = stack.pop(); history.current[direction === 'undo' ? 'redo' : 'undo'].push({ model: structuredClone(book.model), sheetId });
+    const entry = stack.pop(); history.current[direction === 'undo' ? 'redo' : 'undo'].push({ model: snapshotWorkbook(book), sheetId });
     book.model = structuredClone(entry.model); activate(book.getWorksheet(entry.sheetId) || book.worksheets[0]); changed();
   }
   function forSelection(fn) {
@@ -104,8 +104,10 @@ export default function GridEditor({ record, onEdit, api, onError }) {
     } catch (error) { onError(error.message); }
   }
   function duplicate() {
+    if (sheet.getTables().length) { onError('La duplicazione di fogli con tabelle Excel strutturate non è ancora supportata. Esporta una copia della cartella per conservarne la struttura.'); return; }
     checkpoint(); let n = 2, name = `${sheet.name.slice(0, 25)} (${n})`; while (book.getWorksheet(name)) name = `${sheet.name.slice(0, 25)} (${++n})`;
-    const copy = book.addWorksheet(name), id = copy.id; copy.model = { ...structuredClone(sheet.model), id, name }; activate(copy); changed();
+    const model = snapshotWorksheet(sheet);
+    const copy = book.addWorksheet(name), id = copy.id; copy.model = { ...model, id, name }; activate(copy); changed();
   }
   if (!book || !sheet) return <div className="loading-editor"><LoaderCircle className="spin"/> Apertura del foglio…</div>;
   const current = sheet.getCell(selected), values = [];

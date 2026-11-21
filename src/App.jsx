@@ -11,13 +11,14 @@ import { Home, FileText, Grid2X2, FolderOpen, ArrowUpRight, ArrowLeft, Plus, Sea
 import { chooseFile, saveFile, safeHtml, fileTitle, downloadName } from './files.mjs';
 import { exportDocument } from './documents.mjs';
 import { newWorkbook, openWorkbook, importDelimited } from './workbooks.mjs';
+import { inspectOfficeFile } from './office-inspection.mjs';
 
 import { listDrafts, storeDraft, removeDraft } from './storage.mjs';
 
 const GridEditor = lazy(() => import('./GridEditor.jsx'));
 const PdfViewer = lazy(() => import('./PdfViewer.jsx'));
 const SettingsPage = lazy(() => import('./SettingsPage.jsx'));
-const VERSION = '0.2.0';
+const VERSION = '0.2.1';
 const templates = {
   blank: '<p></p>',
   letter: '<h1>Una nuova collaborazione</h1><p>Alla cortese attenzione di</p><p><strong>Oggetto: proposta di collaborazione</strong></p><p>Gentile destinatario,</p><p>scrivo per presentare una proposta di collaborazione. Qui puoi descrivere la tua idea, gli obiettivi e i prossimi passi.</p><p>Resto a disposizione per un incontro di approfondimento.</p><p>Cordiali saluti,</p><p>Il tuo nome</p>',
@@ -48,11 +49,12 @@ export default function App() {
   const revisions = useRef(new Map());
   const editorApi = useRef(null);
   const saveFailed = useRef(false);
+  const failedDrafts = useRef(new Map());
 
   const refresh = useCallback(() => listDrafts().then(setDocuments).catch(() => setNotice('Archivio locale non disponibile. Esporta il lavoro per conservarlo.')), []);
   useEffect(() => { refresh(); window.cosmoffice?.updateStatus().then(setUpdate); return window.cosmoffice?.onUpdate(setUpdate); }, [refresh]);
   useEffect(() => { window.cosmoffice?.setUpdatePreferences?.(settings.automaticUpdates); }, [settings.automaticUpdates]);
-  useEffect(() => window.cosmoffice?.onBeforeClose?.(async () => { document.activeElement?.blur(); await pending.current; window.cosmoffice.closeReady(!saveFailed.current); }), []);
+  useEffect(() => window.cosmoffice?.onBeforeClose?.(async () => { document.activeElement?.blur(); await retryFailedDrafts(); window.cosmoffice.closeReady(!saveFailed.current); }), []);
   useEffect(() => {
     if (!notice) return;
     const timeout = setTimeout(() => setNotice(''), 9000); return () => clearTimeout(timeout);
@@ -66,19 +68,33 @@ export default function App() {
     pending.current = pending.current.catch(() => {}).then(async () => {
       const payload = typeof snapshot.payload === 'function' ? await snapshot.payload() : snapshot.payload;
       await storeDraft({ ...snapshot, payload });
-      saveFailed.current = false;
+      failedDrafts.current.delete(record.id);
+      saveFailed.current = failedDrafts.current.size > 0;
       if (revisions.current.get(record.id) === rev) setDraftState('saved');
-    }).catch(error => { saveFailed.current = true; setDraftState('error'); setNotice(`Bozza non salvata: ${error.message}. Esporta il file per conservarlo.`); });
+    }).catch(error => { failedDrafts.current.set(record.id, snapshot); saveFailed.current = true; setDraftState('error'); setNotice(`Bozza non salvata: ${error.message}. Esporta il file per conservarlo.`); });
     return pending.current;
   }, []);
 
-  async function create(kind, template = 'blank') {
+  async function retryFailedDrafts() {
     await pending.current;
+    for (const record of [...failedDrafts.current.values()]) await persist(record);
+    return !saveFailed.current;
+  }
+  async function canLeaveDocument() {
+    document.activeElement?.blur();
+    if (await retryFailedDrafts()) return true;
+    setNotice('La bozza non è salvata. Il documento rimane aperto: riprova il salvataggio o esporta una copia prima di chiudere.');
+    return false;
+  }
+
+  async function create(kind, template = 'blank') {
+    if (!await canLeaveDocument()) return;
     setSettingsOpen(false);
     const record = { id: crypto.randomUUID(), name: template === 'letter' ? 'Proposta di collaborazione' : template === 'notes' ? 'Appunti di riunione' : template === 'budget' ? 'Budget di progetto' : kind === 'write' ? 'Documento senza titolo' : 'Foglio senza titolo', kind, updated: Date.now(), payload: kind === 'write' ? templates[template] : new Uint8Array(await newWorkbook(template).xlsx.writeBuffer()) };
     await persist(record); await refresh(); setSettingsOpen(false); setActive(record); editorApi.current = null;
   }
   async function open() {
+    if (!await canLeaveDocument()) return;
     setBusy(true);
     try {
       const file = await chooseFile(); if (!file) return;
@@ -86,6 +102,7 @@ export default function App() {
       const ext = file.name.split('.').pop().toLowerCase();
       if (!['docx', 'xlsx', 'pdf', 'txt', 'html', 'csv', 'tsv'].includes(ext)) throw new Error('Formato non supportato. Scegli DOCX, XLSX, CSV, TSV, PDF, TXT o HTML.');
       let payload = file.bytes;
+      const compatibilityWarnings = ['docx', 'xlsx'].includes(ext) ? await inspectOfficeFile(file.bytes, ext === 'docx' ? 'write' : 'grid') : [];
       if (ext === 'docx') {
         const { importDocx } = await import('./import-docx.mjs');
         payload = await importDocx(file.bytes);
@@ -95,15 +112,15 @@ export default function App() {
         payload = div.innerHTML.split(/\r?\n/).map(line => `<p>${line || '<br>'}</p>`).join('');
       } else if (ext === 'csv' || ext === 'tsv') payload = new Uint8Array(await importDelimited(file.bytes, fileTitle(file.name), ext === 'tsv' ? '\t' : undefined).xlsx.writeBuffer());
       else if (ext === 'xlsx') await openWorkbook(payload); // Validate before adding to the local library.
-      else if (ext === 'pdf' && !new TextDecoder().decode(file.bytes.slice(0, 1024)).includes('%PDF-')) throw new Error('Il file non sembra un PDF valido.');
+      else if (ext === 'pdf') { const { validatePdf } = await import('./pdf-engine.mjs'); await validatePdf(file.bytes); }
       await pending.current;
-      const record = { id: crypto.randomUUID(), name: fileTitle(file.name), kind: ext === 'pdf' ? 'pdf' : ['xlsx', 'csv', 'tsv'].includes(ext) ? 'grid' : 'write', payload, updated: Date.now(), imported: ext === 'docx' || ext === 'xlsx' };
+      const record = { id: crypto.randomUUID(), name: fileTitle(file.name), kind: ext === 'pdf' ? 'pdf' : ['xlsx', 'csv', 'tsv'].includes(ext) ? 'grid' : 'write', payload, updated: Date.now(), imported: ext === 'docx' || ext === 'xlsx', compatibilityWarnings };
       await persist(record); await refresh(); setSettingsOpen(false); setActive(record); editorApi.current = null;
     } catch (error) { setNotice(`Impossibile aprire il file: ${error.message}`); }
     finally { setBusy(false); }
   }
-  async function home(nextFilter = filter) { await pending.current; setSettingsOpen(false); setActive(null); editorApi.current = null; setFilter(nextFilter); await refresh(); }
-  async function showSettings() { document.activeElement?.blur(); await pending.current; await refresh(); setActive(null); editorApi.current = null; setSettingsOpen(true); }
+  async function home(nextFilter = filter) { if (!await canLeaveDocument()) return; setSettingsOpen(false); setActive(null); editorApi.current = null; setFilter(nextFilter); await refresh(); }
+  async function showSettings() { if (!await canLeaveDocument()) return; await refresh(); setActive(null); editorApi.current = null; setSettingsOpen(true); }
   async function exportPdf() {
     if (!active) return;
     if (!window.cosmoffice?.exportPdf) { window.print(); return; }
@@ -166,11 +183,13 @@ export default function App() {
             <button className="template" onClick={() => create('write', 'notes')}><span className="template-preview notes-preview" aria-hidden="true"><i/><i/><i/><i/></span><span><strong>Appunti di riunione</strong><small>CosmoWrite · Documento</small></span><Plus size={18}/></button>
             <button className="template" onClick={() => create('grid', 'budget')}><span className="template-preview budget-preview" aria-hidden="true"><i/><i/><i/><i/></span><span><strong>Budget di progetto</strong><small>CosmoGrid · Foglio di calcolo</small></span><Plus size={18}/></button>
           </div></section>
-          <section className="recent" aria-labelledby="recent-heading"><div className="section-heading"><h2 id="recent-heading">Le tue bozze</h2><label className="search"><Search size={16}/><input aria-label="Cerca nelle bozze locali" placeholder="Cerca nelle bozze locali" value={query} onChange={e => setQuery(e.target.value)}/></label></div><div className="file-table"><div className="file-table-head"><span>Nome</span><span>Ultima modifica</span><span>Posizione</span><span/></div>{!visible.length ? <div className="empty"><div className="empty-icon"><FolderOpen size={25}/></div><h3>{query ? 'Nessuna bozza trovata' : 'Qui ritroverai il tuo lavoro.'}</h3><p>{query ? 'Prova a cercare un altro nome.' : 'Crea un file o aprine uno dal dispositivo. La bozza viene salvata qui.'}</p></div> : visible.map(doc => <div className="file-row" key={doc.id}><button className="file-name" onClick={async () => { await pending.current; setActive(doc); editorApi.current = null; }}><img src={brand(doc.kind)} alt=""/><span><strong>{doc.name || 'Senza titolo'}</strong><small>{appLabel(doc.kind)}</small></span></button><span className="file-date">{relativeDate(doc.updated)}</span><span className="file-location"><HardDrive size={13}/> Questo dispositivo</span><button className="icon-button delete" title="Elimina bozza" aria-label={`Elimina bozza ${doc.name}`} onClick={() => setModal({ delete: doc })}><Trash2 size={16}/></button></div>)}</div></section>
+          <section className="recent" aria-labelledby="recent-heading"><div className="section-heading"><h2 id="recent-heading">Le tue bozze</h2><label className="search"><Search size={16}/><input aria-label="Cerca nelle bozze locali" placeholder="Cerca nelle bozze locali" value={query} onChange={e => setQuery(e.target.value)}/></label></div><div className="file-table"><div className="file-table-head"><span>Nome</span><span>Ultima modifica</span><span>Posizione</span><span/></div>{!visible.length ? <div className="empty"><div className="empty-icon"><FolderOpen size={25}/></div><h3>{query ? 'Nessuna bozza trovata' : 'Qui ritroverai il tuo lavoro.'}</h3><p>{query ? 'Prova a cercare un altro nome.' : 'Crea un file o aprine uno dal dispositivo. La bozza viene salvata qui.'}</p></div> : visible.map(doc => <div className="file-row" key={doc.id}><button className="file-name" onClick={async () => { if (!await canLeaveDocument()) return; setActive(doc); editorApi.current = null; }}><img src={brand(doc.kind)} alt=""/><span><strong>{doc.name || 'Senza titolo'}</strong><small>{appLabel(doc.kind)}</small></span></button><span className="file-date">{relativeDate(doc.updated)}</span><span className="file-location"><HardDrive size={13}/> Questo dispositivo</span><button className="icon-button delete" title="Elimina bozza" aria-label={`Elimina bozza ${doc.name}`} onClick={() => setModal({ delete: doc })}><Trash2 size={16}/></button></div>)}</div></section>
           <footer className="home-footer"><span><WifiOff size={14}/> Nessun account richiesto. Funziona offline.</span><button onClick={() => setModal('compatibility')}><CircleHelp size={14}/> Compatibilità e formati</button></footer>
         </div>
       </> : <>
         <header className="editor-header"><button className="icon-button" aria-label="Torna alle bozze" title="Torna alle bozze" onClick={() => home()}><ArrowLeft size={20}/></button><img className="editor-logo" src={brand(active.kind)} alt=""/><div className="document-title"><input aria-label="Nome del file" value={active.name} onChange={e => rename(e.target.value)}/><span>{appLabel(active.kind)} <i>·</i> {draftState === 'saved' ? <><Check size={12}/> Bozza salvata sul dispositivo</> : draftState === 'saving' ? 'Salvataggio…' : 'Bozza non salvata: esporta il file'}</span></div><>{active.kind === 'write' && <button className="button secondary pdf-export-button" onClick={exportPdf} disabled={busy}><Printer size={16}/><span>Esporta PDF</span></button>}</><button className="button primary export-button" onClick={exportActive} disabled={busy}><Download size={16}/><span>{active.kind === 'pdf' ? 'Salva copia PDF' : active.kind === 'write' ? 'Esporta DOCX' : 'Esporta XLSX'}</span></button></header>
+        {draftState === 'error' && <div className="draft-error-bar" role="alert"><span>La bozza non è salvata. Il lavoro rimane aperto: esporta una copia per conservarlo.</span><button className="button secondary" onClick={retryFailedDrafts}>Riprova salvataggio</button></div>}
+        {active.compatibilityWarnings?.length > 0 && <details className="compatibility-details"><summary>Elementi da verificare prima dell’esportazione ({active.compatibilityWarnings.length})</summary><ul>{active.compatibilityWarnings.map(warning => <li key={warning}>{warning}</li>)}</ul><p>Conserva l’originale e controlla la copia esportata prima di usarla.</p></details>}
         {active.imported && <div className="import-notice"><CircleHelp size={15}/><span>Importazione semplificata: {active.kind === 'write' ? 'impaginazione, revisioni e alcuni elementi potrebbero cambiare.' : 'grafici, macro e funzioni avanzate non sono supportati.'} L’originale rimane sul disco. Esporta una copia e controllala.</span></div>}
         {active.kind === 'write' ? <WriteEditor key={active.id} record={active} onEdit={onEdit} api={editorApi} onError={setNotice}/> : active.kind === 'pdf' ? <Suspense fallback={<div className="loading-editor">Apertura PDF…</div>}><PdfViewer key={active.id} record={active} api={editorApi} onError={setNotice}/></Suspense> : <Suspense fallback={<div className="loading-editor">Apertura foglio…</div>}><GridEditor key={active.id} record={active} onEdit={onEdit} api={editorApi} onError={setNotice}/></Suspense>}
       </>}
