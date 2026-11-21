@@ -5,7 +5,7 @@ Eseguite localmente su Windows il 21 novembre 2026.
 | Verifica | Esito |
 | --- | --- |
 | Compilazione Vite | Superata |
-| Test di formule e interoperabilità DOCX/XLSX/CSV | 14 test superati |
+| Test di formule e interoperabilità DOCX/XLSX/CSV | 16 test superati |
 | Test browser su Chrome | Superati |
 | Importazione, modifica ed esportazione DOCX | Superata; testo letto con Mammoth dopo l’esportazione |
 | Ripristino bozze dopo ricaricamento | Superato |
@@ -22,6 +22,7 @@ Eseguite localmente su Windows il 21 novembre 2026.
 | Recupero font/dimensioni/colori DOCX e margini/formato esportati | Superato sui documenti generati di verifica |
 | SUMIF, COUNTIF, VLOOKUP, SUMPRODUCT, testo, date e IFERROR | Superati sui casi di prova; non equivalgono a un collaudo completo di 102 funzioni |
 | Riferimenti e cicli tra fogli | Superati |
+| Virgole decimali italiane e sintassi invariante XLSX | Superate, inclusi riferimenti assoluti dopo salvataggio e riapertura |
 | CSV/TSV con virgolette, testo multilinea e decimali italiani | Superati; formule importate come testo |
 | Incolla intervalli, annulla/ripristina, rinomina e duplicazione fogli | Superati nel browser |
 | Tema, accento, scala, densità e barra laterale | Controlli applicati e preferenze ritrovate dopo ricaricamento |

@@ -27,10 +27,14 @@ const isError = value => typeof value === 'string' && /^#[A-Z0-9/._]+[!?]?$/.tes
 
 function parse(source) {
   if (source.length > 8192) throw new Error('#LIMITE!');
+  const notation = source.replace(/"(?:[^"]|"")*"|'(?:[^']|'')*'/g, '');
+  const usesItalianNames = [...notation.matchAll(/([A-Za-z_À-ÿ][A-Za-z0-9_.À-ÿ]*)\s*\(/g)].some(match => Object.hasOwn(aliases, match[1].toUpperCase()));
+  const decimalComma = notation.includes(';') || usesItalianNames || !/[A-Za-z_À-ÿ][A-Za-z0-9_.À-ÿ]*\s*\(/.test(notation);
   const tokens = [];
   let rest = source.trim().replace(/^=/, '');
   while (rest) {
-    const match = /^(\s+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|"(?:[^"]|"")*"|'(?:[^']|'')*'|#[A-Za-z0-9/._]+[!?]?|\$?[A-Za-z_À-ÿ][A-Za-z0-9_.$À-ÿ]*|<=|>=|<>|[+*/^():,;%=<>!&-])/.exec(rest);
+    const numeric = (decimalComma ? /^\d+(?:[.,]\d+)?(?:[eE][+-]?\d+)?/ : /^\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/).exec(rest);
+    const match = numeric || /^(\s+|"(?:[^"]|"")*"|'(?:[^']|'')*'|#[A-Za-z0-9/._]+[!?]?|\$?[A-Za-z_À-ÿ][A-Za-z0-9_.$À-ÿ]*|<=|>=|<>|[+*/^():,;%=<>!&-])/.exec(rest);
     if (!match) throw new Error('#NOME?');
     if (!/^\s+$/.test(match[0])) tokens.push(match[0]);
     rest = rest.slice(match[0].length);
@@ -44,8 +48,8 @@ function parse(source) {
     if (token === '+' || token === '-') node = { type: 'unary', op: token, value: expression(25) };
     else if (token === '(') { node = expression(); if (take() !== ')') throw new Error('#VALORE!'); }
     else if (token?.startsWith('"')) node = { type: 'literal', value: token.slice(1, -1).replaceAll('""', '"') };
-    else if (token?.startsWith('#')) node = { type: 'literal', value: errors[token] || token };
-    else if (/^\d/.test(token ?? '')) node = { type: 'literal', value: Number(token) };
+    else if (token?.startsWith('#')) node = { type: 'error', value: errors[token] || token };
+    else if (/^\d/.test(token ?? '')) node = { type: 'literal', value: Number(token.replace(',', '.')) };
     else if (token && (/^\$?[A-Za-z_À-ÿ]/.test(token) || token.startsWith("'"))) {
       if (peek() === '(') {
         take(); const args = [];
@@ -57,7 +61,7 @@ function parse(source) {
         let sheet, address = token;
         if (peek() === '!') { take(); sheet = token.startsWith("'") ? token.slice(1, -1).replaceAll("''", "'") : token; address = take(); }
         parseAddress(address || '');
-        node = { type: 'ref', sheet, address: address.replaceAll('$', '').toUpperCase() };
+        node = { type: 'ref', sheet, original: address, address: address.replaceAll('$', '').toUpperCase() };
         if (peek() === ':') { take(); const end = take(); parseAddress(end ?? ''); node = { type: 'range', sheet, start: address, end }; }
       }
     } else throw new Error('#VALORE!');
@@ -103,7 +107,7 @@ export function createCalculator(getRaw, defaultSheet = '') {
   }
   function evaluate(node, sheet) {
     const run = value => evaluate(value, sheet);
-    if (node.type === 'literal') return node.value;
+    if (node.type === 'literal' || node.type === 'error') return node.value;
     if (node.type === 'ref') return cell(node.address, node.sheet ?? sheet);
     if (node.type === 'range') {
       const a = parseAddress(node.start), b = parseAddress(node.end), values = [];
@@ -173,4 +177,23 @@ export function createCalculator(getRaw, defaultSheet = '') {
     throw new Error('#VALORE!');
   }
   return cell;
+}
+
+/** XLSX stores English function names, comma argument separators and dot decimals, regardless of UI locale. */
+export function invariantFormula(source) {
+  try {
+    const tree = parse(source);
+    function write(node) {
+      const sheet = node.sheet == null ? '' : `'${node.sheet.replaceAll("'", "''")}'!`;
+      if (node.type === 'error') return Object.entries(errors).find(([, local]) => local === node.value)?.[0] || node.value;
+      if (node.type === 'literal') return typeof node.value === 'string' ? `"${node.value.replaceAll('"', '""')}"` : typeof node.value === 'boolean' ? node.value ? 'TRUE' : 'FALSE' : String(node.value);
+      if (node.type === 'ref') return `${sheet}${node.original || node.address}`;
+      if (node.type === 'range') return `${sheet}${node.start}:${node.end}`;
+      if (node.type === 'unary') return node.op === '%' ? `(${write(node.value)})%` : `${node.op}(${write(node.value)})`;
+      if (node.type === 'binary') return `(${write(node.left)}${node.op}${write(node.right)})`;
+      if (node.type === 'call') return `${aliases[node.name] || node.name.replace(/^_XLFN\./, '_xlfn.')}(${node.args.map(write).join(',')})`;
+      throw new Error('Unsupported syntax');
+    }
+    return write(tree);
+  } catch { return source.replace(/^=/, ''); }
 }

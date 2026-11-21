@@ -60,3 +60,13 @@ test('landscape DOCX uses a physically wider page with matching orientation', as
   const zip = await JSZip.loadAsync(data), xml = await zip.file('word/document.xml').async('string');
   assert.match(xml, /<w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/);
 });
+test('Italian formulas are saved in invariant XLSX syntax without losing absolute references', async () => {
+  const book = newWorkbook(), sheet = book.worksheets[0];
+  setCellInput(sheet.getCell('A1'), '=SOMMA(1,5;2,5)');
+  setCellInput(sheet.getCell('B1'), '=SOMMA($A$1:A1)');
+  const restored = await openWorkbook(await exportWorkbook(book));
+  assert.equal(restored.worksheets[0].getCell('A1').formula, 'SUM(1.5,2.5)');
+  assert.equal(restored.worksheets[0].getCell('A1').result, 4);
+  assert.equal(restored.worksheets[0].getCell('B1').formula, 'SUM($A$1:A1)');
+  assert.equal(restored.worksheets[0].getCell('B1').result, 4);
+});

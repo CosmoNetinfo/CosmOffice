@@ -37,3 +37,7 @@ test('quoted sheet names, absolute references and cycles across sheets', () => {
   const c = createCalculator((address, sheet) => { if (!data[sheet]) throw new Error('#RIF!'); return data[sheet][address]; }, 'Main');
   assert.equal(c('A1'), 60); assert.equal(c('A2'), '#CICLO!');
 });
+test('Italian decimal commas and separators coexist with invariant XLSX formula syntax', () => {
+  const c = calc({ A1: '=SOMMA(1,5;2,5)', A2: '=ARROTONDA(1,25;1)', A3: '=1,5+2,5', A4: '=SUM(1,5)', A5: '=IF(1=1,"a;b",0)' });
+  assert.equal(c('A1'), 4); assert.equal(c('A2'), 1.3); assert.equal(c('A3'), 4); assert.equal(c('A4'), 6); assert.equal(c('A5'), 'a;b');
+});

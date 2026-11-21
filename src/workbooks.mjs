@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs';
 import Papa from 'papaparse';
-import { createCalculator, columnName, parseAddress } from './formulas.mjs';
+import { createCalculator, columnName, parseAddress, invariantFormula } from './formulas.mjs';
 
 export function rawValue(cell) {
   const value = cell.value;
@@ -17,7 +17,7 @@ export function rawValue(cell) {
   return value;
 }
 export function setCellInput(cell, input) {
-  if (input.startsWith('=')) cell.value = { formula: input.slice(1) };
+  if (input.startsWith('=')) cell.value = { formula: invariantFormula(input.slice(1)) };
   else if (input.startsWith("'")) cell.value = input.slice(1);
   else if (input.trim() !== '' && /^[+-]?\d+(?:[.,]\d+)?$/.test(input.trim())) cell.value = Number(input.replace(',', '.'));
   else cell.value = input || null;
@@ -89,7 +89,7 @@ export async function exportWorkbook(book) {
     sheet.eachRow(row => row.eachCell(cell => {
       if (cell.type === ExcelJS.ValueType.Formula) {
         const result = calc(cell.address);
-        const formula = cell.formula;
+        const formula = invariantFormula(cell.formula);
         cell.value = typeof result === 'string' && result.startsWith('#') ? { formula } : { formula, result };
       }
     }));
