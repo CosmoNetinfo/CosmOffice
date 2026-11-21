@@ -59,3 +59,10 @@ La build precedente (0.1.0, commit 60a01b5) ha completato con successo test e pa
 Questi test non dimostrano la compatibilità totale Office. Non sono ancora stati collaudati l’installer su un computer pulito, l’avvio delle app macOS/Linux su dispositivi reali, il passaggio tra release con aggiornamento automatico, tutte le varianti di PDF protetti, l’OCR, documenti Office complessi o le app mobili.
 
 Il confronto indipendente locale usa LibreOffice installato su Windows con un profilo di test isolato. È un controllo su file sintetici: non dimostra la compatibilità totale con Microsoft Word o Excel e non misura la fedeltà visiva su documenti complessi. Il rapporto viene salvato in `test-results/interop-report.json`.
+# Corpus stabile di solidità
+
+`tests/fixtures/manifest.json` fissa 5 DOCX, 5 XLSX e 3 PDF con SHA-256. `npm run test:browser` comprende `scripts/corpus-smoke.mjs`: modifica e doppio salvataggio/riapertura Word ed Excel, ripristino delle bozze Word e conservazione della sorgente nel backup. Verifica testo, tabelle, elenchi, immagini, intestazioni/piè di pagina, valori, risultati delle formule, formati, fogli, filtri e celle fuori dall’area visibile. Le formule vengono confrontate in sintassi normalizzata: parentesi equivalenti non sono perdite.
+
+Per i PDF si verificano tutte le pagine con il motore, la scansione priva di testo, la navigazione fino a pagina 20 e la copia identica. In questo passo la rotazione è ancora solo una modifica della vista: non viene dichiarata modifica persistente.
+
+Dopo i test browser, `node scripts/fixtures-office.mjs` apre originali e copie DOCX/XLSX con LibreOffice, produce PDF e controlla i testi attesi con PDF.js. Salva tutte le pagine e fogli di contatto in `test-results/corpus-office-*`, con esito JSON in `test-results/corpus-office-report.json`. In CI il lavoro `interop` scarica gli export del lavoro `checks` prima di questo controllo. Non è una certificazione Microsoft Office.

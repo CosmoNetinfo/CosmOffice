@@ -6,6 +6,8 @@ Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o c
 
 | ID | Problema e riproduzione | Stato | Verifica |
 | --- | --- | --- | --- |
+| DAT-008 | `05-intestazioni.docx`: esportare dopo una modifica eliminava intestazione, logo e piè di pagina con campo PAGE. | Corretto, esiti nel report del passo | `scripts/corpus-smoke.mjs`: conservazione parti e relazioni, ricaricamento bozza, backup, doppia esportazione e riapertura |
+| DAT-009 | DOCX con commenti, note, revisioni o oggetti non supportati potevano essere esportati eliminando quelle parti, dopo un semplice avviso. | Rischio contenuto: export bloccato sui contenuti rilevati; supporto completo assente | Prova negativa commenti e sezioni multiple in `scripts/corpus-smoke.mjs`. Il rilevamento non copre tutti i possibili oggetti Office. |
 | DAT-001 | Inserire `00123` o un identificativo di oltre 15 cifre poteva togliere gli zeri o arrotondare il valore. | Corretto nella revisione locale 0.2.2 | `tests/reliability.test.mjs`, salvataggio e riapertura XLSX; prova nell'app Windows |
 | DAT-002 | Una formula digitata in una cella con formato testo `@` veniva eseguita invece di essere conservata come testo. | Corretto nella revisione locale 0.2.2 | `tests/reliability.test.mjs` |
 | DAT-003 | Il getter/setter di ExcelJS usa `merges`/`mergeCells` diversi: celle unite potevano perdersi nelle copie per export, annulla o duplicazione. | Corretto nella 0.2.1 | `tests/reliability.test.mjs` |
@@ -24,7 +26,7 @@ Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o c
 
 ## Limiti noti da verificare con il corpus richiesto
 
-- DOCX: intestazioni, piè di pagina, commenti, revisioni e oggetti complessi non hanno ancora una garanzia di conservazione nell'esportazione. Il corpus dovrà distinguere apertura, modifica ed export senza perdita.
+- DOCX: intestazioni e piè di pagina a sezione singola vengono conservati nell’export ma non mostrati. Commenti, revisioni e oggetti complessi rilevati bloccano l’esportazione: manca il supporto completo alla modifica di questi documenti. Le bozze importate prima di questa correzione non contengono la sorgente DOCX: occorre reimportare l’originale per conservarne intestazioni e piè di pagina.
 - PDF: CosmoView è un lettore. La rotazione attuale modifica la vista; la copia esportata conserva i byte originali. Modifica persistente del documento non ancora implementata.
 - Il traffico di rete del renderer è bloccato; il meccanismo di aggiornamento delle build firmate prevede attualmente accessi a GitHub. Va adeguato al nuovo vincolo di nessuna chiamata esterna.
 - I controlli locali precedenti coprono un corpus ristretto generato per i test, non tutti i file Microsoft.
@@ -34,3 +36,5 @@ Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o c
 `scripts/interop.mjs` esegue conversioni con un profilo LibreOffice isolato. LibreOffice può riscrivere una cella di errore costante come formula che restituisce lo stesso errore: il test confronta il significato e non segnala questa trasformazione equivalente come perdita di dati.
 
 I nuovi bug del corpus `tests/fixtures` verranno aggiunti con file, passaggi di riproduzione, comportamento atteso ed esito verificato.
+
+Primo giro del corpus: 9/13 PASS. DAT-008 era una perdita reale. I tre confronti XLSX falliti confrontavano formule testuali identiche carattere per carattere; il serializzatore aggiunge parentesi senza cambiarne il significato. Il test ora confronta la sintassi normalizzata e il risultato, oltre a valori, formati, immagini, unioni e filtri. Queste differenze equivalenti non sono classificate come bug dell’app.

@@ -10,6 +10,7 @@ import { usePreferences } from './preferences.jsx';
 import { Home, FileText, Grid2X2, FolderOpen, ArrowUpRight, ArrowLeft, Plus, Search, Settings, HardDrive, Check, Download, X, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Undo2, Redo2, Table2, ImagePlus, Printer, Trash2, ChevronRight, CircleHelp, WifiOff, Euro, Percent, LoaderCircle, BookOpen } from 'lucide-react';
 import { chooseFile, saveFile, safeHtml, fileTitle, downloadName } from './files.mjs';
 import { exportDocument } from './documents.mjs';
+import { preserveDocxParts } from './docx-preservation.mjs';
 import { newWorkbook, openWorkbook, importDelimited } from './workbooks.mjs';
 import { inspectOfficeFile } from './office-inspection.mjs';
 
@@ -115,6 +116,7 @@ export default function App() {
       else if (ext === 'pdf') { const { validatePdf } = await import('./pdf-engine.mjs'); await validatePdf(file.bytes); }
       await pending.current;
       const record = { id: crypto.randomUUID(), name: fileTitle(file.name), kind: ext === 'pdf' ? 'pdf' : ['xlsx', 'csv', 'tsv'].includes(ext) ? 'grid' : 'write', payload, updated: Date.now(), imported: ext === 'docx' || ext === 'xlsx', compatibilityWarnings };
+      if (ext === 'docx') record.sourceDocx = new Uint8Array(file.bytes).slice();
       await persist(record); await refresh(); setSettingsOpen(false); setActive(record); editorApi.current = null;
     } catch (error) { setNotice(`Impossibile aprire il file: ${error.message}`); }
     finally { setBusy(false); }
@@ -217,8 +219,11 @@ function WriteEditor({ record, onEdit, api, onError }) {
   });
   useEffect(() => {
     if (!editor) return;
-    api.current = { export: () => exportDocument(editor.getJSON(), record.name, settings), snapshot: () => editor.getHTML() };
-  }, [editor, record.name, api, settings]);
+    api.current = { export: async () => {
+      if (record.imported && !record.sourceDocx) throw new Error('Questa bozza è stata importata con una versione precedente. Reimporta il DOCX originale per conservarne gli elementi non visibili nell’editor.');
+      return preserveDocxParts(await exportDocument(editor.getJSON(), record.name, settings), record.sourceDocx);
+    }, snapshot: () => editor.getHTML() };
+  }, [editor, record.name, record.imported, record.sourceDocx, api, settings]);
   useEffect(() => { if (editor) editor.view.dom.spellcheck = settings.spellcheck; }, [editor, settings.spellcheck]);
   useEffect(() => { setZoom(settings.writerZoom); }, [settings.writerZoom]);
   const command = callback => { if (editor) callback(editor.chain().focus()).run(); };

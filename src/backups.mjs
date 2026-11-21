@@ -13,7 +13,13 @@ export async function exportBackup(records) {
     const payload = typeof record.payload === 'string' ? new TextEncoder().encode(record.payload) : new Uint8Array(record.payload);
     total += payload.byteLength; if (total > LIMIT) throw new Error('Il backup supera 48 MB. Esporta separatamente i file più grandi.');
     zip.file(path, payload);
-    manifest.files.push({ path, name: record.name, kind: record.kind, updated: record.updated, imported: record.imported === true, compatibilityWarnings: record.compatibilityWarnings || [] });
+    let sourcePath;
+    if (record.kind === 'write' && record.sourceDocx) {
+      const source = new Uint8Array(record.sourceDocx); total += source.byteLength;
+      if (total > LIMIT) throw new Error('Il backup supera 48 MB. Esporta separatamente i file più grandi.');
+      sourcePath = `files/${crypto.randomUUID()}.docx`; zip.file(sourcePath, source);
+    }
+    manifest.files.push({ path, sourcePath, name: record.name, kind: record.kind, updated: record.updated, imported: record.imported === true, compatibilityWarnings: record.compatibilityWarnings || [] });
   }
   zip.file('manifest.json', JSON.stringify(manifest));
   return new Uint8Array(await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE', compressionOptions: { level: 4 } }));
@@ -22,7 +28,7 @@ export async function importBackup(bytes) {
   if (bytes.byteLength > 50 * 1024 * 1024) throw new Error('Il backup supera 50 MB.');
   const zip = await JSZip.loadAsync(bytes);
   const entries = Object.values(zip.files);
-  if (entries.length > 1001) throw new Error('Il backup contiene troppi elementi.');
+  if (entries.length > 2001) throw new Error('Il backup contiene troppi elementi.');
   const expanded = entries.reduce((n, entry) => n + (entry._data?.uncompressedSize || 0), 0);
   if (expanded > LIMIT) throw new Error('Il contenuto decompresso supera 48 MB.');
   const manifestEntry = zip.file('manifest.json');
@@ -37,8 +43,13 @@ export async function importBackup(bytes) {
     if (item.kind === 'write') payload = safeHtml(new TextDecoder().decode(data));
     else if (item.kind === 'grid') { await inspectOfficeFile(data, 'grid'); await openWorkbook(data); }
     else { const { validatePdf } = await import('./pdf-engine.mjs'); await validatePdf(data); }
+    let sourceDocx;
+    if (item.sourcePath !== undefined) {
+      if (item.kind !== 'write' || !/^files\/[a-f0-9-]+\.docx$/.test(item.sourcePath) || !zip.file(item.sourcePath)) throw new Error('Sorgente DOCX del backup non valida.');
+      sourceDocx = await zip.file(item.sourcePath).async('uint8array'); await inspectOfficeFile(sourceDocx, 'write');
+    }
     const compatibilityWarnings = Array.isArray(item.compatibilityWarnings) ? item.compatibilityWarnings.filter(value => typeof value === 'string' && value.length <= 1000).slice(0, 20) : [];
-    restored.push({ id: crypto.randomUUID(), kind: item.kind, name: item.name, updated: Number.isFinite(item.updated) ? item.updated : Date.now(), imported: item.imported === true, compatibilityWarnings, payload });
+    restored.push({ id: crypto.randomUUID(), kind: item.kind, name: item.name, updated: Number.isFinite(item.updated) ? item.updated : Date.now(), imported: item.imported === true, compatibilityWarnings, payload, ...(sourceDocx ? { sourceDocx } : {}) });
   }
   return restored;
 }

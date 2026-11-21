@@ -14,7 +14,7 @@ export async function inspectOfficeFile(bytes, kind) {
   const warnings = [];
   if (names.some(name => /vbaProject\.bin$/i.test(name))) warnings.push('Contiene macro: non vengono eseguite e potrebbero non essere conservate nella copia esportata.');
   if (kind === 'write') {
-    if (names.some(name => /^word\/(header|footer)\d*\.xml$/.test(name))) warnings.push('Intestazioni e piè di pagina potrebbero non essere conservati nella copia esportata.');
+    if (names.some(name => /^word\/.*(?:header|footer)\d*\.xml$/.test(name))) warnings.push('Intestazioni e piè di pagina vengono conservati nella copia DOCX, ma non sono mostrati nell’editor. Sezioni multiple o numerazioni complesse nelle intestazioni bloccano l’esportazione per evitare perdite.');
     let hasNotes = false;
     for (const name of names.filter(name => /^word\/(comments|footnotes|endnotes)\d*\.xml$/.test(name))) {
       const xml = await zip.file(name).async('string');
