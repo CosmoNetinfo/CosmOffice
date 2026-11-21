@@ -1,0 +1,140 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { getDocument, GlobalWorkerOptions, TextLayer } from 'pdfjs-dist';
+import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Search, LoaderCircle, FileLock2 } from 'lucide-react';
+
+GlobalWorkerOptions.workerSrc = workerUrl;
+
+export default function PdfViewer({ record, api, onError }) {
+  const [pdf, setPdf] = useState(null);
+  const [page, setPage] = useState(1);
+  const [pageInput, setPageInput] = useState('1');
+  const [scale, setScale] = useState(1.1);
+  const [rotation, setRotation] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordPrompt, setPasswordPrompt] = useState('');
+  const passwordCallback = useRef(null);
+  const [query, setQuery] = useState('');
+  const [matches, setMatches] = useState([]);
+  const [matchIndex, setMatchIndex] = useState(-1);
+  const [searchState, setSearchState] = useState('');
+  const searchRevision = useRef(0);
+  const canvas = useRef(null);
+  const layer = useRef(null);
+  const renderTask = useRef(null);
+  const pageText = useRef(new Map());
+  const [pageSize, setPageSize] = useState({ width: 655, height: 926 });
+
+  useEffect(() => {
+    // PDF.js transfers the buffer to its worker: copy it so the original can still be saved.
+    const assets = new URL('./pdfjs/', document.baseURI).href;
+    const task = getDocument({ data: new Uint8Array(record.payload).slice(), isEvalSupported: false, useSystemFonts: true, enableXfa: false, cMapUrl: `${assets}cmaps/`, cMapPacked: true, standardFontDataUrl: `${assets}standard_fonts/`, wasmUrl: `${assets}wasm/` });
+    let cancelled = false;
+    task.onPassword = (callback, reason) => {
+      if (cancelled) return;
+      passwordCallback.current = callback;
+      setPasswordPrompt(reason === 2 ? 'Password non corretta. Riprova.' : 'Questo PDF richiede una password.');
+      setLoading(false);
+    };
+    task.promise.then(document => { if (!cancelled) { setPdf(document); setPasswordPrompt(''); } }).catch(reason => {
+      if (!cancelled) { setError(`Impossibile leggere il PDF: ${reason.message}`); setLoading(false); }
+    });
+    api.current = { export: async () => new Uint8Array(record.payload).slice(), snapshot: () => record.payload };
+    return () => { cancelled = true; task.destroy(); };
+  }, [record.id]);
+
+  useEffect(() => { setPageInput(String(page)); }, [page]);
+  useEffect(() => {
+    if (!pdf) return;
+    let cancelled = false;
+    let textLayer;
+    let task;
+    setLoading(true);
+    (async () => {
+      // Cancel and await the previous render before using the same canvas again.
+      if (renderTask.current) { renderTask.current.cancel(); await renderTask.current.promise.catch(() => {}); }
+      const pdfPage = await pdf.getPage(page);
+      if (cancelled) return;
+      const viewport = pdfPage.getViewport({ scale, rotation: (pdfPage.rotate + rotation) % 360 });
+      setPageSize({ width: viewport.width, height: viewport.height });
+      const outputScale = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.current.width = Math.floor(viewport.width * outputScale);
+      canvas.current.height = Math.floor(viewport.height * outputScale);
+      canvas.current.style.width = `${viewport.width}px`;
+      canvas.current.style.height = `${viewport.height}px`;
+      task = pdfPage.render({ canvasContext: canvas.current.getContext('2d'), viewport, transform: outputScale === 1 ? null : [outputScale, 0, 0, outputScale, 0, 0] });
+      renderTask.current = task;
+      await task.promise;
+      if (cancelled) return;
+      const text = await pdfPage.getTextContent();
+      pageText.current.set(page, text.items.map(item => item.str || '').join(' '));
+      layer.current.replaceChildren();
+      layer.current.style.setProperty('--scale-factor', viewport.scale);
+      layer.current.style.setProperty('--total-scale-factor', viewport.scale);
+      textLayer = new TextLayer({ textContentSource: text, container: layer.current, viewport });
+      await textLayer.render();
+      if (!cancelled) {
+        setLoading(false);
+        if (query.trim()) highlight(query);
+      }
+    })().catch(reason => {
+      if (!cancelled && reason.name !== 'RenderingCancelledException' && reason.name !== 'AbortException') { setError(`Pagina non leggibile: ${reason.message}`); setLoading(false); }
+    });
+    return () => { cancelled = true; task?.cancel(); textLayer?.cancel(); };
+  }, [pdf, page, scale, rotation]);
+
+  function highlight(text) {
+    const term = text.trim().toLocaleLowerCase('it');
+    for (const span of layer.current?.querySelectorAll('span') || []) span.classList.toggle('pdf-match', !!term && span.textContent.toLocaleLowerCase('it').includes(term));
+  }
+  async function find(event) {
+    event?.preventDefault();
+    if (!pdf) return;
+    const rev = ++searchRevision.current;
+    const term = query.trim().toLocaleLowerCase('it');
+    if (!term) { setMatches([]); setMatchIndex(-1); setSearchState(''); highlight(''); return; }
+    setSearchState('Ricerca…');
+    const found = [];
+    try {
+      for (let n = 1; n <= pdf.numPages; n++) {
+        if (rev !== searchRevision.current) return;
+        if (!pageText.current.has(n)) {
+          const pdfPage = await pdf.getPage(n); const text = await pdfPage.getTextContent();
+          pageText.current.set(n, text.items.map(item => item.str || '').join(' '));
+        }
+        if (pageText.current.get(n).toLocaleLowerCase('it').includes(term)) found.push(n);
+        // Yield to input between pages; scanning remains local.
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      if (rev !== searchRevision.current) return;
+      setMatches(found); setMatchIndex(found.length ? 0 : -1);
+      setSearchState(found.length ? `${found.length} ${found.length === 1 ? 'pagina trovata' : 'pagine trovate'}` : 'Nessun risultato nel testo');
+      if (found.length) setPage(found[0]); highlight(term);
+    } catch (reason) { onError(`Ricerca interrotta: ${reason.message}`); setSearchState('Ricerca interrotta'); }
+  }
+  function moveMatch(delta) {
+    if (!matches.length) return;
+    const index = (matchIndex + delta + matches.length) % matches.length;
+    setMatchIndex(index); setPage(matches[index]);
+  }
+  function goToPage() {
+    const number = Number(pageInput);
+    if (Number.isInteger(number) && number >= 1 && number <= (pdf?.numPages || 1)) setPage(number);
+    else setPageInput(String(page));
+  }
+
+  return <div className="editor-body pdf-editor">
+    <div className="toolbar pdf-toolbar" role="toolbar" aria-label="Strumenti PDF">
+      <div className="tool-group pdf-pages"><button className="tool" aria-label="Pagina precedente" disabled={!pdf || page === 1} onClick={() => setPage(n => n - 1)}><ChevronLeft size={18}/></button><input aria-label="Numero pagina PDF" inputMode="numeric" value={pageInput} onChange={e => setPageInput(e.target.value)} onBlur={goToPage} onKeyDown={e => e.key === 'Enter' && goToPage()}/><span>/ {pdf?.numPages || '—'}</span><button className="tool" aria-label="Pagina successiva" disabled={!pdf || page === pdf.numPages} onClick={() => setPage(n => n + 1)}><ChevronRight size={18}/></button></div>
+      <div className="tool-group"><button className="tool" aria-label="Riduci zoom PDF" disabled={scale <= .4} onClick={() => setScale(n => Math.max(.4, Math.round((n - .1) * 10) / 10))}><ZoomOut size={18}/></button><button className="text-tool pdf-zoom" aria-label="Ripristina zoom PDF al 100%" onClick={() => setScale(1)}>{Math.round(scale * 100)}%</button><button className="tool" aria-label="Aumenta zoom PDF" disabled={scale >= 3} onClick={() => setScale(n => Math.min(3, Math.round((n + .1) * 10) / 10))}><ZoomIn size={18}/></button><button className="tool" aria-label="Ruota pagina PDF" onClick={() => setRotation(n => (n + 90) % 360)}><RotateCw size={17}/></button></div>
+      <form className="pdf-search" onSubmit={find}><Search size={16}/><input aria-label="Cerca nel PDF" placeholder="Cerca nel documento" value={query} onChange={e => { searchRevision.current++; setQuery(e.target.value); setMatches([]); setSearchState(''); highlight(e.target.value); }}/><button type="submit">Cerca</button><button type="button" className="tool" aria-label="Risultato precedente" disabled={!matches.length} onClick={() => moveMatch(-1)}><ChevronLeft size={16}/></button><button type="button" className="tool" aria-label="Risultato successivo" disabled={!matches.length} onClick={() => moveMatch(1)}><ChevronRight size={16}/></button></form>
+    </div>
+    {searchState && <div className="pdf-search-status" role="status">{searchState}{matches.length > 0 && ` · ${matchIndex + 1} di ${matches.length}`}</div>}
+    <div className="pdf-workspace">
+      {passwordPrompt ? <form className="pdf-password" onSubmit={event => { event.preventDefault(); passwordCallback.current?.(password); setPassword(''); setPasswordPrompt(''); setLoading(true); }}><FileLock2 size={30}/><h2>PDF protetto</h2><p>{passwordPrompt}</p><input autoFocus type="password" aria-label="Password PDF" value={password} onChange={e => setPassword(e.target.value)} required/><button className="button primary">Apri PDF</button><small>La password viene usata solo sul tuo dispositivo.</small></form> : error ? <div className="pdf-error" role="alert"><h2>Il PDF non si apre</h2><p>{error}</p><p>Puoi tornare alle bozze e scegliere un altro file.</p></div> : <div className="pdf-paper" style={{ width: pageSize.width, height: pageSize.height }}><canvas ref={canvas} aria-label={`Pagina ${page} del PDF`}/><div className="textLayer" ref={layer}/>{loading && <div className="pdf-loading" role="status"><LoaderCircle className="spin" size={22}/> Lettura pagina…</div>}</div>}
+    </div>
+    <div className="editor-status"><span>CosmoView<i/>PDF · Sola lettura</span><span>{pdf ? `Pagina ${page} di ${pdf.numPages}` : 'Lettura locale'}<i/>Nessun file caricato online</span></div>
+  </div>;
+}

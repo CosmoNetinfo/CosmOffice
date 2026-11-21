@@ -1,0 +1,49 @@
+{
+  "name": "cosmoffice",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CosmOffice — CosmoWrite, CosmoGrid e CosmoView, suite desktop offline Cosmonet",
+  "author": "Cosmonet",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:web": "vite --host 127.0.0.1",
+    "build": "node scripts/pdf-assets.mjs && vite build",
+    "start": "electron .",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node scripts/smoke.mjs",
+    "icons": "node scripts/icons.mjs",
+    "pack": "npm run build && npm run icons && node scripts/notices.mjs && electron-builder --config electron-builder.config.cjs --dir --publish never",
+    "dist": "npm run build && npm run icons && node scripts/notices.mjs && electron-builder --config electron-builder.config.cjs --publish never",
+    "preview:images": "node scripts/pdf-assets.mjs && node scripts/preview.mjs"
+  },
+  "overrides": {
+    "uuid": "11.1.1",
+    "minimatch": "11.0.1"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.11"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "6.3.0",
+    "electron": "45.4.1",
+    "electron-builder": "26.18.0",
+    "playwright": "1.65.1",
+    "sharp": "0.35.5",
+    "vite": "8.3.8",
+    "@tiptap/extension-image": "3.35.0",
+    "@tiptap/extension-table": "3.35.0",
+    "@tiptap/extension-text-align": "3.35.0",
+    "@tiptap/pm": "3.35.0",
+    "@tiptap/react": "3.35.0",
+    "@tiptap/starter-kit": "3.35.0",
+    "docx": "9.16.0",
+    "dompurify": "3.4.18",
+    "exceljs": "4.4.0",
+    "lucide-react": "1.77.0",
+    "mammoth": "1.13.0",
+    "pdfjs-dist": "6.5.438",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  }
+}

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+release/
+test-results/
+*.log
+.env*
+!.env.example
+*.pem
+*.p12
+*.pfx
+.DS_Store
+public/pdfjs/
