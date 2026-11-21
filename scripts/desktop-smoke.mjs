@@ -22,6 +22,11 @@ try {
   await openFile('test-results/verifica.docx');
   await page.locator('.document-page').waitFor();
   assert.match(await page.locator('.document-page').innerText(), /Documento di verifica Cosmonet/);
+  const generatedPdf = resolve('test-results/documento-esportato.pdf');
+  await application.evaluate(({ dialog }, file) => { dialog.showSaveDialog = async () => ({ canceled: false, filePath: file }); }, generatedPdf);
+  await page.getByRole('button', { name: 'Esporta PDF', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: 'PDF esportato' }).waitFor();
+  assert.match((await readFile(generatedPdf)).subarray(0, 10).toString(), /^%PDF-/);
   await page.getByRole('button', { name: 'Torna alle bozze' }).click();
   await openFile('test-results/verifica.xlsx');
   await page.getByRole('textbox', { name: 'Cella A1', exact: true }).waitFor();
@@ -38,8 +43,12 @@ try {
   await page.getByRole('status').filter({ hasText: 'Copia esportata' }).waitFor();
   assert.deepEqual(await readFile(target), await readFile('test-results/esempio-cosmonet.pdf'));
   await page.screenshot({ path: 'test-results/desktop-pdf.png' });
+  await page.getByRole('button', { name: 'Impostazioni', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Tema interfaccia' }).selectOption('dark');
+  assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
+  await page.screenshot({ path: 'test-results/desktop-settings.png' });
   assert.deepEqual(errors, []);
-  const report = { result: 'PASS', package: 'Windows x64', checks: ['Avvio pacchetto locale', 'Preload isolato e nessun require nel renderer', 'Apertura DOCX/XLSX/PDF via IPC e filesystem', 'Worker PDF da file locale', 'Esportazione PDF identica su disco'], errors };
+  const report = { result: 'PASS', package: 'Windows x64', checks: ['Avvio pacchetto locale', 'Preload isolato e nessun require nel renderer', 'Apertura DOCX/XLSX/PDF via IPC e filesystem', 'Esportazione documento in PDF tramite printToPDF', 'Worker PDF da file locale', 'Esportazione PDF identica su disco', 'Pagina impostazioni e tema scuro nel pacchetto'], errors };
   await writeFile('test-results/desktop-report.json', JSON.stringify(report, null, 2));
   console.log(JSON.stringify(report, null, 2));
 } finally { await application.close(); }

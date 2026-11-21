@@ -1,8 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
+import { PreferencesProvider } from './preferences.jsx';
 import './styles.css';
 import './pdf.css';
+import './preferences.css';
 
 class Boundary extends React.Component {
   state = { error: null };
@@ -12,4 +14,4 @@ class Boundary extends React.Component {
     return this.props.children;
   }
 }
-createRoot(document.getElementById('root')).render(<Boundary><App /></Boundary>);
+createRoot(document.getElementById('root')).render(<Boundary><PreferencesProvider><App /></PreferencesProvider></Boundary>);

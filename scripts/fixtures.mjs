@@ -6,7 +6,7 @@ export async function fixtures(browser) {
   await mkdir('test-results', { recursive: true });
   const word = await exportDocument({ type: 'doc', content: [
     { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: 'Documento di verifica Cosmonet' }] },
-    { type: 'paragraph', content: [{ type: 'text', text: 'Contenuto Word importato correttamente.', marks: [{ type: 'bold' }] }] },
+    { type: 'paragraph', content: [{ type: 'text', text: 'Contenuto Word importato correttamente.', marks: [{ type: 'bold' }, { type: 'textStyle', attrs: { fontFamily: 'Georgia', fontSize: '18pt', color: '#2865d8' } }] }] },
     { type: 'table', content: [{ type: 'tableRow', content: [{ type: 'tableCell', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Cella di prova' }] }] }] }] },
   ] }, 'Verifica');
   await writeFile('test-results/verifica.docx', word);

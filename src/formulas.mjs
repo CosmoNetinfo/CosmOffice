@@ -1,3 +1,5 @@
+import * as Formula from '@formulajs/formulajs';
+
 export function columnName(index) {
   let name = '';
   for (let n = index; n > 0; n = Math.floor((n - 1) / 26)) name = String.fromCharCode(65 + (n - 1) % 26) + name;
@@ -14,15 +16,21 @@ export function parseAddress(address) {
   return { col, row };
 }
 
-const aliases = { SOMMA: 'SUM', MEDIA: 'AVERAGE', 'CONTA.NUMERI': 'COUNT', SE: 'IF', ARROTONDA: 'ROUND', ASS: 'ABS' };
-const precedence = { '=': 5, '<>': 5, '<': 5, '>': 5, '<=': 5, '>=': 5, '+': 10, '-': 10, '*': 20, '/': 20, '^': 30 };
+const aliases = { SOMMA: 'SUM', MEDIA: 'AVERAGE', 'CONTA.NUMERI': 'COUNT', SE: 'IF', ARROTONDA: 'ROUND', ASS: 'ABS', 'SE.ERRORE': 'IFERROR', 'SOMMA.SE': 'SUMIF', 'SOMMA.PIÙ.SE': 'SUMIFS', 'CONTA.SE': 'COUNTIF', 'CONTA.PIÙ.SE': 'COUNTIFS', 'MEDIA.SE': 'AVERAGEIF', 'MEDIA.PIÙ.SE': 'AVERAGEIFS', 'CONTA.VALORI': 'COUNTA', 'CONTA.VUOTE': 'COUNTBLANK', E: 'AND', O: 'OR', NON: 'NOT', CONCATENA: 'CONCATENATE', SINISTRA: 'LEFT', DESTRA: 'RIGHT', 'STRINGA.ESTRAI': 'MID', LUNGHEZZA: 'LEN', MAIUSC: 'UPPER', MINUSC: 'LOWER', 'ANNULLA.SPAZI': 'TRIM', SOSTITUISCI: 'SUBSTITUTE', TROVA: 'FIND', RICERCA: 'SEARCH', VALORE: 'VALUE', TESTO: 'TEXT', OGGI: 'TODAY', ADESSO: 'NOW', DATA: 'DATE', ANNO: 'YEAR', MESE: 'MONTH', GIORNO: 'DAY', 'GIORNO.SETTIMANA': 'WEEKDAY', 'FINE.MESE': 'EOMONTH', 'CERCA.VERT': 'VLOOKUP', 'CERCA.ORIZZ': 'HLOOKUP', INDICE: 'INDEX', CONFRONTA: 'MATCH', RADQ: 'SQRT', POTENZA: 'POWER', RESTO: 'MOD', INT: 'INT', PRODOTTO: 'PRODUCT', 'MATR.SOMMA.PRODOTTO': 'SUMPRODUCT', 'ARROTONDA.PER.ECC': 'ROUNDUP', 'ARROTONDA.PER.DIF': 'ROUNDDOWN' };
+const precedence = { '=': 5, '<>': 5, '<': 5, '>': 5, '<=': 5, '>=': 5, '&': 8, '+': 10, '-': 10, '*': 20, '/': 20, '^': 30 };
+const delegatedNames = 'SUMIF SUMIFS COUNTIF COUNTIFS COUNTA COUNTBLANK AVERAGEIF AVERAGEIFS SUMPRODUCT PRODUCT MEDIAN MODE.SNGL STDEV.S STDEV.P VAR.S VAR.P LARGE SMALL RANK.EQ AND OR NOT XOR CONCAT CONCATENATE TEXTJOIN LEFT RIGHT MID LEN UPPER LOWER PROPER TRIM CLEAN SUBSTITUTE REPLACE FIND SEARCH EXACT VALUE TEXT REPT DATE YEAR MONTH DAY HOUR MINUTE SECOND TODAY NOW WEEKDAY WEEKNUM EDATE EOMONTH DAYS NETWORKDAYS WORKDAY SQRT POWER MOD INT TRUNC ROUNDUP ROUNDDOWN CEILING FLOOR SIGN PI EXP LN LOG LOG10 SIN COS TAN RADIANS DEGREES VLOOKUP HLOOKUP INDEX MATCH CHOOSE ISNUMBER ISTEXT ISBLANK ISERROR PMT PV FV NPV IRR'.split(' ');
+const functionFor = name => name.split('.').reduce((value, key) => value?.[key], Formula);
+export const SUPPORTED_FUNCTIONS = [...new Set(['SUM', 'AVERAGE', 'MIN', 'MAX', 'COUNT', 'ROUND', 'ABS', 'IF', 'IFERROR', ...delegatedNames.filter(name => typeof functionFor(name) === 'function')])];
+const supported = new Set(SUPPORTED_FUNCTIONS);
+const errors = { '#VALUE!': '#VALORE!', '#REF!': '#RIF!', '#NAME?': '#NOME?', '#N/A': '#N/D' };
+const isError = value => typeof value === 'string' && /^#[A-Z0-9/._]+[!?]?$/.test(value);
 
 function parse(source) {
   if (source.length > 8192) throw new Error('#LIMITE!');
   const tokens = [];
   let rest = source.trim().replace(/^=/, '');
   while (rest) {
-    const match = /^(\s+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|"(?:[^"]|"")*"|\$?[A-Za-z_][A-Za-z0-9_.$]*|<=|>=|<>|[+*/^():,;%=<>-])/.exec(rest);
+    const match = /^(\s+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|"(?:[^"]|"")*"|'(?:[^']|'')*'|#[A-Za-z0-9/._]+[!?]?|\$?[A-Za-z_À-ÿ][A-Za-z0-9_.$À-ÿ]*|<=|>=|<>|[+*/^():,;%=<>!&-])/.exec(rest);
     if (!match) throw new Error('#NOME?');
     if (!/^\s+$/.test(match[0])) tokens.push(match[0]);
     rest = rest.slice(match[0].length);
@@ -36,8 +44,9 @@ function parse(source) {
     if (token === '+' || token === '-') node = { type: 'unary', op: token, value: expression(25) };
     else if (token === '(') { node = expression(); if (take() !== ')') throw new Error('#VALORE!'); }
     else if (token?.startsWith('"')) node = { type: 'literal', value: token.slice(1, -1).replaceAll('""', '"') };
+    else if (token?.startsWith('#')) node = { type: 'literal', value: errors[token] || token };
     else if (/^\d/.test(token ?? '')) node = { type: 'literal', value: Number(token) };
-    else if (token && /^\$?[A-Za-z_]/.test(token)) {
+    else if (token && (/^\$?[A-Za-z_À-ÿ]/.test(token) || token.startsWith("'"))) {
       if (peek() === '(') {
         take(); const args = [];
         if (peek() !== ')') { do { args.push(expression()); } while ([',', ';'].includes(peek()) && take()); }
@@ -45,9 +54,11 @@ function parse(source) {
         node = { type: 'call', name: token.toUpperCase(), args };
       } else if (['TRUE', 'FALSE', 'VERO', 'FALSO'].includes(token.toUpperCase())) node = { type: 'literal', value: ['TRUE', 'VERO'].includes(token.toUpperCase()) };
       else {
-        parseAddress(token);
-        node = { type: 'ref', address: token.replaceAll('$', '').toUpperCase() };
-        if (peek() === ':') { take(); const end = take(); parseAddress(end ?? ''); node = { type: 'range', start: token, end }; }
+        let sheet, address = token;
+        if (peek() === '!') { take(); sheet = token.startsWith("'") ? token.slice(1, -1).replaceAll("''", "'") : token; address = take(); }
+        parseAddress(address || '');
+        node = { type: 'ref', sheet, address: address.replaceAll('$', '').toUpperCase() };
+        if (peek() === ':') { take(); const end = take(); parseAddress(end ?? ''); node = { type: 'range', sheet, start: address, end }; }
       }
     } else throw new Error('#VALORE!');
     if (peek() === '%') { take(); node = { type: 'unary', op: '%', value: node }; }
@@ -70,41 +81,50 @@ const number = value => {
 };
 
 /** An intentionally bounded formula engine. Unknown functions return an error, never stale cached results. */
-export function createCalculator(getRaw) {
+export function createCalculator(getRaw, defaultSheet = '') {
   const cache = new Map(); const visiting = new Set();
-  function cell(address) {
+  function cell(address, sheet = defaultSheet) {
     address = address.replaceAll('$', '').toUpperCase();
-    if (cache.has(address)) return cache.get(address);
-    if (visiting.has(address)) throw new Error('#CICLO!');
+    const key = `${sheet.toLocaleLowerCase()}!${address}`;
+    if (cache.has(key)) return cache.get(key);
+    if (visiting.has(key)) throw new Error('#CICLO!');
     if (visiting.size > 150) throw new Error('#LIMITE!');
-    visiting.add(address);
+    visiting.add(key);
     let result;
     try {
-      const raw = getRaw(address);
-      result = typeof raw === 'string' && raw.startsWith('=') ? evaluate(parse(raw)) : raw ?? '';
+      const raw = getRaw(address, sheet);
+      result = raw && typeof raw === 'object' && Object.hasOwn(raw, 'literal') ? raw.literal : typeof raw === 'string' && raw.startsWith('=') ? evaluate(parse(raw), sheet) : raw ?? '';
       if (typeof result === 'number' && !Number.isFinite(result)) throw new Error('#NUM!');
       if (Array.isArray(result)) throw new Error('#VALORE!');
-    } catch (error) { result = /^#[A-Z0-9/._]+[!?]$/.test(error.message) ? error.message : '#VALORE!'; }
-    finally { visiting.delete(address); }
-    cache.set(address, result);
+    } catch (error) { result = isError(error.message) ? error.message : '#VALORE!'; }
+    finally { visiting.delete(key); }
+    cache.set(key, result);
     return result;
   }
-  function evaluate(node) {
+  function evaluate(node, sheet) {
+    const run = value => evaluate(value, sheet);
     if (node.type === 'literal') return node.value;
-    if (node.type === 'ref') return cell(node.address);
+    if (node.type === 'ref') return cell(node.address, node.sheet ?? sheet);
     if (node.type === 'range') {
       const a = parseAddress(node.start), b = parseAddress(node.end), values = [];
       const r0 = Math.min(a.row, b.row), r1 = Math.max(a.row, b.row), c0 = Math.min(a.col, b.col), c1 = Math.max(a.col, b.col);
       if ((r1 - r0 + 1) * (c1 - c0 + 1) > 10000) throw new Error('#LIMITE!');
-      for (let row = r0; row <= r1; row++) for (let col = c0; col <= c1; col++) values.push(cell(`${columnName(col)}${row}`));
+      for (let row = r0; row <= r1; row++) { const line = []; for (let col = c0; col <= c1; col++) line.push(cell(`${columnName(col)}${row}`, node.sheet ?? sheet)); values.push(line); }
       return values;
     }
     if (node.type === 'unary') {
-      const value = number(evaluate(node.value));
+      const value = number(run(node.value));
       return node.op === '-' ? -value : node.op === '%' ? value / 100 : value;
     }
     if (node.type === 'binary') {
-      const a = number(evaluate(node.left)), b = number(evaluate(node.right));
+      const left = run(node.left), right = run(node.right);
+      if (isError(left)) throw new Error(left); if (isError(right)) throw new Error(right);
+      if (node.op === '&') return String(left) + String(right);
+      if (['=', '<>', '<', '>', '<=', '>='].includes(node.op)) {
+        const a = typeof left === 'string' ? left.toLocaleLowerCase() : left, b = typeof right === 'string' ? right.toLocaleLowerCase() : right;
+        return node.op === '=' ? a === b : node.op === '<>' ? a !== b : node.op === '<' ? a < b : node.op === '>' ? a > b : node.op === '<=' ? a <= b : a >= b;
+      }
+      const a = number(left), b = number(right);
       switch (node.op) {
         case '+': return a + b; case '-': return a - b; case '*': return a * b;
         case '/': if (!b) throw new Error('#DIV/0!'); return a / b;
@@ -113,14 +133,26 @@ export function createCalculator(getRaw) {
       }
     }
     if (node.type === 'call') {
-      const name = aliases[node.name] ?? node.name;
+      const normalized = node.name.replace(/^_XLFN\./, '');
+      const name = aliases[normalized] ?? normalized;
       if (name === 'IF') {
         if (node.args.length < 2 || node.args.length > 3) throw new Error('#VALORE!');
-        return number(evaluate(node.args[0])) ? evaluate(node.args[1]) : node.args[2] ? evaluate(node.args[2]) : false;
+        return number(run(node.args[0])) ? run(node.args[1]) : node.args[2] ? run(node.args[2]) : false;
       }
-      if (!['SUM', 'AVERAGE', 'MIN', 'MAX', 'COUNT', 'ROUND', 'ABS'].includes(name)) throw new Error('#NOME?');
-      const values = node.args.flatMap(arg => { const v = evaluate(arg); return Array.isArray(v) ? v : [v]; });
+      if (name === 'IFERROR') { if (node.args.length !== 2) throw new Error('#VALORE!'); try { const result = run(node.args[0]); return isError(result) ? run(node.args[1]) : result; } catch { return run(node.args[1]); } }
+      if (!supported.has(name)) throw new Error('#NOME?');
+      const args = node.args.map(run);
+      const values = args.flat(Infinity);
+      if (['ISERROR', 'ISNUMBER', 'ISTEXT', 'ISBLANK'].includes(name)) {
+        if (args.length !== 1) throw new Error('#VALORE!');
+        return name === 'ISERROR' ? isError(args[0]) : name === 'ISNUMBER' ? typeof args[0] === 'number' : name === 'ISTEXT' ? typeof args[0] === 'string' && !isError(args[0]) && args[0] !== '' : args[0] === '' || args[0] == null;
+      }
       for (const v of values) if (typeof v === 'string' && v.startsWith('#')) throw new Error(v);
+      if (!['SUM', 'AVERAGE', 'MIN', 'MAX', 'COUNT', 'ROUND', 'ABS'].includes(name)) {
+        const result = functionFor(name)(...args);
+        if (result instanceof Error) throw new Error(errors[result.message] || result.message);
+        return result instanceof Date ? (Date.UTC(result.getFullYear(), result.getMonth(), result.getDate(), result.getHours(), result.getMinutes(), result.getSeconds()) / 86400000) + 25569 : result;
+      }
       const nums = values.filter(v => typeof v === 'number');
       switch (name) {
         case 'SUM': return nums.reduce((a, b) => a + b, 0);

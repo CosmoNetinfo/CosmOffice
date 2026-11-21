@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs';
-import { createCalculator } from './formulas.mjs';
+import Papa from 'papaparse';
+import { createCalculator, columnName, parseAddress } from './formulas.mjs';
 
 export function rawValue(cell) {
   const value = cell.value;
@@ -22,7 +23,43 @@ export function setCellInput(cell, input) {
   else cell.value = input || null;
 }
 export function calculatorFor(sheet) {
-  return createCalculator(address => rawValue(sheet.getCell(address)));
+  return createCalculator((address, name) => {
+    const target = sheet.workbook.worksheets.find(item => item.name.toLocaleLowerCase() === name.toLocaleLowerCase());
+    if (!target) throw new Error('#RIF!');
+    const cell = target.getCell(address);
+    if (cell.value instanceof Date) return cell.value.getTime() / 86400000 + (sheet.workbook.properties.date1904 ? 24107 : 25569);
+    const value = rawValue(cell);
+    return cell.type !== ExcelJS.ValueType.Formula && typeof value === 'string' && value.startsWith('=') ? { literal: value } : value;
+  }, sheet.name);
+}
+export function importDelimited(bytes, name = 'Dati', delimiter) {
+  let text = new TextDecoder('utf-8').decode(bytes).replace(/^\uFEFF/, '');
+  if (text.includes('\uFFFD')) text = new TextDecoder('windows-1252').decode(bytes);
+  const result = Papa.parse(text, { delimiter: delimiter || '', skipEmptyLines: 'greedy' });
+  if (result.errors.some(error => error.code === 'MissingQuotes')) throw new Error('Il file contiene virgolette non chiuse.');
+  if (result.data.length > 100000 || result.data.some(row => row.length > 16384)) throw new Error('Il file supera i limiti di importazione dell’anteprima.');
+  const book = newWorkbook(); const sheet = book.worksheets[0];
+  sheet.name = name.replace(/[\/*?:[\]\\]/g, '-').slice(0, 31) || 'Dati';
+  result.data.forEach((row, r) => row.forEach((text, c) => {
+    // Imported text that starts with '=' stays text; formulas are entered explicitly in the editor.
+    if (/^[+-]?\d+(?:[.,]\d+)?$/.test(text.trim()) && !/^0\d/.test(text.trim())) setCellInput(sheet.getCell(r + 1, c + 1), text);
+    else sheet.getCell(r + 1, c + 1).value = text;
+  }));
+  return book;
+}
+export function exportDelimited(sheet, delimiter = ';') {
+  const calc = calculatorFor(sheet), data = [];
+  for (let r = 1; r <= sheet.rowCount; r++) { const row = []; for (let c = 1; c <= sheet.columnCount; c++) row.push(calc(`${columnName(c)}${r}`)); data.push(row); }
+  return new TextEncoder().encode('\uFEFF' + Papa.unparse(data, { delimiter, escapeFormulae: true }));
+}
+export function pasteRange(sheet, start, text) {
+  const origin = parseAddress(start), parsed = Papa.parse(text.replace(/\r\n/g, '\n'), { delimiter: '\t', skipEmptyLines: false });
+  const rows = parsed.data;
+  if (rows.at(-1)?.length === 1 && rows.at(-1)[0] === '') rows.pop();
+  const cells = rows.reduce((n, row) => n + row.length, 0);
+  if (cells > 10000 || origin.row + rows.length - 1 > 1048576 || rows.some(row => origin.col + row.length - 1 > 16384)) throw new Error('Intervallo troppo grande: massimo 10.000 celle per incolla.');
+  rows.forEach((row, r) => row.forEach((value, c) => setCellInput(sheet.getCell(origin.row + r, origin.col + c), value)));
+  return { rows: rows.length, cols: Math.max(1, ...rows.map(row => row.length)) };
 }
 export async function openWorkbook(bytes) {
   const book = new ExcelJS.Workbook();

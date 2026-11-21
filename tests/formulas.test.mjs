@@ -25,3 +25,15 @@ test('Excel address limits and column naming', () => {
   assert.deepEqual(parseAddress('$AA$12'), { col: 27, row: 12 });
   assert.throws(() => parseAddress('A0')); assert.throws(() => parseAddress('XFE1'));
 });
+test('conditional sums, lookups, text, dates and error handling', () => {
+  const c = calc({ A1: 'A', A2: 'B', A3: 'A', B1: 10, B2: 20, B3: 30,
+    D1: '=SUMIF(A1:A3;"A";B1:B3)', D2: '=COUNTIF(B1:B3;">15")', D3: '=VLOOKUP("B";A1:B3;2;FALSE)',
+    D4: '=SE.ERRORE(1/0;"recuperato")', D5: '=SINISTRA("Cosmonet";5)&" Office"', D6: '=IF("a"="A";1;0)', D7: '=YEAR(DATE(2026;11;21))', D8: '=SUMPRODUCT(B1:B3;B1:B3)' });
+  assert.equal(c('D1'), 40); assert.equal(c('D2'), 2); assert.equal(c('D3'), 20); assert.equal(c('D4'), 'recuperato');
+  assert.equal(c('D5'), 'Cosmo Office'); assert.equal(c('D6'), 1); assert.equal(c('D7'), 2026); assert.equal(c('D8'), 1400);
+});
+test('quoted sheet names, absolute references and cycles across sheets', () => {
+  const data = { Main: { A1: "='Budget 2026'!$B$1+SUM('Budget 2026'!B2:B3)", A2: '=Other!A2' }, 'Budget 2026': { B1: 10, B2: 20, B3: 30 }, Other: { A2: '=Main!A2' } };
+  const c = createCalculator((address, sheet) => { if (!data[sheet]) throw new Error('#RIF!'); return data[sheet][address]; }, 'Main');
+  assert.equal(c('A1'), 60); assert.equal(c('A2'), '#CICLO!');
+});

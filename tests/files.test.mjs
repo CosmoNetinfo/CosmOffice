@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import mammoth from 'mammoth';
 import { exportDocument } from '../src/documents.mjs';
-import { newWorkbook, openWorkbook, exportWorkbook, setCellInput, calculatorFor } from '../src/workbooks.mjs';
+import { newWorkbook, openWorkbook, exportWorkbook, setCellInput, calculatorFor, importDelimited, exportDelimited, pasteRange } from '../src/workbooks.mjs';
+import JSZip from 'jszip';
 
 test('DOCX exports real text, bold marks and tables readable by another parser', async () => {
   const bytes = await exportDocument({ type: 'doc', content: [
@@ -33,4 +34,24 @@ test('unknown formulas retain their source without exporting a misleading cached
   const restored = await openWorkbook(await exportWorkbook(book));
   assert.equal(restored.worksheets[0].getCell('A1').formula, 'UNSUPPORTED(1)');
   assert.equal(restored.worksheets[0].getCell('A1').result, undefined);
+});
+test('CSV and TSV preserve quotes, multiline text, identifiers and decimal commas', async () => {
+  const csv = 'Codice;Valore;Note\r\n0012;12,50;"Testo; con separatore"\r\n0013;3,25;"Prima riga\nSeconda riga"\r\n0014;=1+1;Normale';
+  const book = importDelimited(new TextEncoder().encode(csv)); const sheet = book.worksheets[0];
+  assert.equal(sheet.getCell('A2').value, '0012'); assert.equal(sheet.getCell('B2').value, 12.5); assert.equal(sheet.getCell('C2').value, 'Testo; con separatore');
+  assert.equal(sheet.getCell('C3').value, 'Prima riga\nSeconda riga'); assert.equal(sheet.getCell('B4').type, 3);
+  const output = new TextDecoder().decode(exportDelimited(sheet)); assert.match(output, /'0012|0012/); assert.match(output, /'=1\+1/);
+  const size = pasteRange(sheet, 'E2', '10\t20\n30\t=SUM(E2:F2)');
+  assert.deepEqual(size, { rows: 2, cols: 2 }); assert.equal(calculatorFor(sheet)('F3'), 30);
+});
+test('cross-sheet formulas survive XLSX round trips and get calculated results', async () => {
+  const book = newWorkbook(); book.worksheets[0].getCell('A1').value = { formula: "'Budget 2026'!B2*2" };
+  book.addWorksheet('Budget 2026').getCell('B2').value = 21;
+  const restored = await openWorkbook(await exportWorkbook(book));
+  assert.equal(restored.worksheets[0].getCell('A1').result, 42);
+});
+test('DOCX retains fonts, colours, sizes, page format and margins in OOXML', async () => {
+  const data = await exportDocument({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Stile conservato', marks: [{ type: 'textStyle', attrs: { fontFamily: 'Georgia', fontSize: '18pt', color: '#2865d8' } }] }] }] }, 'Stili', { writerPaper: 'Letter', writerMargin: 25, writerFont: 'Arial' });
+  const zip = await JSZip.loadAsync(data); const xml = await zip.file('word/document.xml').async('string');
+  assert.match(xml, /Georgia/); assert.match(xml, /w:sz w:val="36"/); assert.match(xml, /2865d8/); assert.match(xml, /w:w="12240"/); assert.match(xml, /w:top="1417"/);
 });

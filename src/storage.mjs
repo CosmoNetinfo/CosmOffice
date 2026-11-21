@@ -35,3 +35,18 @@ export async function removeDraft(id) {
     tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error);
   });
 }
+export async function storeDrafts(records) {
+  const db = await database();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('documents', 'readwrite');
+    for (const record of records) tx.objectStore('documents').put(record);
+    tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error || new Error('Ripristino annullato.'));
+  });
+}
+export async function clearDrafts() {
+  const db = await database();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('documents', 'readwrite'); tx.objectStore('documents').clear();
+    tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error);
+  });
+}

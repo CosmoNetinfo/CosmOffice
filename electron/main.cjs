@@ -8,9 +8,10 @@ app.setName('CosmOffice');
 if (process.env.COSMO_TEST_PROFILE) app.setPath('userData', process.env.COSMO_TEST_PROFILE);
 let window;
 let closeAllowed = false;
+let updatesEnabled = true, updatesConfigured = false, preferencesReceived = false;
 let updater = { phase: 'disabled', message: 'Aggiornamenti disponibili nelle release configurate.' };
 const MAX_FILE = 50 * 1024 * 1024;
-const supported = new Set(['.docx', '.xlsx', '.pdf', '.txt', '.html']);
+const supported = new Set(['.docx', '.xlsx', '.csv', '.tsv', '.pdf', '.txt', '.html', '.cosmoffice', '.json']);
 
 function trusted(event) {
   if (!window || event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame) throw new Error('Richiesta non autorizzata.');
@@ -23,15 +24,16 @@ function configureUpdates() {
   if (!app.isPackaged) return;
   // Preview builds intentionally have no feed. Signed release builds provide this file.
   fs.access(path.join(process.resourcesPath, 'app-update.yml')).then(() => {
-    autoUpdater.autoDownload = true;
+    autoUpdater.autoDownload = updatesEnabled;
+    updatesConfigured = true;
     autoUpdater.autoInstallOnAppQuit = false;
     autoUpdater.on('checking-for-update', () => update({ phase: 'checking', message: 'Controllo aggiornamenti…' }));
     autoUpdater.on('update-available', () => update({ phase: 'downloading', message: 'Aggiornamento in download…' }));
     autoUpdater.on('update-not-available', () => update({ phase: 'current', message: 'CosmOffice è aggiornato.' }));
     autoUpdater.on('update-downloaded', () => update({ phase: 'ready', message: 'Aggiornamento pronto. Salva il lavoro prima di riavviare.' }));
     autoUpdater.on('error', () => update({ phase: 'offline', message: 'Aggiornamenti non raggiungibili. Puoi continuare a lavorare offline.' }));
-    const check = () => autoUpdater.checkForUpdates().catch(() => {});
-    check();
+    const check = () => { if (updatesEnabled) autoUpdater.checkForUpdates().catch(() => {}); };
+    if (preferencesReceived) check();
     setInterval(check, 4 * 60 * 60 * 1000).unref();
   }).catch(() => {});
 }
@@ -72,7 +74,7 @@ app.whenReady().then(() => {
 
 ipcMain.handle('office:open', async event => {
   trusted(event);
-  const result = await dialog.showOpenDialog(window, { properties: ['openFile'], filters: [{ name: 'Documenti, fogli e PDF', extensions: ['docx', 'xlsx', 'pdf', 'txt', 'html'] }] });
+  const result = await dialog.showOpenDialog(window, { properties: ['openFile'], filters: [{ name: 'Documenti, fogli e PDF', extensions: ['docx', 'xlsx', 'csv', 'tsv', 'pdf', 'txt', 'html'] }] });
   if (result.canceled) return null;
   const filename = result.filePaths[0];
   if (!supported.has(path.extname(filename).toLowerCase())) throw new Error('Formato non supportato.');
@@ -99,6 +101,22 @@ ipcMain.handle('office:print', event => {
   return new Promise((resolve, reject) => window.webContents.print({ printBackground: true }, (success, reason) => success ? resolve(true) : reject(new Error(reason || 'Stampa annullata.'))));
 });
 ipcMain.handle('office:update-status', event => { trusted(event); return updater; });
+ipcMain.handle('office:update-preferences', (event, enabled) => {
+  trusted(event); if (typeof enabled !== 'boolean') throw new Error('Preferenza non valida.');
+  updatesEnabled = enabled; preferencesReceived = true; autoUpdater.autoDownload = enabled;
+  if (updatesConfigured && enabled) autoUpdater.checkForUpdates().catch(() => {});
+});
+ipcMain.handle('office:check-updates', async event => {
+  trusted(event); if (!updatesConfigured) return updater;
+  autoUpdater.autoDownload = true;
+  await autoUpdater.checkForUpdates().catch(() => {});
+  autoUpdater.autoDownload = updatesEnabled;
+  return updater;
+});
+ipcMain.handle('office:export-pdf', async event => {
+  trusted(event);
+  return new Uint8Array(await window.webContents.printToPDF({ printBackground: true, preferCSSPageSize: true }));
+});
 ipcMain.handle('office:close-ready', async (event, saved) => {
   trusted(event);
   if (!saved) {

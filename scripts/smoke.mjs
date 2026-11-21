@@ -16,8 +16,8 @@ try {
   const samples = await fixtures(browser);
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, acceptDownloads: true });
   await context.addInitScript(() => {
-    window.testFiles = []; window.testSaved = [];
-    window.cosmoffice = { openFile: async () => { const file = window.testFiles.shift(); return file ? { name: file.name, bytes: new Uint8Array(file.bytes) } : null; }, saveFile: async (name, bytes) => { window.testSaved.push({ name, bytes: Array.from(bytes) }); return { name }; }, updateStatus: async () => ({ phase: 'disabled', message: 'Anteprima di test' }), onUpdate: () => () => {}, print: async () => true };
+    window.testFiles = []; window.testSaved = []; window.testPrints = 0;
+    window.cosmoffice = { openFile: async () => { const file = window.testFiles.shift(); return file ? { name: file.name, bytes: new Uint8Array(file.bytes) } : null; }, saveFile: async (name, bytes) => { window.testSaved.push({ name, bytes: Array.from(bytes) }); return { name }; }, updateStatus: async () => ({ phase: 'disabled', message: 'Anteprima di test' }), onUpdate: () => () => {}, print: async () => { window.testPrints++; return true; } };
   });
   const page = await context.newPage();
   page.on('pageerror', error => errors.push(error.message));
@@ -31,6 +31,7 @@ try {
   await page.locator('.document-page').waitFor();
   assert.match(await page.locator('.document-page').innerText(), /Contenuto Word importato correttamente/);
   assert.equal(await page.locator('.document-page table').count(), 1);
+  assert.equal(await page.locator('.document-page span').filter({ hasText: 'Contenuto Word importato correttamente.' }).evaluate(element => element.style.fontFamily), 'Georgia');
   await page.locator('.document-page').click();
   await page.keyboard.press('ControlOrMeta+End');
   await page.keyboard.press('ArrowDown');
@@ -83,7 +84,17 @@ try {
   await page.waitForFunction(() => window.testSaved.length === 2);
   const savedPdf = await page.evaluate(() => window.testSaved[1]);
   assert.deepEqual(new Uint8Array(savedPdf.bytes), samples.pdf);
+  await page.getByRole('button', { name: 'Stampa PDF', exact: true }).click();
+  await page.waitForFunction(() => window.testPrints === 1);
+  await page.waitForFunction(() => !document.querySelector('.pdf-print-pages img'));
   await page.screenshot({ path: 'test-results/pdf.png' });
+  await page.getByRole('textbox', { name: 'Numero pagina PDF' }).fill('2');
+  await page.getByRole('textbox', { name: 'Numero pagina PDF' }).press('Enter');
+  await page.waitForFunction(() => document.querySelector('.textLayer')?.textContent.includes('progetto'));
+  await page.getByRole('button', { name: 'Torna alle bozze' }).click();
+  await page.getByRole('button', { name: /Esempio CosmoView/ }).click();
+  await page.locator('.textLayer span').first().waitFor();
+  assert.equal(await page.getByRole('textbox', { name: 'Numero pagina PDF' }).inputValue(), '2');
   await page.getByRole('button', { name: 'Torna alle bozze' }).click();
   await open('Contenuto.html', new TextEncoder().encode('<h1>Documento sicuro</h1><script>window.unsafeDocument=true</script><img src="https://example.com/track.png"><p><a href="javascript:alert(1)">Testo importato</a></p>'));
   await page.locator('.document-page').waitFor();

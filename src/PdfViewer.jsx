@@ -1,15 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { getDocument, GlobalWorkerOptions, TextLayer } from 'pdfjs-dist';
+import { usePreferences } from './preferences.jsx';
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Search, LoaderCircle, FileLock2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Search, LoaderCircle, FileLock2, Printer } from 'lucide-react';
 
 GlobalWorkerOptions.workerSrc = workerUrl;
 
 export default function PdfViewer({ record, api, onError }) {
+  const { settings } = usePreferences();
   const [pdf, setPdf] = useState(null);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(() => { if (!settings.rememberPdfPage) return 1; try { return Math.max(1, Number(JSON.parse(localStorage.getItem('cosmoffice.pdf-positions.v1') || '{}')[record.id]) || 1); } catch { return 1; } });
   const [pageInput, setPageInput] = useState('1');
-  const [scale, setScale] = useState(1.1);
+  const [scale, setScale] = useState(settings.pdfZoom / 100);
   const [rotation, setRotation] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -26,6 +28,8 @@ export default function PdfViewer({ record, api, onError }) {
   const renderTask = useRef(null);
   const pageText = useRef(new Map());
   const [pageSize, setPageSize] = useState({ width: 655, height: 926 });
+  const [printing, setPrinting] = useState(false);
+  const printPages = useRef(null);
 
   useEffect(() => {
     // PDF.js transfers the buffer to its worker: copy it so the original can still be saved.
@@ -38,14 +42,14 @@ export default function PdfViewer({ record, api, onError }) {
       setPasswordPrompt(reason === 2 ? 'Password non corretta. Riprova.' : 'Questo PDF richiede una password.');
       setLoading(false);
     };
-    task.promise.then(document => { if (!cancelled) { setPdf(document); setPasswordPrompt(''); } }).catch(reason => {
+    task.promise.then(document => { if (!cancelled) { setPdf(document); setPage(n => Math.min(n, document.numPages)); setPasswordPrompt(''); } }).catch(reason => {
       if (!cancelled) { setError(`Impossibile leggere il PDF: ${reason.message}`); setLoading(false); }
     });
     api.current = { export: async () => new Uint8Array(record.payload).slice(), snapshot: () => record.payload };
     return () => { cancelled = true; task.destroy(); };
   }, [record.id]);
 
-  useEffect(() => { setPageInput(String(page)); }, [page]);
+  useEffect(() => { setPageInput(String(page)); if (pdf && settings.rememberPdfPage) { try { const entries = JSON.parse(localStorage.getItem('cosmoffice.pdf-positions.v1') || '{}'); delete entries[record.id]; entries[record.id] = page; const recent = Object.fromEntries(Object.entries(entries).slice(-500)); localStorage.setItem('cosmoffice.pdf-positions.v1', JSON.stringify(recent)); } catch {} } }, [page, pdf, settings.rememberPdfPage, record.id]);
   useEffect(() => {
     if (!pdf) return;
     let cancelled = false;
@@ -124,11 +128,30 @@ export default function PdfViewer({ record, api, onError }) {
     if (Number.isInteger(number) && number >= 1 && number <= (pdf?.numPages || 1)) setPage(number);
     else setPageInput(String(page));
   }
+  async function printPdf() {
+    if (!pdf || printing) return;
+    setPrinting(true);
+    try {
+      if (pdf.numPages > 100) throw new Error('La stampa integrata dell’anteprima gestisce fino a 100 pagine. Salva una copia per stampare documenti più grandi.');
+      printPages.current.replaceChildren();
+      for (let n = 1; n <= pdf.numPages; n++) {
+        const pdfPage = await pdf.getPage(n), base = pdfPage.getViewport({ scale: 1 });
+        const viewport = pdfPage.getViewport({ scale: Math.min(1.7, 1800 / Math.max(base.width, base.height)) });
+        const canvas = document.createElement('canvas'); canvas.width = Math.ceil(viewport.width); canvas.height = Math.ceil(viewport.height);
+        await pdfPage.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+        const image = new window.Image(); image.src = canvas.toDataURL('image/jpeg', .94); image.alt = `Pagina ${n}`;
+        await image.decode(); printPages.current.append(image); canvas.width = 0; canvas.height = 0;
+      }
+      if (window.cosmoffice) await window.cosmoffice.print(); else window.print();
+    } catch (reason) { onError(`Stampa PDF non riuscita: ${reason.message}`); }
+    finally { printPages.current?.replaceChildren(); setPrinting(false); }
+  }
 
   return <div className="editor-body pdf-editor">
     <div className="toolbar pdf-toolbar" role="toolbar" aria-label="Strumenti PDF">
       <div className="tool-group pdf-pages"><button className="tool" aria-label="Pagina precedente" disabled={!pdf || page === 1} onClick={() => setPage(n => n - 1)}><ChevronLeft size={18}/></button><input aria-label="Numero pagina PDF" inputMode="numeric" value={pageInput} onChange={e => setPageInput(e.target.value)} onBlur={goToPage} onKeyDown={e => e.key === 'Enter' && goToPage()}/><span>/ {pdf?.numPages || '—'}</span><button className="tool" aria-label="Pagina successiva" disabled={!pdf || page === pdf.numPages} onClick={() => setPage(n => n + 1)}><ChevronRight size={18}/></button></div>
       <div className="tool-group"><button className="tool" aria-label="Riduci zoom PDF" disabled={scale <= .4} onClick={() => setScale(n => Math.max(.4, Math.round((n - .1) * 10) / 10))}><ZoomOut size={18}/></button><button className="text-tool pdf-zoom" aria-label="Ripristina zoom PDF al 100%" onClick={() => setScale(1)}>{Math.round(scale * 100)}%</button><button className="tool" aria-label="Aumenta zoom PDF" disabled={scale >= 3} onClick={() => setScale(n => Math.min(3, Math.round((n + .1) * 10) / 10))}><ZoomIn size={18}/></button><button className="tool" aria-label="Ruota pagina PDF" onClick={() => setRotation(n => (n + 90) % 360)}><RotateCw size={17}/></button></div>
+      <button className="text-tool" disabled={!pdf || printing} onClick={printPdf}><Printer size={16}/>{printing ? 'Preparazione stampa…' : 'Stampa PDF'}</button>
       <form className="pdf-search" onSubmit={find}><Search size={16}/><input aria-label="Cerca nel PDF" placeholder="Cerca nel documento" value={query} onChange={e => { searchRevision.current++; setQuery(e.target.value); setMatches([]); setSearchState(''); highlight(e.target.value); }}/><button type="submit">Cerca</button><button type="button" className="tool" aria-label="Risultato precedente" disabled={!matches.length} onClick={() => moveMatch(-1)}><ChevronLeft size={16}/></button><button type="button" className="tool" aria-label="Risultato successivo" disabled={!matches.length} onClick={() => moveMatch(1)}><ChevronRight size={16}/></button></form>
     </div>
     {searchState && <div className="pdf-search-status" role="status">{searchState}{matches.length > 0 && ` · ${matchIndex + 1} di ${matches.length}`}</div>}
@@ -136,5 +159,7 @@ export default function PdfViewer({ record, api, onError }) {
       {passwordPrompt ? <form className="pdf-password" onSubmit={event => { event.preventDefault(); passwordCallback.current?.(password); setPassword(''); setPasswordPrompt(''); setLoading(true); }}><FileLock2 size={30}/><h2>PDF protetto</h2><p>{passwordPrompt}</p><input autoFocus type="password" aria-label="Password PDF" value={password} onChange={e => setPassword(e.target.value)} required/><button className="button primary">Apri PDF</button><small>La password viene usata solo sul tuo dispositivo.</small></form> : error ? <div className="pdf-error" role="alert"><h2>Il PDF non si apre</h2><p>{error}</p><p>Puoi tornare alle bozze e scegliere un altro file.</p></div> : <div className="pdf-paper" style={{ width: pageSize.width, height: pageSize.height }}><canvas ref={canvas} aria-label={`Pagina ${page} del PDF`}/><div className="textLayer" ref={layer}/>{loading && <div className="pdf-loading" role="status"><LoaderCircle className="spin" size={22}/> Lettura pagina…</div>}</div>}
     </div>
     <div className="editor-status"><span>CosmoView<i/>PDF · Sola lettura</span><span>{pdf ? `Pagina ${page} di ${pdf.numPages}` : 'Lettura locale'}<i/>Nessun file caricato online</span></div>
+    <div className="pdf-print-pages" ref={printPages}/>
+    <style>{'@media print { .pdf-editor .pdf-workspace { display: none !important; } .pdf-print-pages { display: block !important; } .pdf-print-pages > img { display: block; max-width: 170mm; max-height: 257mm; width: auto; height: auto; margin: 0 auto; break-after: page; } .pdf-print-pages > img:last-child { break-after: auto; } }'}</style>
   </div>;
 }
