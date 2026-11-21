@@ -33,7 +33,7 @@ test('Le API Node ed Electron sono bloccate prima di poter aprire connessioni', 
     blocked(() => electron.net.fetch('https://203.0.113.1'));
     blocked(() => electron.net.resolveHost('example.invalid'));
     let beforeRequest;
-    const session = { setSpellCheckerEnabled(value) { assert.equal(value, false); }, setPermissionRequestHandler() {}, setPermissionCheckHandler() {}, webRequest: { onBeforeRequest(handler) { beforeRequest = handler; } }, fetch() {}, resolveHost() {}, preconnect() {}, downloadURL() {} };
+    const session = { setSpellCheckerDictionaryDownloadURL(url) { assert.match(url, /^file:/); }, setSpellCheckerLanguages(languages) { assert.deepEqual(languages, []); }, setSpellCheckerEnabled(value) { assert.equal(value, false); }, setPermissionRequestHandler() {}, setPermissionCheckHandler() {}, webRequest: { onBeforeRequest(handler) { beforeRequest = handler; } }, fetch() {}, resolveHost() {}, preconnect() {}, downloadURL() {} };
     policy.configureSession(session);
     blocked(() => session.fetch('https://203.0.113.1'));
     blocked(() => session.preconnect({ url: 'https://203.0.113.1', numSockets: 1 }));

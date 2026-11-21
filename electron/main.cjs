@@ -39,6 +39,7 @@ function createWindow() {
   });
 }
 app.whenReady().then(() => {
+  app.configureHostResolver({ enableBuiltInResolver: false, enableHappyEyeballs: false, secureDnsMode: 'off', secureDnsServers: [], enableAdditionalDnsQueryTypes: false });
   createWindow();
 });
 

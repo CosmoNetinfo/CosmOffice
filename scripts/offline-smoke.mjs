@@ -46,6 +46,8 @@ try {
   const forbidden = new Set(Object.entries(netLog.constants.logEventTypes).filter(([name]) => /^(TCP_CONNECT|TCP_CONNECT_ATTEMPT|UDP_CONNECT|QUIC_SESSION|DNS_TRANSACTION)$/.test(name)).map(([, type]) => type));
   const connections = netLog.events.filter(event => forbidden.has(event.type));
   assert.deepEqual(connections, [], 'NetLog Chromium contiene connessioni di rete');
+  const externalRequests = netLog.events.filter(event => /^(?:https?|wss?|ftp):/i.test(event.params?.url || ''));
+  assert.deepEqual(externalRequests, [], 'NetLog Chromium contiene tentativi di richiesta a server');
   const report = { result: 'PASS', checks: ['Avvio Electron da file locale', 'Nessun tentativo spontaneo di rete dal processo principale', 'IPC aggiornamenti disabilitati anche con vecchie preferenze abilitate', 'DOCX, XLSX e PDF aperti senza connessioni', 'Richiesta intenzionale dal main rilevata e bloccata prima della connessione', 'NetLog Chromium: nessuna connessione TCP, UDP, QUIC o transazione DNS'], errors };
   await writeFile('test-results/offline-report.json', JSON.stringify(report, null, 2)); console.log(JSON.stringify(report, null, 2));
 } finally {

@@ -9,6 +9,10 @@ function configureSession(session) {
   if (configured.has(session)) return;
   configured.add(session);
   // Hunspell può scaricare dizionari dal CDN anche senza azioni dell'utente.
+  // Il costruttore Session inizializza i dizionari prima di session-created:
+  // annulla i caricamenti pendenti e impedisce fallback al CDN.
+  session.setSpellCheckerDictionaryDownloadURL(new URL('./dictionaries/', require('node:url').pathToFileURL(__filename)).href);
+  session.setSpellCheckerLanguages([]);
   session.setSpellCheckerEnabled(false);
   session.setPermissionRequestHandler((_, __, callback) => callback(false));
   session.setPermissionCheckHandler(() => false);
