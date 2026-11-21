@@ -10,5 +10,6 @@ for (const location of Object.keys(lock.packages).sort()) {
     notices.push(`\n${'='.repeat(72)}\n${pkg.name} ${pkg.version}\nLicense: ${typeof pkg.license === 'string' ? pkg.license : JSON.stringify(pkg.license || pkg.licenses || 'See upstream')}\n${pkg.homepage || pkg.repository?.url || ''}\n${texts.join('\n')}`);
   } catch { /* Platform-specific optional packages can be absent. */ }
 }
+notices.push('\n' + '='.repeat(72) + '\n' + await readFile('public/dictionaries/ATTRIBUZIONE.txt', 'utf8') + '\n' + await readFile('public/dictionaries/Morph-it-README.txt', 'utf8') + '\nTesto integrale CC BY-SA 2.0 (HTML originale):\n' + await readFile('public/dictionaries/CC-BY-SA-2.0.html', 'utf8'));
 await writeFile('THIRD_PARTY_NOTICES.txt', notices.join('\n').replace(/\r\n/g, '\n').split('\n').map(line => line.trimEnd()).join('\n').trimEnd() + '\n');
 console.log('Attribuzioni e licenze raccolte.');

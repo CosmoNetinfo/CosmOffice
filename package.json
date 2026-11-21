@@ -11,7 +11,7 @@
     "build": "node scripts/pdf-assets.mjs && vite build",
     "start": "electron .",
     "test": "node --test tests/*.test.mjs",
-    "test:browser": "node scripts/smoke.mjs && node scripts/preferences-smoke.mjs && node scripts/reliability-smoke.mjs && node scripts/corpus-smoke.mjs",
+    "test:browser": "node scripts/smoke.mjs && node scripts/preferences-smoke.mjs && node scripts/reliability-smoke.mjs && node scripts/corpus-smoke.mjs && node scripts/spelling-smoke.mjs",
     "icons": "node scripts/icons.mjs",
     "pack": "npm run build && npm run icons && node scripts/notices.mjs && electron-builder --config electron-builder.config.cjs --dir --publish never",
     "dist": "npm run build && npm run icons && node scripts/notices.mjs && electron-builder --config electron-builder.config.cjs --publish never",

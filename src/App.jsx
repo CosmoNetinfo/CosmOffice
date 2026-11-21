@@ -7,6 +7,8 @@ import Image from '@tiptap/extension-image';
 import { TextStyleKit } from '@tiptap/extension-text-style';
 import Highlight from '@tiptap/extension-highlight';
 import { usePreferences } from './preferences.jsx';
+import { useSpelling } from './Spelling.jsx';
+import { italianSpelling, spellingKey } from './spelling-extension.mjs';
 import { Home, FileText, Grid2X2, FolderOpen, ArrowUpRight, ArrowLeft, Plus, Search, Settings, HardDrive, Check, Download, X, Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Undo2, Redo2, Table2, ImagePlus, Printer, Trash2, ChevronRight, CircleHelp, WifiOff, Euro, Percent, LoaderCircle, BookOpen } from 'lucide-react';
 import { chooseFile, saveFile, safeHtml, fileTitle, downloadName } from './files.mjs';
 import { exportDocument } from './documents.mjs';
@@ -204,6 +206,8 @@ export default function App() {
 }
 
 function WriteEditor({ record, onEdit, api, onError }) {
+  const spelling = useSpelling();
+  const spellingRef = useRef(spelling); spellingRef.current = spelling;
   const [revision, setRevision] = useState(0);
   const { settings } = usePreferences();
   const [zoom, setZoom] = useState(settings.writerZoom);
@@ -212,7 +216,7 @@ function WriteEditor({ record, onEdit, api, onError }) {
   const editor = useEditor({
     extensions: [StarterKit.configure({ link: { openOnClick: false, autolink: false, linkOnPaste: false } }), TextAlign.configure({ types: ['heading', 'paragraph'] }), TableKit.configure({ table: { resizable: false } }), Image.configure({ allowBase64: true }), TextStyleKit, Highlight.configure({ multicolor: true })],
     content: record.payload,
-    editorProps: { attributes: { class: 'document-page', 'aria-label': 'Contenuto del documento', spellcheck: 'true' }, transformPastedHTML: safeHtml },
+    editorProps: { attributes: { class: 'document-page', 'aria-label': 'Contenuto del documento', spellcheck: 'false' }, transformPastedHTML: safeHtml },
     onUpdate: ({ editor }) => { setRevision(n => n + 1); onEditRef.current(editor.getHTML()); },
     onSelectionUpdate: () => setRevision(n => n + 1),
   });
@@ -223,7 +227,12 @@ function WriteEditor({ record, onEdit, api, onError }) {
       return preserveDocxParts(await exportDocument(editor.getJSON(), record.name, settings), record.sourceDocx);
     }, snapshot: () => editor.getHTML() };
   }, [editor, record.name, record.imported, record.sourceDocx, api, settings]);
-  useEffect(() => { if (editor) editor.view.dom.spellcheck = settings.spellcheck && window.cosmoffice?.spellcheckAvailable !== false; }, [editor, settings.spellcheck]);
+  useEffect(() => {
+    if (!editor) return;
+    editor.registerPlugin(italianSpelling(spellingRef));
+    return () => { if (!editor.isDestroyed) editor.unregisterPlugin(spellingKey); };
+  }, [editor]);
+  useEffect(() => { if (editor && !editor.isDestroyed) editor.view.dispatch(editor.state.tr.setMeta(spellingKey, true)); }, [editor, spelling]);
   useEffect(() => { setZoom(settings.writerZoom); }, [settings.writerZoom]);
   const command = callback => { if (editor) callback(editor.chain().focus()).run(); };
   const paperWidth = settings.writerPaper === 'Letter' ? 816 : 794, paperHeight = settings.writerPaper === 'Letter' ? 1056 : 1123;

@@ -1,0 +1,23 @@
+Morph-it! 0.4.8 — lessico italiano di forme flesse
+Copyright (c) 2004–2009 Marco Baroni ed Eros Zanchetta.
+Fonte degli autori: http://sslmit.unibo.it/morphit
+Pagina del progetto: https://docs.sslmit.unibo.it/doku.php?id=resources:morph-it
+Copia sorgente: https://github.com/TraMOOC-Impleval/lemmatize_italian_data/blob/master/morph-it_048_utf8.txt
+
+Il README degli autori offre una doppia licenza. Per questa distribuzione
+del SOLO lessico e dei dati derivati scegliamo Creative Commons Attribution
+ShareAlike 2.0 (CC BY-SA 2.0). Testo completo: CC-BY-SA-2.0.html, incluso
+accanto ai dati, e https://creativecommons.org/licenses/by-sa/2.0/legalcode
+Questa attribuzione non modifica la licenza del codice CosmOffice.
+
+Modifiche Cosmonet, 21 novembre 2026: estrazione della prima colonna,
+normalizzazione NFC e minuscole italiane, esclusione di simboli, numeri e
+voci non composte da lettere/apostrofi, deduplicazione e ordinamento.
+it_IT.words è distribuito sotto la stessa licenza CC BY-SA 2.0.
+Il sorgente completo non modificato è morph-it_048_utf8.txt.gz; README
+originale incluso. La trasformazione è riproducibile da repository con:
+node scripts/italian-dictionary.mjs (nessuna connessione necessaria).
+
+Si tratta di un lessico, non di un correttore grammaticale né di una
+certificazione linguistica. Può omettere parole valide o accettare forme
+rare. Il dizionario personale dell'utente resta separato dai dati distribuiti.

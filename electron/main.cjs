@@ -17,6 +17,10 @@ const supported = new Set(['.docx', '.xlsx', '.csv', '.tsv', '.pdf', '.txt', '.h
 function trusted(event) {
   if (!window || event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame) throw new Error('Richiesta non autorizzata.');
 }
+ipcMain.handle('office:italian-dictionary', async event => {
+  trusted(event);
+  return fs.readFile(path.join(__dirname, '../dist/dictionaries/it_IT.words'), 'utf8');
+});
 function createWindow() {
   closeAllowed = false;
   Menu.setApplicationMenu(null);

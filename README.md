@@ -28,7 +28,9 @@ Un controllo indipendente opzionale apre e risalva i campioni con LibreOffice (`
 - Impostazioni complete: tema chiaro/scuro/sistema, accento anche HEX personalizzato, scala 80–150%, densità, barra laterale, preferenze degli editor, aggiornamenti, backup/ripristino dell’archivio, esportazione/importazione delle preferenze JSON e svuotamento con conferma. Nessuna voce è un controllo dimostrativo.
 - Bozze e file PDF conservati localmente in IndexedDB, riapertura dall’archivio, ricerca, rinomina ed eliminazione delle copie locali.
 - File originali conservati: l’esportazione chiede dove salvare la copia.
-- Nessun account, nessun CDN, nessuna telemetria; font e decoder PDF sono inclusi nel pacchetto. Connessioni Node/Electron bloccate anche nel processo principale, nessun controllo aggiornamenti online. Il controllo ortografico desktop è disabilitato per impedire il download automatico di dizionari.
+- Nessun account, nessun CDN, nessuna telemetria; font, decoder PDF e lessico italiano Morph-it! sono inclusi nel pacchetto. Connessioni Node/Electron bloccate anche nel processo principale, nessun controllo aggiornamenti online. Il controllo ortografico italiano di CosmoWrite e CosmoGrid usa dati locali: sottolinea le parole non riconosciute e permette di aggiungerle al dizionario personale nelle impostazioni Documenti. Il controllo può essere disattivato per entrambi gli editor. Hunspell nativo di Electron rimane disabilitato per impedirne i download automatici.
+
+Il dizionario italiano comprende 400.680 forme distinte derivate da Morph-it! 0.4.8 di Marco Baroni ed Eros Zanchetta, distribuite separatamente sotto CC BY-SA 2.0. Attribuzione, licenza completa, sorgente compresso e parole sono in `public/dictionaries/` e nel pacchetto. `node scripts/italian-dictionary.mjs` rigenera le parole dal sorgente incluso senza rete. Non offre grammatica, suggerimenti o altre lingue; termini validi assenti dal lessico possono essere sottolineati. Le parole personali restano in localStorage su questo dispositivo, separate dai documenti; non sono incluse nei backup dei documenti o nell'esportazione delle preferenze.
 
 ## Compatibilità: limiti espliciti
 

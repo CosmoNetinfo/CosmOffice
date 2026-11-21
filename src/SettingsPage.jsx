@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Palette, FileText, Grid2X2, BookOpen, HardDrive, RefreshCw, Download, Upload, Trash2, Check, ArrowLeft, SlidersHorizontal } from 'lucide-react';
 import { usePreferences, DEFAULTS } from './preferences.jsx';
+import { PersonalDictionary } from './Spelling.jsx';
 import { exportBackup, importBackup } from './backups.mjs';
 import { clearDrafts, storeDrafts } from './storage.mjs';
 import { saveFile } from './files.mjs';
@@ -52,7 +53,8 @@ export default function SettingsPage({ documents, refresh, onBack, update, onErr
       <Row title="Orientamento pagina" description="Usato anche nell’esportazione DOCX e PDF.">{select('writerOrientation', 'Orientamento pagina', [['portrait', 'Verticale'], ['landscape', 'Orizzontale']])}</Row>
       <Row title="Margini della pagina" description="Margine uniforme sui quattro lati.">{select('writerMargin', 'Margini pagina', [10, 15, 20, 25, 30].map(n => [n, `${n} mm`]))}</Row>
       <Row title="Interlinea" description="Distanza tra le righe del testo e nei DOCX esportati.">{select('lineHeight', 'Interlinea predefinita', [[1, 'Singola'], [1.15, '1,15'], [1.5, '1,5'], [1.65, '1,65'], [2, 'Doppia']])}</Row>
-      <Row title="Controllo ortografico" description={window.cosmoffice?.spellcheckAvailable === false ? 'Non disponibile nel pacchetto desktop: i download automatici dei dizionari sono disabilitati per garantire il funzionamento senza rete.' : 'Usa il controllo ortografico disponibile nel sistema.'}>{window.cosmoffice?.spellcheckAvailable === false ? <span>Non disponibile offline</span> : toggle('spellcheck', 'Controllo ortografico')}</Row>
+      <Row title="Controllo ortografico italiano" description="Controlla le parole in CosmoWrite e CosmoGrid con il dizionario incluso, senza rete.">{toggle('spellcheck', 'Controllo ortografico')}</Row>
+      <Row title="Dizionario personale" description="Aggiungi nomi e termini che usi. Le parole restano solo su questo dispositivo e valgono in entrambi gli editor."><PersonalDictionary/></Row>
     </Group>}
     {tab === 'grid' && <Group title="CosmoGrid" description="Personalizza numeri, griglia e scambio di dati.">
       <Row title="Formato dei numeri" description="Separatore decimale e delle migliaia nella griglia.">{select('gridLocale', 'Formato numeri', [['it-IT', 'Italiano · 1.234,56'], ['en-US', 'Inglese · 1,234.56'], ['de-DE', 'Tedesco · 1.234,56']])}</Row>

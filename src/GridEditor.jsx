@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Bold, Italic, Euro, Percent, Plus, Check, Undo2, Redo2, Download, Copy, Trash2, Pencil, LoaderCircle } from 'lucide-react';
 import Papa from 'papaparse';
 import { usePreferences } from './preferences.jsx';
+import { useSpelling } from './Spelling.jsx';
 import { openWorkbook, exportWorkbook, rawValue, setCellInput, calculatorFor, exportDelimited, pasteRange, snapshotWorkbook, snapshotWorksheet } from './workbooks.mjs';
 import { columnName, parseAddress, SUPPORTED_FUNCTIONS } from './formulas.mjs';
 import { saveFile, downloadName } from './files.mjs';
@@ -136,7 +137,13 @@ export default function GridEditor({ record, onEdit, api, onError }) {
   </div>;
 }
 function GridCell({ address, raw, display, selected, within, numeric, error, style, onSelect, onExtend, onCommit }) {
+  const spelling = useSpelling(), overlay = useRef(null);
   const [editing, setEditing] = useState(false), [value, setValue] = useState(raw); const cancel = useRef(false);
   useEffect(() => { if (!editing) setValue(raw); }, [raw, editing]);
-  return <td className={`${selected ? 'selected-cell' : ''} ${within ? 'range-cell' : ''} ${error ? 'error-cell' : ''}`} style={style}><input data-address={address} aria-label={`Cella ${address}`} title={error ? `${raw} → ${display}` : undefined} style={{ textAlign: numeric && !editing ? 'right' : undefined }} value={editing ? value : display} onMouseDown={e => { if (e.shiftKey) { e.preventDefault(); onExtend(); } }} onFocus={() => { cancel.current = false; setEditing(true); setValue(raw); onSelect(); }} onChange={e => setValue(e.target.value)} onBlur={() => { if (editing && !cancel.current) onCommit(value); setEditing(false); }} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); onCommit(value); setEditing(false); e.currentTarget.blur(); const p = parseAddress(address); document.querySelector(`[data-address="${columnName(p.col)}${p.row + 1}"]`)?.focus(); } if (e.key === 'Escape') { cancel.current = true; setValue(raw); setEditing(false); e.currentTarget.blur(); } }}/></td>;
+  const shown = editing ? value : display;
+  const mistakes = !numeric && !error && !raw.startsWith('=') ? spelling.errors(shown) : [];
+  const pieces = []; let cursor = 0;
+  for (const item of mistakes) { pieces.push(shown.slice(cursor, item.from)); pieces.push(<span key={item.from} className="spelling-error" data-spelling-word={item.word}>{shown.slice(item.from, item.to)}</span>); cursor = item.to; }
+  pieces.push(shown.slice(cursor));
+  return <td className={`${selected ? 'selected-cell' : ''} ${within ? 'range-cell' : ''} ${error ? 'error-cell' : ''}`} style={style}><input spellCheck={false} className={mistakes.length ? "spelling-input" : undefined} onScroll={event => { if (overlay.current) overlay.current.scrollLeft = event.currentTarget.scrollLeft; }} data-address={address} aria-label={`Cella ${address}`} title={error ? `${raw} → ${display}` : undefined} style={{ textAlign: numeric && !editing ? 'right' : undefined }} value={editing ? value : display} onMouseDown={e => { if (e.shiftKey) { e.preventDefault(); onExtend(); } }} onFocus={() => { cancel.current = false; setEditing(true); setValue(raw); onSelect(); }} onChange={e => setValue(e.target.value)} onBlur={() => { if (editing && !cancel.current) onCommit(value); setEditing(false); }} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); onCommit(value); setEditing(false); e.currentTarget.blur(); const p = parseAddress(address); document.querySelector(`[data-address="${columnName(p.col)}${p.row + 1}"]`)?.focus(); } if (e.key === 'Escape') { cancel.current = true; setValue(raw); setEditing(false); e.currentTarget.blur(); } }}/>{mistakes.length > 0 && <div ref={overlay} className="grid-spelling-overlay" aria-hidden="true">{pieces}</div>}</td>;
 }

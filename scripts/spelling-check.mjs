@@ -1,0 +1,47 @@
+import assert from 'node:assert/strict';
+// Stessa prova eseguita nel browser e in Electron con NetLog attivo.
+export async function checkItalianSpelling(page) {
+  const home = async () => { await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor(); };
+  const settings = async () => { await page.getByRole('button', { name: 'Impostazioni', exact: true }).click(); await page.getByRole('navigation', { name: 'Categorie impostazioni' }).getByRole('button', { name: 'Documenti', exact: true }).click(); await page.getByText('Italiano · dizionario incluso e pronto. Nessun download.', { exact: true }).waitFor(); };
+  await page.getByRole('button', { name: /Crea un documento/ }).click();
+  await page.locator('.document-page').fill('casa città perché andavano zzqerrore');
+  const mistakes = page.locator('.document-page .spelling-error');
+  await page.waitForFunction(() => document.querySelector('.document-page .spelling-error')?.textContent === 'zzqerrore');
+  assert.deepEqual(await mistakes.allTextContents(), ['zzqerrore']);
+  await settings();
+  await page.getByRole('textbox', { name: 'Parola del dizionario personale' }).fill('zzqerrore');
+  await page.getByRole('button', { name: 'Aggiungi parola', exact: true }).click();
+  await page.getByText('Parola salvata sul dispositivo.', { exact: true }).waitFor();
+  await page.getByRole('button', { name: 'Torna al lavoro' }).click();
+  await page.getByRole('button', { name: 'Documento senza titolo CosmoWrite', exact: true }).click();
+  await page.locator('.document-page').waitFor();
+  assert.equal(await mistakes.count(), 0);
+  await home();
+  await page.getByRole('button', { name: /Crea un foglio/ }).click();
+  const cell = page.getByRole('textbox', { name: 'Cella A1', exact: true });
+  await cell.fill('casa città zzqerrore italgiano');
+  await page.getByRole('textbox', { name: 'Cella A2', exact: true }).focus();
+  const gridMistakes = page.locator('.grid-spelling-overlay .spelling-error');
+  assert.deepEqual(await gridMistakes.allTextContents(), ['italgiano']);
+  await page.screenshot({ path: 'test-results/ortografia-griglia.png' });
+  await settings();
+  await page.getByRole('checkbox', { name: 'Controllo ortografico', exact: true }).uncheck();
+  await page.getByRole('button', { name: 'Torna al lavoro' }).click();
+  await page.getByRole('button', { name: 'Foglio senza titolo CosmoGrid', exact: true }).click();
+  await cell.waitFor();
+  assert.equal(await gridMistakes.count(), 0);
+  await home();
+  await page.reload(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
+  await settings();
+  assert.equal(await page.getByRole('checkbox', { name: 'Controllo ortografico', exact: true }).isChecked(), false);
+  assert.equal(await page.getByRole('button', { name: 'Rimuovi zzqerrore dal dizionario' }).count(), 1);
+  await page.getByRole('checkbox', { name: 'Controllo ortografico', exact: true }).check();
+  await page.getByRole('button', { name: 'Rimuovi zzqerrore dal dizionario' }).click();
+  await page.getByRole('button', { name: 'Torna al lavoro' }).click();
+  await page.getByRole('button', { name: /Crea un documento/ }).click();
+  await page.locator('.document-page').fill('casa zzqerrore');
+  await page.waitForFunction(() => document.querySelector('.document-page .spelling-error')?.textContent === 'zzqerrore');
+  await page.screenshot({ path: 'test-results/ortografia-documento.png' });
+  assert.deepEqual(await mistakes.allTextContents(), ['zzqerrore']);
+  await home();
+}

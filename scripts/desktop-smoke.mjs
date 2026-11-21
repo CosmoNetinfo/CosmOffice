@@ -5,6 +5,7 @@ import { readFile, mkdir, writeFile, readdir } from 'node:fs/promises';
 import { openWorkbook } from '../src/workbooks.mjs';
 import { PDFDocument } from 'pdf-lib';
 import { spawnSync } from 'node:child_process';
+import { checkItalianSpelling } from './spelling-check.mjs';
 
 await mkdir('test-results', { recursive: true });
 const errors = [];
@@ -91,6 +92,8 @@ try {
   assert.equal((await readdir('test-results')).some(name => name.startsWith('originale-da-preservare.pdf.') && name.endsWith('.tmp')), false);
   await application.evaluate(() => { process.getBuiltinModule('node:fs/promises').rename = globalThis.__cosmoOriginalRename; delete globalThis.__cosmoOriginalRename; });
   await page.screenshot({ path: 'test-results/desktop-pdf.png' });
+  await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
+  await checkItalianSpelling(page);
   await page.getByRole('button', { name: 'Impostazioni', exact: true }).click();
   await page.getByRole('combobox', { name: 'Tema interfaccia' }).selectOption('dark');
   assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');

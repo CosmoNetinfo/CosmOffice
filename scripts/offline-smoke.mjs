@@ -3,6 +3,7 @@ import executablePath from 'electron';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { checkItalianSpelling } from './spelling-check.mjs';
 
 await mkdir('test-results', { recursive: true });
 const log = resolve(`test-results/offline-net-${Date.now()}.json`);
@@ -28,6 +29,7 @@ try {
     else await page.waitForFunction(() => document.querySelector('.pdf-paper canvas')?.width > 0 && !document.querySelector('.pdf-loading'));
     await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
   }
+  await checkItalianSpelling(page);
   await page.getByRole('button', { name: 'Impostazioni', exact: true }).click();
   await page.getByRole('button', { name: 'Aggiornamenti', exact: true }).click();
   await page.getByText('Nessun controllo online', { exact: true }).waitFor();

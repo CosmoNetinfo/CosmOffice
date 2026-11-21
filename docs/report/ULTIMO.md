@@ -1,19 +1,24 @@
-# Report CosmOffice — parte 1: CI
+# Report CosmOffice — parte 2: dizionario italiano offline
 
 ## 1. Obiettivo del passo
 
-Verificare tutti i lavori dell'ultimo commit su main prima di procedere con dizionari e grafici.
+Ripristinare il controllo delle parole italiane in CosmoWrite e CosmoGrid senza connessioni e con dizionario personale locale. Prerequisito CI: tutti i cinque lavori verdi anche sul commit 0916ef7a74aeaebc87f8fb7ab9e1ee6f5488df45, run https://github.com/CosmoNetinfo/CosmOffice/actions/runs/44958503230 .
 
 ## 2. Cosa hai fatto
 
-- Verificata la run GitHub Actions 44955609508 del commit 82b1d5a70d9169ed064b065547f59d38203ee434: checks, interop e tutti e tre i lavori desktop risultano completed/success.
-- Creato questo report e aggiornata la copia docs/report/ULTIMO.md. Nessuna modifica applicativa in questa parte.
+- public/dictionaries/: lessico Morph-it! 0.4.8 (400.680 forme distinte), sorgente integrale compresso, README degli autori, attribuzione e licenza completa CC BY-SA 2.0. Scelta questa opzione della doppia licenza dichiarata dagli autori, separatamente dal codice.
+- scripts/italian-dictionary.mjs: trasformazione riproducibile senza rete.
+- src/spelling.mjs, src/Spelling.jsx, src/spelling-extension.mjs: motore locale, parole personali separate dal lessico e decorazioni visive ProseMirror, senza alterare il testo salvato.
+- src/App.jsx, src/GridEditor.jsx, src/main.jsx, src/styles.css: sottolineature Write e Grid, con controllo nativo del browser disabilitato.
+- src/SettingsPage.jsx: controllo attivabile/disattivabile e aggiunta/rimozione parole personali; eliminato l'avviso di indisponibilità.
+- electron/main.cjs, electron/preload.cjs: lettura del SOLO dizionario fisso incluso tramite IPC autorizzato. Hunspell nativo resta spento e i blocchi rete restano attivi.
+- scripts/notices.mjs, THIRD_PARTY_NOTICES.txt: attribuzione e testo completo della licenza del lessico. Nessuna nuova dipendenza JavaScript.
+- tests/spelling.test.mjs, scripts/spelling-check.mjs, scripts/spelling-smoke.mjs, scripts/offline-smoke.mjs, scripts/desktop-smoke.mjs, package.json: verifiche automatiche del controllo nei due editor, impostazioni, parole personali e persistenza al ricaricamento, anche nel pacchetto Windows.
+- README.md, docs/BUG.md e questo report con copia ULTIMO.md: comportamento e limiti aggiornati.
 
 ## 3. Risultato di build e test
 
-CI: https://github.com/CosmoNetinfo/CosmOffice/actions/runs/44955609508
-
-Di seguito gli esiti reali locali. Tutti i comandi sono terminati con codice 0.
+Esiti reali della sequenza locale, tutti terminati con codice 0. La verifica ortografica è eseguita anche da offline-smoke e desktop-smoke tramite lo stesso helper, oltre alla suite browser.
 
 ### npm run build
 
@@ -24,32 +29,27 @@ Di seguito gli esiti reali locali. Tutti i comandi sono terminati con codice 0.
 Font, mappe caratteri e decoder PDF disponibili offline.
 vite v8.3.8 building client environment for production...
 transforming...
-✓ 2389 modules transformed.
+✓ 2392 modules transformed.
 rendering chunks...
 computing gzip size...
 dist/index.html                               0.93 kB │ gzip:   0.50 kB
 dist/assets/pdf.worker.min-CIqJB0yW.mjs   1,271.91 kB
-dist/assets/index-CoQCUQZa.css               42.62 kB │ gzip:   9.89 kB
+dist/assets/index-CNS1tgpd.css               43.33 kB │ gzip:  10.05 kB
 dist/assets/rolldown-runtime-COiEfhsA.js      1.11 kB │ gzip:   0.62 kB
-dist/assets/PdfViewer-CrpulAga.js            10.91 kB │ gzip:   4.18 kB
-dist/assets/GridEditor-CIJ_ypaT.js           13.25 kB │ gzip:   5.25 kB
-dist/assets/SettingsPage-CctHtDjA.js         20.00 kB │ gzip:   6.87 kB
-dist/assets/import-docx-CIFFwOMP.js         301.70 kB │ gzip:  89.24 kB
+dist/assets/PdfViewer-CrsRh7mK.js            10.91 kB │ gzip:   4.18 kB
+dist/assets/GridEditor-DgkxNPNr.js           13.79 kB │ gzip:   5.47 kB
+dist/assets/SettingsPage-5XzuYi96.js         19.96 kB │ gzip:   6.86 kB
+dist/assets/import-docx-CFAfXF3E.js         301.70 kB │ gzip:  89.24 kB
 dist/assets/pdf-editing-D-QQ0kUb.js         420.76 kB │ gzip: 175.99 kB
 dist/assets/pdf-engine-BF-5vh4s.js          443.65 kB │ gzip: 133.60 kB
-dist/assets/index-BWjCyKgQ.js             2,219.19 kB │ gzip: 659.85 kB
+dist/assets/index-DQBIGtvM.js             2,223.25 kB │ gzip: 661.30 kB
 
 [plugin builtin:vite-reporter]
 (!) Some chunks are larger than 1900 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 3.09s
-[PLUGIN_TIMINGS] JavaScript callbacks ran for 2.2s of this 3.1s build (71%).
-The slowest callbacks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):
-  - plugin vite:prepare-out-dir renderStart (68%, 2.1s, 1 call)
-Additional callback time came from callbacks under 1s.
-See https://rolldown.rs/reference/InputOptions.checks#bundlertimings for more details.
+✓ built in 1.11s
 ```
 
 ### npm test
@@ -58,52 +58,54 @@ See https://rolldown.rs/reference/InputOptions.checks#bundlertimings for more de
 > cosmoffice@0.2.2 test
 > node --test tests/*.test.mjs
 
-✔ DOCX exports real text, bold marks and tables readable by another parser (78.4115ms)
-✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (60.8176ms)
-✔ unknown formulas retain their source without exporting a misleading cached number (13.8347ms)
-✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (5.3036ms)
-✔ cross-sheet formulas survive XLSX round trips and get calculated results (10.0188ms)
-✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (13.9924ms)
-✔ landscape DOCX uses a physically wider page with matching orientation (8.1584ms)
-✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (7.1823ms)
-✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (118.186ms)
-✔ references, arithmetic, precedence and percentages (3.6015ms)
-✔ Italian aliases, absolute references, text and lazy IF (1.1376ms)
-✔ cycles, division by zero and unknown functions are visible and propagated (0.7763ms)
-✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (0.6263ms)
-✔ Excel address limits and column naming (1.1334ms)
-✔ conditional sums, lookups, text, dates and error handling (3.0859ms)
-✔ quoted sheet names, absolute references and cycles across sheets (0.5595ms)
-✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.3925ms)
-✔ literal text resembling errors stays text while actual formula errors propagate (0.6571ms)
-✔ empty strings, blank cells and boolean predicates retain their separate types (0.5108ms)
-✔ Il processo principale non contiene updater o caricamenti da server (5.0774ms)
-✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (149.8717ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (28.1902ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (7.7835ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (84.297ms)
-✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (15.6073ms)
-✔ Excel exports do not mutate the open workbook, even when exported concurrently (80.8607ms)
-✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (21.6901ms)
-✔ damaged files and mismatched Office extensions are rejected before import (6.2414ms)
-✔ unsupported parts produce specific warnings without changing the original file (37.5629ms)
-✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (12.6268ms)
-✔ XLSX caches keep literal error-like strings separate from actual error cells (9.0243ms)
-ℹ tests 31
+✔ DOCX exports real text, bold marks and tables readable by another parser (93.1687ms)
+✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (69.0324ms)
+✔ unknown formulas retain their source without exporting a misleading cached number (13.18ms)
+✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (4.2058ms)
+✔ cross-sheet formulas survive XLSX round trips and get calculated results (11.2307ms)
+✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (14.9212ms)
+✔ landscape DOCX uses a physically wider page with matching orientation (8.5102ms)
+✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (7.2298ms)
+✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (131.278ms)
+✔ references, arithmetic, precedence and percentages (4.311ms)
+✔ Italian aliases, absolute references, text and lazy IF (0.9942ms)
+✔ cycles, division by zero and unknown functions are visible and propagated (1.3191ms)
+✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (1.3779ms)
+✔ Excel address limits and column naming (1.4391ms)
+✔ conditional sums, lookups, text, dates and error handling (4.6934ms)
+✔ quoted sheet names, absolute references and cycles across sheets (0.6512ms)
+✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.6396ms)
+✔ literal text resembling errors stays text while actual formula errors propagate (0.9476ms)
+✔ empty strings, blank cells and boolean predicates retain their separate types (0.8453ms)
+✔ Il processo principale non contiene updater o caricamenti da server (5.8031ms)
+✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (208.1484ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (32.4535ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (9.5097ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (112.8855ms)
+✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (17.0972ms)
+✔ Excel exports do not mutate the open workbook, even when exported concurrently (94.4524ms)
+✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (23.1729ms)
+✔ damaged files and mismatched Office extensions are rejected before import (8.0582ms)
+✔ unsupported parts produce specific warnings without changing the original file (45.1888ms)
+✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (11.7392ms)
+✔ XLSX caches keep literal error-like strings separate from actual error cells (10.2766ms)
+✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (660.4339ms)
+✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1777.4636ms)
+ℹ tests 33
 ℹ suites 0
-ℹ pass 31
+ℹ pass 33
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 1187.7252
+ℹ duration_ms 2662.6249
 ```
 
 ### npm run test:browser
 
 ```text
 > cosmoffice@0.2.2 test:browser
-> node scripts/smoke.mjs && node scripts/preferences-smoke.mjs && node scripts/reliability-smoke.mjs && node scripts/corpus-smoke.mjs
+> node scripts/smoke.mjs && node scripts/preferences-smoke.mjs && node scripts/reliability-smoke.mjs && node scripts/corpus-smoke.mjs && node scripts/spelling-smoke.mjs
 
 {
   "result": "PASS",
@@ -134,7 +136,7 @@ See https://rolldown.rs/reference/InputOptions.checks#bundlertimings for more de
   ],
   "errors": []
 }
-23:33:48 [vite] (client) [console.warn] Warning: Indexing all PDF objects
+00:06:57 [vite] (client) [console.warn] Warning: Indexing all PDF objects
 {
   "result": "PASS",
   "scenarios": [
@@ -159,6 +161,8 @@ PASS 05-dati-filtro.xlsx
 PASS 01-testo.pdf
 PASS 02-scansione.pdf
 PASS 03-venti-pagine.pdf
+00:08:11 [vite] (client) page reload public/dictionaries/CC-BY-SA-2.0.html
+PASS ortografia italiana: Write, Grid, impostazioni, parole personali, riavvio pagina e nessuna richiesta esterna.
 ```
 
 ### npm run pack
@@ -174,27 +178,27 @@ PASS 03-venti-pagine.pdf
 Font, mappe caratteri e decoder PDF disponibili offline.
 vite v8.3.8 building client environment for production...
 transforming...
-✓ 2389 modules transformed.
+✓ 2392 modules transformed.
 rendering chunks...
 computing gzip size...
 dist/index.html                               0.93 kB │ gzip:   0.50 kB
 dist/assets/pdf.worker.min-CIqJB0yW.mjs   1,271.91 kB
-dist/assets/index-CoQCUQZa.css               42.62 kB │ gzip:   9.89 kB
+dist/assets/index-CNS1tgpd.css               43.33 kB │ gzip:  10.05 kB
 dist/assets/rolldown-runtime-COiEfhsA.js      1.11 kB │ gzip:   0.62 kB
-dist/assets/PdfViewer-CrpulAga.js            10.91 kB │ gzip:   4.18 kB
-dist/assets/GridEditor-CIJ_ypaT.js           13.25 kB │ gzip:   5.25 kB
-dist/assets/SettingsPage-CctHtDjA.js         20.00 kB │ gzip:   6.87 kB
-dist/assets/import-docx-CIFFwOMP.js         301.70 kB │ gzip:  89.24 kB
+dist/assets/PdfViewer-CrsRh7mK.js            10.91 kB │ gzip:   4.18 kB
+dist/assets/GridEditor-DgkxNPNr.js           13.79 kB │ gzip:   5.47 kB
+dist/assets/SettingsPage-5XzuYi96.js         19.96 kB │ gzip:   6.86 kB
+dist/assets/import-docx-CFAfXF3E.js         301.70 kB │ gzip:  89.24 kB
 dist/assets/pdf-editing-D-QQ0kUb.js         420.76 kB │ gzip: 175.99 kB
 dist/assets/pdf-engine-BF-5vh4s.js          443.65 kB │ gzip: 133.60 kB
-dist/assets/index-BWjCyKgQ.js             2,219.19 kB │ gzip: 659.85 kB
+dist/assets/index-DQBIGtvM.js             2,223.25 kB │ gzip: 661.30 kB
 
 [plugin builtin:vite-reporter]
 (!) Some chunks are larger than 1900 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1.11s
+✓ built in 1.13s
 
 > cosmoffice@0.2.2 icons
 > node scripts/icons.mjs
@@ -260,21 +264,27 @@ Attribuzioni e licenze raccolte.
 
 ## 4. Cosa funziona, provato davvero
 
-Tutti i cinque lavori CI sono verdi. Suite locale completa passata, inclusi 13 campioni di documenti, salvataggio e riapertura PDF ruotato, controllo Poppler e assenza di rete nei percorsi provati del processo principale.
+- Parole casa, città, perché e andavano senza segnalazioni; zzqerrore e italgiano segnalate. Elisioni e forme flesse incluse nelle prove del motore.
+- Sottolineature nei due editor, parola personale accettata in entrambi, rimozione e ritorno della segnalazione; preferenza e parole conservate dopo ricaricamento della pagina.
+- Le parole personali vengono salvate su localStorage prima di dichiarare l'aggiunta riuscita. In caso di errore di scrittura viene mostrato un errore italiano.
+- Browser, Electron locale e pacchetto Windows: prove dell'ortografia passate. NetLog senza richieste remote, TCP/UDP/QUIC/DNS; tentativo intenzionale del test rilevato e bloccato. Tutti i 13 campioni e le regressioni PDF passano.
 
 ## 5. Cosa NON funziona o non hai potuto provare
 
-- Dizionario italiano incorporato e grafici non ancora implementati: sono le parti successive, non fanno parte del risultato di questo passo.
-- Non provato: installazione su computer fisici Linux/macOS e Microsoft Office reale. Il confezionamento multipiattaforma in CI non sostituisce queste prove.
+- Nessuna grammatica, proposta di correzioni o lingua diversa dall'italiano. Lessico non esaustivo: nomi e termini validi possono risultare sconosciuti. Le elisioni sono gestite come controllo lessicale, non grammaticale.
+- Formule, celle numeriche, URL e identificativi alfanumerici non vengono trattati come prosa. Le celle mostrano soltanto la porzione di testo che entra nella colonna.
+- Parole personali locali separate da backup e preferenze esportate; non vengono sincronizzate.
+- Non provato: installazione su computer fisici puliti, controllo manuale con Microsoft Office, verifica linguistica di tutte le 400.680 forme, persistenza dopo riavvio dell'intero sistema operativo. Le prove automatiche includono il ricaricamento della pagina nello stesso profilo locale.
+- Grafici XLSX non ancora implementati in questo passo: parte 3 successiva.
 
 ## 6. Bug noti o dubbi
 
-Restano i limiti in docs/BUG.md e README.md. Nessun lavoro CI rosso nell'ultima run controllata. Avvisi di dimensione bundle presenti nella build.
+I primi tentativi del nuovo smoke fallivano per selettori ambigui del test (Documenti nella barra e nelle impostazioni; apertura ed eliminazione bozza). Selettori corretti e test completo rieseguito. Restano i limiti Office descritti in README e docs/BUG.md e l'avviso dimensione bundle. Nessun fallimento nascosto nella sequenza riportata.
 
 ## 7. Hash del commit
 
-Commit controllato: 82b1d5a70d9169ed064b065547f59d38203ee434. Questo passo produce un unico commit documentale; il suo hash finale si trova nella cronologia Git del presente file, evitando un hash autoreferenziale impossibile.
+Base CI verde: 0916ef7a74aeaebc87f8fb7ab9e1ee6f5488df45. Codice e report costituiscono un unico commit della parte 2; il suo hash effettivo è consultabile nella cronologia di questo file, senza inserire un hash autoreferenziale impossibile.
 
 ## 8. Prossimo passo consigliato
 
-Incorporare un dizionario italiano con licenza e provenienza verificate e un controllo interamente locale per entrambi gli editor, mantenendo disabilitati i download Hunspell nativi.
+Implementare grafici nativi XLSX e provarli anche con LibreOffice; bloccare l'esportazione dei grafici importati non supportati per impedirne la cancellazione silenziosa.
