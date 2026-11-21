@@ -2,6 +2,7 @@ import { _electron as electron } from 'playwright';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { readFile, mkdir, writeFile, readdir } from 'node:fs/promises';
+import { openWorkbook } from '../src/workbooks.mjs';
 
 await mkdir('test-results', { recursive: true });
 const errors = [];
@@ -32,6 +33,21 @@ try {
   await openFile('test-results/verifica.xlsx');
   await page.getByRole('textbox', { name: 'Cella A1', exact: true }).waitFor();
   assert.equal(await page.getByRole('textbox', { name: 'Cella A1', exact: true }).inputValue(), 'Voce');
+  for (const [address, value] of [['G1', '00042'], ['G2', '12345678901234567890'], ['G3', '=IFERROR("#N/A";"ripiego")']]) {
+    const cell = page.getByRole('textbox', { name: `Cella ${address}`, exact: true });
+    await cell.focus(); await cell.fill(value); await cell.press('Enter');
+  }
+  await page.getByRole('textbox', { name: 'Cella A1', exact: true }).focus();
+  assert.equal(await page.getByRole('textbox', { name: 'Cella G2', exact: true }).inputValue(), '12345678901234567890');
+  assert.equal(await page.getByRole('textbox', { name: 'Cella G3', exact: true }).evaluate(element => element.parentElement.classList.contains('error-cell')), false);
+  const numericTarget = resolve('test-results/codici-conservati-desktop.xlsx');
+  await application.evaluate(({ dialog }, file) => { dialog.showSaveDialog = async () => ({ canceled: false, filePath: file }); }, numericTarget);
+  await page.getByRole('button', { name: 'Esporta XLSX' }).click();
+  await page.getByRole('status').filter({ hasText: 'Copia esportata: codici-conservati-desktop.xlsx' }).waitFor();
+  const numericBook = await openWorkbook(new Uint8Array(await readFile(numericTarget)));
+  assert.equal(numericBook.worksheets[0].getCell('G1').value, '00042');
+  assert.equal(numericBook.worksheets[0].getCell('G2').value, '12345678901234567890');
+  assert.equal(numericBook.worksheets[0].getCell('G3').result, '#N/A');
   await page.getByRole('button', { name: 'Torna alle bozze' }).click();
   await openFile('test-results/esempio-cosmonet.pdf');
   await page.locator('.textLayer span').first().waitFor();

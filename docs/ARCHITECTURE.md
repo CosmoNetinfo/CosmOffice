@@ -22,3 +22,11 @@ L’importazione Office ispeziona prima il contenitore, i limiti dimensionali e 
 Le esportazioni XLSX clonano il modello e normalizzano la differenza fra i campi `merges` e `mergeCells` del getter/setter ExcelJS. La stessa normalizzazione vale per annulla/ripristina e duplicazione. La duplicazione di fogli con tabelle strutturate viene respinta per evitare copie con nomi tabella duplicati.
 
 Le bozze fallite restano in memoria e vengono riprovate prima di lasciare l’editor. Il ripristino in blocco abortisce la transazione anche per errori sincroni di scrittura. Il renderer non può autorizzare implicitamente una chiusura riuscita quando rimangono bozze fallite; in quel caso la finestra nativa propone di tornare al lavoro o uscire consapevolmente.
+
+## Conservazione dei tipi 0.2.2
+
+Gli errori del motore di calcolo sono oggetti interni distinti dal testo. Il risultato pubblico espone valore e stato di errore separatamente, così un’etichetta come `#N/A` o una stringa restituita da una formula non viene confusa con una cella di errore. La distinzione vale anche per i risultati memorizzati nell’XLSX.
+
+L’ingresso delle celle mantiene come testo gli zeri iniziali, gli identificativi oltre 15 cifre significative e i valori fuori dall’intervallo numerico interoperabile. Il formato testo della cella viene rispettato; le formule in quel formato rimangono testo. Non è possibile recuperare cifre già perse in un file precedentemente arrotondato da un altro programma.
+
+Un lavoro GitHub separato verifica la conversione attraverso LibreOffice senza includere quel programma nel prodotto. I risultati di questo corpus ristretto affiancano i test del motore e dell’interfaccia.

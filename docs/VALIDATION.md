@@ -1,11 +1,11 @@
-# Verifiche dell’anteprima 0.2.1
+# Verifiche dell’anteprima 0.2.2
 
 Eseguite localmente su Windows il 21 novembre 2026.
 
 | Verifica | Esito |
 | --- | --- |
 | Compilazione Vite | Superata |
-| Test di formule e interoperabilità DOCX/XLSX/CSV | 20 test superati |
+| Test di formule e interoperabilità DOCX/XLSX/CSV | 24 test superati |
 | Test browser su Chrome | Superati |
 | Importazione, modifica ed esportazione DOCX | Superata; testo letto con Mammoth dopo l’esportazione |
 | Ripristino bozze dopo ricaricamento | Superato |
@@ -43,10 +43,19 @@ Eseguite localmente su Windows il 21 novembre 2026.
 | Ripristino con dati non scrivibili | Transazione annullata senza inserimenti parziali |
 | Errore di rinomina del file esportato nel pacchetto Windows | Originale conservato byte per byte e file temporaneo rimosso |
 | Chiusura dopo notifica di arresto del renderer | Notifica simulata nel test riproducibile; non equivale a certificazione di recupero da tutti i crash |
+| Identificativi e precisione | Zeri iniziali e codici oltre 15 cifre conservati come testo dopo esportazione e riapertura XLSX |
+| Formato testo, booleani e notazione scientifica | Verificati nei casi di prova; numeri fuori intervallo non vengono convertiti in zero |
+| Testo simile a errori e celle di errore effettive | Distinti in IFERROR/ISERROR/ISTEXT/ISBLANK, nell’interfaccia e nei risultati XLSX |
+| Celle vuote e stringhe vuote | Distinte nei predicati di calcolo |
+| DOCX → ODT → DOCX con LibreOffice | Testo italiano, tabella e carattere riletti dai convertitori di CosmOffice |
+| XLSX → ODS → XLSX con LibreOffice | Identificativi, formule, errori, testo, date, celle unite e riferimenti tra fogli conservati nel campione |
+| PDF prodotto da LibreOffice | Verificato dal motore di CosmoView |
 | Controllo npm audit completo dopo override mirati | Zero vulnerabilità note al momento del controllo |
 
-Gli script riproducibili sono in `scripts/smoke.mjs`, `scripts/preferences-smoke.mjs`, `scripts/reliability-smoke.mjs`, `scripts/desktop-smoke.mjs` e `tests/`. I rapporti di esecuzione sono generati in `test-results/`, esclusa dal repository; GitHub Actions conserva i rapporti del browser come artefatti.
+Gli script riproducibili sono in `scripts/smoke.mjs`, `scripts/preferences-smoke.mjs`, `scripts/reliability-smoke.mjs`, `scripts/desktop-smoke.mjs`, `scripts/interop.mjs` e `tests/`. I rapporti di esecuzione sono generati in `test-results/`, esclusa dal repository; GitHub Actions conserva i rapporti del browser come artefatti.
 
-La build precedente (0.1.0, commit 60a01b5) ha completato con successo test e pacchetti GitHub Actions per Windows, Linux e macOS Intel/Apple Silicon. Anche la 0.2.0 ha completato la pipeline (commit 15bd8f8). La stessa pipeline viene applicata alla 0.2.1.
+La build precedente (0.1.0, commit 60a01b5) ha completato con successo test e pacchetti GitHub Actions per Windows, Linux e macOS Intel/Apple Silicon. Anche la 0.2.0 ha completato la pipeline (commit 15bd8f8). Anche la 0.2.1 ha completato la pipeline (commit 4836704). La stessa pipeline, con un controllo aggiuntivo di interoperabilità, viene applicata alla 0.2.2.
 
 Questi test non dimostrano la compatibilità totale Office. Non sono ancora stati collaudati l’installer su un computer pulito, l’avvio delle app macOS/Linux su dispositivi reali, il passaggio tra release con aggiornamento automatico, tutte le varianti di PDF protetti, l’OCR, documenti Office complessi o le app mobili.
+
+Il confronto indipendente locale usa LibreOffice installato su Windows con un profilo di test isolato. È un controllo su file sintetici: non dimostra la compatibilità totale con Microsoft Word o Excel e non misura la fedeltà visiva su documenti complessi. Il rapporto viene salvato in `test-results/interop-report.json`.

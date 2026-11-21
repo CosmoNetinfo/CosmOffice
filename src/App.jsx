@@ -18,7 +18,7 @@ import { listDrafts, storeDraft, removeDraft } from './storage.mjs';
 const GridEditor = lazy(() => import('./GridEditor.jsx'));
 const PdfViewer = lazy(() => import('./PdfViewer.jsx'));
 const SettingsPage = lazy(() => import('./SettingsPage.jsx'));
-const VERSION = '0.2.1';
+const VERSION = '0.2.2';
 const templates = {
   blank: '<p></p>',
   letter: '<h1>Una nuova collaborazione</h1><p>Alla cortese attenzione di</p><p><strong>Oggetto: proposta di collaborazione</strong></p><p>Gentile destinatario,</p><p>scrivo per presentare una proposta di collaborazione. Qui puoi descrivere la tua idea, gli obiettivi e i prossimi passi.</p><p>Resto a disposizione per un incontro di approfondimento.</p><p>Cordiali saluti,</p><p>Il tuo nome</p>',

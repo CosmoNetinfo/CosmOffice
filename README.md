@@ -2,7 +2,7 @@
 
 Suite desktop offline Cosmonet: **CosmoWrite**, **CosmoGrid** e **CosmoView**.
 
-**Stato: anteprima 0.2.1.** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Android e iOS sono pianificati, non implementati.
+**Stato: anteprima 0.2.2.** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Android e iOS sono pianificati, non implementati.
 
 ![Loghi della suite](docs/preview/00-loghi.png)
 
@@ -15,6 +15,10 @@ La versione 0.2.1 consolida apertura, modifica essenziale e salvataggio di DOCX,
 - DOCX/XLSX vengono controllati prima della conversione. I PDF non protetti vengono letti dal motore prima di entrare nell’archivio; quelli protetti vengono sbloccati nel lettore.
 - I file con commenti/note, revisioni, grafici, pivot, macro, oggetti incorporati o collegamenti esterni mostrano avvisi specifici quando queste parti sono rilevate. Il controllo non garantisce di riconoscere ogni possibile incompatibilità.
 - Il ripristino di un backup è atomico e ne conserva gli avvisi di compatibilità. Un errore di esportazione su disco non deve sostituire il file di destinazione con dati incompleti.
+
+La 0.2.2 aggiunge la conservazione degli zeri iniziali e dei codici lunghi, il rispetto delle celle in formato testo e la distinzione tra testo simile a errori (ad esempio `#N/A`) ed errori effettivi di calcolo. I valori fuori dalla precisione numerica supportata vengono conservati come testo invece di arrotondarli implicitamente. Il limite delle 15 cifre in Excel è documentato dal [supporto Microsoft](https://support.microsoft.com/en-us/excel/keeping-leading-zeros-and-large-numbers).
+
+Un controllo indipendente opzionale apre e risalva i campioni con LibreOffice (`DOCX → ODT → DOCX`, `XLSX → ODS → XLSX`) e verifica un PDF prodotto da quel motore. Non richiede LibreOffice per usare CosmOffice: serve solo ai test. La prova copre un corpus ristretto e non certifica Microsoft Office.
 
 ## Cosa funziona
 
@@ -58,9 +62,11 @@ npm run dist
 
 I test browser usano Chrome installato. In CI si usa Chromium di Playwright (`COSMO_BROWSER=chromium` dopo `npx playwright install chromium`).
 
+Per il controllo indipendente: `npm run test:interop`, con LibreOffice installato. Su Windows viene usato `C:/Program Files/LibreOffice/program/soffice.com`; puoi indicare un altro eseguibile con `COSMO_OFFICE_ENGINE`. Il programma viene avviato senza finestre con un profilo isolato dentro `test-results/`.
+
 ## GitHub Actions
 
-Ogni push su `main` avvia test e crea gli installer di anteprima per Windows x64, Linux x64 e macOS Intel/Apple Silicon. Gli artefatti sono nella scheda **Actions**, disponibili per 14 giorni. Le build di anteprima non sono firmate e non attivano l’aggiornamento automatico.
+Ogni push su `main` avvia test, un controllo indipendente con LibreOffice e crea gli installer di anteprima per Windows x64, Linux x64 e macOS Intel/Apple Silicon. Gli artefatti sono nella scheda **Actions**, disponibili per 14 giorni. Le build di anteprima non sono firmate e non attivano l’aggiornamento automatico.
 
 Il workflow per tag `v*` controlla la versione, richiede le credenziali di firma per Windows/macOS e carica una **release in bozza**. Pubblicandola, i pacchetti di release possono controllare e scaricare aggiornamenti da GitHub. Il riavvio per installare avviene su richiesta dell’utente dopo il salvataggio delle bozze. Su Linux l’aggiornamento automatico riguarda AppImage; per DEB si installa il pacchetto aggiornato. Il flusso end-to-end richiede repository pubblico, certificati e almeno due versioni pubblicate; non è ancora collaudato.
 

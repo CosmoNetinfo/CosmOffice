@@ -58,6 +58,15 @@ try {
   await page.keyboard.press('Enter');
   await page.getByRole('textbox', { name: 'Cella A1', exact: true }).focus();
   assert.match(await page.getByRole('textbox', { name: 'Cella D5', exact: true }).inputValue(), /^670,00/);
+  for (const [address, value] of [['G5', '00123'], ['G6', '12345678901234567890'], ['G7', '=IFERROR("#DIV/0!";"errato")'], ['G8', '=1/0']]) {
+    const input = page.getByRole('textbox', { name: `Cella ${address}`, exact: true });
+    await input.focus(); await input.fill(value); await input.press('Enter');
+  }
+  await page.getByRole('textbox', { name: 'Cella A1', exact: true }).focus();
+  assert.equal(await page.getByRole('textbox', { name: 'Cella G5', exact: true }).inputValue(), '00123');
+  assert.equal(await page.getByRole('textbox', { name: 'Cella G6', exact: true }).inputValue(), '12345678901234567890');
+  assert.equal(await page.getByRole('textbox', { name: 'Cella G7', exact: true }).evaluate(element => element.parentElement.classList.contains('error-cell')), false);
+  assert.equal(await page.getByRole('textbox', { name: 'Cella G8', exact: true }).evaluate(element => element.parentElement.classList.contains('error-cell')), true);
   await page.getByRole('button', { name: 'Aggiungi foglio' }).click();
   await page.getByRole('textbox', { name: 'Cella A1', exact: true }).fill('Secondo foglio');
   await page.keyboard.press('Enter');
@@ -66,6 +75,9 @@ try {
   const exportedSheet = await page.evaluate(() => window.testSaved[0]);
   const restored = await openWorkbook(new Uint8Array(exportedSheet.bytes));
   assert.equal(restored.worksheets[0].getCell('B2').value, 1400);
+  assert.equal(restored.worksheets[0].getCell('G5').value, '00123');
+  assert.equal(restored.worksheets[0].getCell('G6').value, '12345678901234567890');
+  assert.equal(restored.worksheets[0].getCell('G7').result, '#DIV/0!');
   assert.equal(restored.worksheets.length, 2);
   assert.equal(restored.worksheets[1].getCell('A1').value, 'Secondo foglio');
   await page.getByRole('button', { name: 'Torna alle bozze' }).click();

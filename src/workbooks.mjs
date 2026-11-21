@@ -17,16 +17,27 @@ export function rawValue(cell) {
   return value;
 }
 export function setCellInput(cell, input) {
-  if (input.startsWith('=')) cell.value = { formula: invariantFormula(input.slice(1)) };
-  else if (input.startsWith("'")) cell.value = input.slice(1);
-  else if (input.trim() !== '' && /^[+-]?\d+(?:[.,]\d+)?$/.test(input.trim())) cell.value = Number(input.replace(',', '.'));
+  if (input.startsWith("'")) cell.value = input.slice(1);
+  else if (cell.numFmt === '@') cell.value = input || null;
+  else if (input.startsWith('=')) cell.value = { formula: invariantFormula(input.slice(1)) };
+  else if (/^(TRUE|VERO|FALSE|FALSO)$/i.test(input.trim())) cell.value = /^(TRUE|VERO)$/i.test(input.trim());
+  else if (canStoreNumber(input)) cell.value = Number(input.trim().replace(',', '.'));
   else cell.value = input || null;
+}
+function canStoreNumber(input) {
+  const text = input.trim();
+  if (!/^[+-]?\d+(?:[.,]\d+)?(?:[eE][+-]?\d+)?$/.test(text) || /^[+-]?0\d/.test(text)) return false;
+  const significant = text.replace(/^[+-]/, '').split(/[eE]/)[0].replace(/[.,]/, '').replace(/^0+/, '');
+  const value = Number(text.replace(',', '.'));
+  return significant.length <= 15 && Number.isFinite(value) && (value === 0 || Math.abs(value) >= 2.2250738585072014e-308) && !(value === 0 && /[1-9]/.test(text.split(/[eE]/)[0]));
 }
 export function calculatorFor(sheet) {
   return createCalculator((address, name) => {
     const target = sheet.workbook.worksheets.find(item => item.name.toLocaleLowerCase() === name.toLocaleLowerCase());
     if (!target) throw new Error('#RIF!');
     const cell = target.getCell(address);
+    if (cell.value == null) return null;
+    if (cell.value && typeof cell.value === 'object' && cell.value.error) return { error: cell.value.error };
     if (cell.value instanceof Date) return cell.value.getTime() / 86400000 + (sheet.workbook.properties.date1904 ? 24107 : 25569);
     const value = rawValue(cell);
     return cell.type !== ExcelJS.ValueType.Formula && typeof value === 'string' && value.startsWith('=') ? { literal: value } : value;
@@ -42,8 +53,7 @@ export function importDelimited(bytes, name = 'Dati', delimiter) {
   sheet.name = name.replace(/[\/*?:[\]\\]/g, '-').slice(0, 31) || 'Dati';
   result.data.forEach((row, r) => row.forEach((text, c) => {
     // Imported text that starts with '=' stays text; formulas are entered explicitly in the editor.
-    if (/^[+-]?\d+(?:[.,]\d+)?$/.test(text.trim()) && !/^0\d/.test(text.trim())) setCellInput(sheet.getCell(r + 1, c + 1), text);
-    else sheet.getCell(r + 1, c + 1).value = text;
+    sheet.getCell(r + 1, c + 1).value = text === '' ? null : canStoreNumber(text) ? Number(text.trim().replace(',', '.')) : text;
   }));
   return book;
 }
@@ -101,9 +111,9 @@ export async function exportWorkbook(book) {
     const calc = calculatorFor(sheet);
     sheet.eachRow(row => row.eachCell(cell => {
       if (cell.type === ExcelJS.ValueType.Formula) {
-        const result = calc(cell.address);
+        const evaluated = calc.result(cell.address), result = evaluated.value;
         const formula = invariantFormula(cell.formula);
-        cell.value = typeof result === 'string' && result.startsWith('#') ? { formula } : { formula, result };
+        cell.value = evaluated.error ? { formula } : { formula, result };
       }
     }));
   }

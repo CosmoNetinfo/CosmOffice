@@ -23,7 +23,11 @@ const functionFor = name => name.split('.').reduce((value, key) => value?.[key],
 export const SUPPORTED_FUNCTIONS = [...new Set(['SUM', 'AVERAGE', 'MIN', 'MAX', 'COUNT', 'ROUND', 'ABS', 'IF', 'IFERROR', ...delegatedNames.filter(name => typeof functionFor(name) === 'function')])];
 const supported = new Set(SUPPORTED_FUNCTIONS);
 const errors = { '#VALUE!': '#VALORE!', '#REF!': '#RIF!', '#NAME?': '#NOME?', '#N/A': '#N/D' };
-const isError = value => typeof value === 'string' && /^#[A-Z0-9/._]+[!?]?$/.test(value);
+const isErrorCode = value => typeof value === 'string' && /^#[A-Z0-9/._]+[!?]?$/.test(value);
+class CalculationFault extends Error {
+  constructor(message) { super(errors[message] || message); this.name = 'CalculationFault'; }
+}
+const isFault = value => value instanceof CalculationFault;
 
 function parse(source) {
   if (source.length > 8192) throw new Error('#LIMITE!');
@@ -78,7 +82,7 @@ function parse(source) {
 const number = value => {
   if (Array.isArray(value)) throw new Error('#VALORE!');
   if (value === '' || value == null) return 0;
-  if (typeof value === 'string' && value.startsWith('#')) throw new Error(value);
+  if (isFault(value)) throw value;
   const n = Number(value);
   if (!Number.isFinite(n)) throw new Error('#VALORE!');
   return n;
@@ -97,18 +101,20 @@ export function createCalculator(getRaw, defaultSheet = '') {
     let result;
     try {
       const raw = getRaw(address, sheet);
-      result = raw && typeof raw === 'object' && Object.hasOwn(raw, 'literal') ? raw.literal : typeof raw === 'string' && raw.startsWith('=') ? evaluate(parse(raw), sheet) : raw ?? '';
+      if (raw && typeof raw === 'object' && Object.hasOwn(raw, 'error')) throw new CalculationFault(raw.error);
+      result = raw && typeof raw === 'object' && Object.hasOwn(raw, 'literal') ? raw.literal : typeof raw === 'string' && raw.startsWith('=') ? evaluate(parse(raw), sheet) : raw ?? null;
       if (typeof result === 'number' && !Number.isFinite(result)) throw new Error('#NUM!');
       if (Array.isArray(result)) throw new Error('#VALORE!');
-    } catch (error) { result = isError(error.message) ? error.message : '#VALORE!'; }
+    } catch (error) { result = error instanceof CalculationFault ? error : new CalculationFault(isErrorCode(error.message) ? error.message : '#VALORE!'); }
     finally { visiting.delete(key); }
     cache.set(key, result);
     return result;
   }
   function evaluate(node, sheet) {
     const run = value => evaluate(value, sheet);
-    if (node.type === 'literal' || node.type === 'error') return node.value;
-    if (node.type === 'ref') return cell(node.address, node.sheet ?? sheet);
+    if (node.type === 'literal') return node.value;
+    if (node.type === 'error') throw new CalculationFault(node.value);
+    if (node.type === 'ref') { const value = cell(node.address, node.sheet ?? sheet); if (isFault(value)) throw value; return value; }
     if (node.type === 'range') {
       const a = parseAddress(node.start), b = parseAddress(node.end), values = [];
       const r0 = Math.min(a.row, b.row), r1 = Math.max(a.row, b.row), c0 = Math.min(a.col, b.col), c1 = Math.max(a.col, b.col);
@@ -122,8 +128,7 @@ export function createCalculator(getRaw, defaultSheet = '') {
     }
     if (node.type === 'binary') {
       const left = run(node.left), right = run(node.right);
-      if (isError(left)) throw new Error(left); if (isError(right)) throw new Error(right);
-      if (node.op === '&') return String(left) + String(right);
+      if (node.op === '&') return String(left ?? '') + String(right ?? '');
       if (['=', '<>', '<', '>', '<=', '>='].includes(node.op)) {
         const a = typeof left === 'string' ? left.toLocaleLowerCase() : left, b = typeof right === 'string' ? right.toLocaleLowerCase() : right;
         return node.op === '=' ? a === b : node.op === '<>' ? a !== b : node.op === '<' ? a < b : node.op === '>' ? a > b : node.op === '<=' ? a <= b : a >= b;
@@ -143,15 +148,19 @@ export function createCalculator(getRaw, defaultSheet = '') {
         if (node.args.length < 2 || node.args.length > 3) throw new Error('#VALORE!');
         return number(run(node.args[0])) ? run(node.args[1]) : node.args[2] ? run(node.args[2]) : false;
       }
-      if (name === 'IFERROR') { if (node.args.length !== 2) throw new Error('#VALORE!'); try { const result = run(node.args[0]); return isError(result) ? run(node.args[1]) : result; } catch { return run(node.args[1]); } }
+      if (name === 'IFERROR') { if (node.args.length !== 2) throw new Error('#VALORE!'); try { return run(node.args[0]); } catch { return run(node.args[1]); } }
       if (!supported.has(name)) throw new Error('#NOME?');
+      if (['ISERROR', 'ISNUMBER', 'ISTEXT', 'ISBLANK'].includes(name)) {
+        if (node.args.length !== 1) throw new Error('#VALORE!');
+        try {
+          const value = run(node.args[0]);
+          if (Array.isArray(value)) throw new Error('#VALORE!');
+          return name === 'ISERROR' ? false : name === 'ISNUMBER' ? typeof value === 'number' : name === 'ISTEXT' ? typeof value === 'string' : value == null;
+        } catch { return name === 'ISERROR'; }
+      }
       const args = node.args.map(run);
       const values = args.flat(Infinity);
-      if (['ISERROR', 'ISNUMBER', 'ISTEXT', 'ISBLANK'].includes(name)) {
-        if (args.length !== 1) throw new Error('#VALORE!');
-        return name === 'ISERROR' ? isError(args[0]) : name === 'ISNUMBER' ? typeof args[0] === 'number' : name === 'ISTEXT' ? typeof args[0] === 'string' && !isError(args[0]) && args[0] !== '' : args[0] === '' || args[0] == null;
-      }
-      for (const v of values) if (typeof v === 'string' && v.startsWith('#')) throw new Error(v);
+      for (const value of values) if (isFault(value)) throw value;
       if (!['SUM', 'AVERAGE', 'MIN', 'MAX', 'COUNT', 'ROUND', 'ABS'].includes(name)) {
         const result = functionFor(name)(...args);
         if (result instanceof Error) throw new Error(errors[result.message] || result.message);
@@ -176,7 +185,13 @@ export function createCalculator(getRaw, defaultSheet = '') {
     }
     throw new Error('#VALORE!');
   }
-  return cell;
+  function result(address, sheet = defaultSheet) {
+    const value = cell(address, sheet);
+    return { value: isFault(value) ? value.message : value ?? '', error: isFault(value) };
+  }
+  const read = (address, sheet = defaultSheet) => result(address, sheet).value;
+  read.result = result;
+  return read;
 }
 
 /** XLSX stores English function names, comma argument separators and dot decimals, regardless of UI locale. */

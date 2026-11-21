@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import JSZip from 'jszip';
-import { newWorkbook, openWorkbook, exportWorkbook, snapshotWorkbook, snapshotWorksheet } from '../src/workbooks.mjs';
+import { newWorkbook, openWorkbook, exportWorkbook, snapshotWorkbook, snapshotWorksheet, setCellInput, importDelimited, calculatorFor } from '../src/workbooks.mjs';
 import { exportDocument } from '../src/documents.mjs';
 import { inspectOfficeFile } from '../src/office-inspection.mjs';
 
@@ -56,4 +56,30 @@ test('unsupported parts produce specific warnings without changing the original 
   assert.ok(warnings.some(text => text.includes('Commenti')));
   assert.ok(warnings.some(text => text.includes('grafici')));
   assert.deepEqual(bytes, before);
+});
+test('identifiers retain leading zeroes and all digits through typing, paste and XLSX export', async () => {
+  const book = newWorkbook(), sheet = book.worksheets[0];
+  for (const [address, text] of [['A1', '00123'], ['A2', '12345678901234567890'], ['A3', '-00123'], ['A4', '1e-400'], ['A5', '1e-320']]) setCellInput(sheet.getCell(address), text);
+  setCellInput(sheet.getCell('B1'), '12,50'); setCellInput(sheet.getCell('B2'), '1,25e3'); setCellInput(sheet.getCell('B3'), 'VERO');
+  sheet.getCell('C1').numFmt = '@'; setCellInput(sheet.getCell('C1'), '1234');
+  sheet.getCell('C2').numFmt = '@'; setCellInput(sheet.getCell('C2'), '=1+1');
+  const restored = (await openWorkbook(await exportWorkbook(book))).worksheets[0];
+  assert.equal(restored.getCell('A1').value, '00123'); assert.equal(restored.getCell('A2').value, '12345678901234567890');
+  assert.equal(restored.getCell('A3').value, '-00123'); assert.equal(restored.getCell('A4').value, '1e-400'); assert.equal(restored.getCell('A5').value, '1e-320');
+  assert.equal(restored.getCell('B1').value, 12.5); assert.equal(restored.getCell('B2').value, 1250);
+  assert.equal(restored.getCell('B3').value, true); assert.equal(restored.getCell('C1').value, '1234');
+  assert.equal(restored.getCell('C2').value, '=1+1');
+  const csv = importDelimited(new TextEncoder().encode('Codice;Lungo;Numero;Formula;Vuoto\n00123;12345678901234567890;1,25e3;=1+1;')).worksheets[0];
+  assert.equal(csv.getCell('A2').value, '00123'); assert.equal(csv.getCell('B2').value, '12345678901234567890');
+  assert.equal(csv.getCell('C2').value, 1250); assert.equal(calculatorFor(csv)('D2'), '=1+1');
+  assert.equal(csv.getCell('E2').value, null);
+});
+test('XLSX caches keep literal error-like strings separate from actual error cells', async () => {
+  const book = newWorkbook(), sheet = book.worksheets[0];
+  sheet.getCell('A1').value = '#N/A'; sheet.getCell('A2').value = { error: '#N/A' };
+  setCellInput(sheet.getCell('B1'), '=IFERROR(A1;"non deve comparire")');
+  setCellInput(sheet.getCell('B2'), '=IFERROR(A2;"recuperato")');
+  const restored = (await openWorkbook(await exportWorkbook(book))).worksheets[0];
+  assert.equal(restored.getCell('B1').result, '#N/A'); assert.equal(restored.getCell('B2').result, 'recuperato');
+  assert.deepEqual(restored.getCell('A2').value, { error: '#N/A' });
 });

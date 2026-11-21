@@ -41,3 +41,16 @@ test('Italian decimal commas and separators coexist with invariant XLSX formula 
   const c = calc({ A1: '=SOMMA(1,5;2,5)', A2: '=ARROTONDA(1,25;1)', A3: '=1,5+2,5', A4: '=SUM(1,5)', A5: '=IF(1=1,"a;b",0)' });
   assert.equal(c('A1'), 4); assert.equal(c('A2'), 1.3); assert.equal(c('A3'), 4); assert.equal(c('A4'), 6); assert.equal(c('A5'), 'a;b');
 });
+test('literal text resembling errors stays text while actual formula errors propagate', () => {
+  const c = calc({ A1: '#N/A', A2: '#TAG', A3: '=1/0', A4: { error: '#N/A' }, B1: '=A1&" conservato"', B2: '=IFERROR("#DIV/0!";"errato")', B3: '=ISERROR(A3)', B4: '=ISERROR(A1)', C1: '=SUM(A1:A3)', C2: '=COUNTIF(A1:A2;"#TAG")', C3: '=A4', C4: '=IFERROR(A4;"recuperato")' });
+  assert.equal(c('B1'), '#N/A conservato'); assert.equal(c('B2'), '#DIV/0!');
+  assert.equal(c('B3'), true); assert.equal(c('B4'), false); assert.equal(c('C1'), '#DIV/0!');
+  assert.equal(c('C2'), 1); assert.equal(c('C3'), '#N/D'); assert.equal(c('C4'), 'recuperato');
+  assert.deepEqual(c.result('A1'), { value: '#N/A', error: false });
+  assert.deepEqual(c.result('A3'), { value: '#DIV/0!', error: true });
+});
+test('empty strings, blank cells and boolean predicates retain their separate types', () => {
+  const c = calc({ A1: '', A2: null, B1: '=ISTEXT("")', B2: '=ISBLANK("")', B3: '=ISBLANK(A2)', B4: '=ISERROR(#N/A)', C1: '=A2&"ok"', C2: '=ISNUMBER(1/0)' });
+  assert.equal(c('B1'), true); assert.equal(c('B2'), false); assert.equal(c('B3'), true);
+  assert.equal(c('B4'), true); assert.equal(c('C1'), 'ok'); assert.equal(c('C2'), false);
+});
