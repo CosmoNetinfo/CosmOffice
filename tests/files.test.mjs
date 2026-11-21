@@ -55,3 +55,8 @@ test('DOCX retains fonts, colours, sizes, page format and margins in OOXML', asy
   const zip = await JSZip.loadAsync(data); const xml = await zip.file('word/document.xml').async('string');
   assert.match(xml, /Georgia/); assert.match(xml, /w:sz w:val="36"/); assert.match(xml, /2865d8/); assert.match(xml, /w:w="12240"/); assert.match(xml, /w:top="1417"/);
 });
+test('landscape DOCX uses a physically wider page with matching orientation', async () => {
+  const data = await exportDocument({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Pagina orizzontale' }] }] }, 'Orizzontale', { writerOrientation: 'landscape' });
+  const zip = await JSZip.loadAsync(data), xml = await zip.file('word/document.xml').async('string');
+  assert.match(xml, /<w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/);
+});

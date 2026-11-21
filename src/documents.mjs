@@ -61,7 +61,7 @@ export async function exportDocument(json, title = 'Documento', options = {}) {
   await prepare(json.content);
   const margin = Math.round((options.writerMargin || 20) * 56.6929);
   let size = options.writerPaper === 'Letter' ? { width: 12240, height: 15840 } : { width: 11906, height: 16838 };
-  if (options.writerOrientation === 'landscape') size = { width: size.height, height: size.width, orientation: 'landscape' };
+  if (options.writerOrientation === 'landscape') size = { ...size, orientation: 'landscape' };
   const doc = new Document({
     creator: 'Cosmonet', title,
     styles: { default: { document: { run: { font: options.writerFont || 'Calibri', size: (options.writerFontSize || 12) * 2 } } } },

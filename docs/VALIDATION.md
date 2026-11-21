@@ -5,7 +5,7 @@ Eseguite localmente su Windows il 21 novembre 2026.
 | Verifica | Esito |
 | --- | --- |
 | Compilazione Vite | Superata |
-| Test di formule e interoperabilità DOCX/XLSX/CSV | 13 test superati |
+| Test di formule e interoperabilità DOCX/XLSX/CSV | 14 test superati |
 | Test browser su Chrome | Superati |
 | Importazione, modifica ed esportazione DOCX | Superata; testo letto con Mammoth dopo l’esportazione |
 | Ripristino bozze dopo ricaricamento | Superato |
