@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "provenance": "Dati fittizi creati con docx, ExcelJS, sharp e Chromium. Non prodotti da Microsoft Office.",
+  "files": [
+    {
+      "name": "01-testo-stili.docx",
+      "sha256": "66bcf25e599925b72484c8dac7c6d3c8e77976db5cb6eb17a13e249a091b20a7",
+      "kind": "write",
+      "text": [
+        "Accenti e stili",
+        "Perché città e qualità",
+        "Secondo paragrafo conservato."
+      ],
+      "tables": 0,
+      "images": 0,
+      "lists": 0
+    },
+    {
+      "name": "02-tabella.docx",
+      "sha256": "b100ba490d2fdc4c8bb563342a7e2d8ffc3553fdcc98f07710c65311a80f7e1d",
+      "kind": "write",
+      "text": [
+        "Preventivo di prova",
+        "Servizio Alfa",
+        "Servizio Beta",
+        "Totale concordato"
+      ],
+      "tables": 1,
+      "images": 0,
+      "lists": 0
+    },
+    {
+      "name": "03-immagine.docx",
+      "sha256": "cd10c23247c357d2f4ac3b216cb4a66a49e67e6c2bebc0d68a64fce0af79d421",
+      "kind": "write",
+      "text": [
+        "Identità Cosmonet",
+        "Logo incorporato"
+      ],
+      "tables": 0,
+      "images": 1,
+      "lists": 0
+    },
+    {
+      "name": "04-elenchi.docx",
+      "sha256": "2cefaefe67d8e928af53a5f59e2ac8ebbdda64e0f79901ad17722dff179c32e8",
+      "kind": "write",
+      "text": [
+        "Attività di progetto",
+        "Analisi iniziale",
+        "Verifica documenti",
+        "Consegna finale",
+        "Primo passo",
+        "Secondo passo"
+      ],
+      "tables": 0,
+      "images": 0,
+      "lists": 2
+    },
+    {
+      "name": "05-intestazioni.docx",
+      "sha256": "b9d25de6b0930cebd1db44cd3599921b1967d718173d6c209cd07d18df4ff530",
+      "kind": "write",
+      "text": [
+        "Relazione con intestazione",
+        "Il corpo resta modificabile"
+      ],
+      "tables": 0,
+      "images": 1,
+      "lists": 0,
+      "header": "INTESTAZIONE DA CONSERVARE",
+      "footer": "RISERVATO"
+    },
+    {
+      "name": "01-formule.xlsx",
+      "sha256": "dec2eeb4a9c4c46cac91cb4916f7f3e6d183ae1fda8f04dcc68feb3157201ca3",
+      "kind": "grid",
+      "sheets": 1
+    },
+    {
+      "name": "02-piu-fogli.xlsx",
+      "sha256": "cb8e09261ad663acf1e02dde6ed82014491165dbf29c274533010f5f625e7b3d",
+      "kind": "grid",
+      "sheets": 2
+    },
+    {
+      "name": "03-formati.xlsx",
+      "sha256": "de22c6a52ef9f475d5054cd8553040214da5475e3c2cf2903e3f32623f58877c",
+      "kind": "grid",
+      "sheets": 1
+    },
+    {
+      "name": "04-unioni-immagine.xlsx",
+      "sha256": "77d7cf8abb319bd5113ae5d0e63a1930f482ee88d745f084982178dda23c5487",
+      "kind": "grid",
+      "sheets": 1
+    },
+    {
+      "name": "05-dati-filtro.xlsx",
+      "sha256": "1abd0c7a5098abf88f5737c6ea5c0dc53a62ab34e79d9745bdb648277d3314a0",
+      "kind": "grid",
+      "sheets": 1
+    },
+    {
+      "name": "01-testo.pdf",
+      "sha256": "7917dec9e4e94e288c663034d1ea6b15f0249ee718ed348e17da8ffce00d1029",
+      "kind": "pdf",
+      "pages": 1,
+      "text": "Documento PDF testuale",
+      "scanned": false
+    },
+    {
+      "name": "02-scansione.pdf",
+      "sha256": "d1c35d657006722ea90fefca003b6a0aa53b1ad0b73cee21b7a072616dcb20bb",
+      "kind": "pdf",
+      "pages": 1,
+      "text": "",
+      "scanned": true
+    },
+    {
+      "name": "03-venti-pagine.pdf",
+      "sha256": "e9a4dc59212fa3f47d5bbd2eb911a6a4f198e84b1216ccc5578aaa1f42592e97",
+      "kind": "pdf",
+      "pages": 20,
+      "text": "Relazione multipagina",
+      "scanned": false
+    }
+  ]
+}
