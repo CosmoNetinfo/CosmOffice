@@ -24,11 +24,11 @@ Un controllo indipendente opzionale apre e risalva i campioni con LibreOffice (`
 
 - CosmoWrite: scrittura, font/dimensioni/colori/evidenziatore, titoli, allineamento, elenchi, tabelle, immagini con proporzioni conservate (incluso WebP convertito), annulla/ripristina, trova/sostituisci. Importazione DOCX/TXT/HTML, recupero dei principali stili OOXML, esportazione DOCX e PDF desktop, stampa, A4/Letter, orientamento, margini e interlinea.
 - CosmoGrid: XLSX, importazione/esportazione CSV e TSV con virgolette/testo multilinea/decimali italiani, 102 funzioni abilitate, riferimenti tra fogli (anche nomi con spazi), formule condizionali e ricerche, selezione con Shift+clic, copia/incolla di intervalli, annulla/ripristina, formati numerici, rinomina/duplica/elimina fogli. La rinomina aggiorna i riferimenti espliciti al foglio.
-- CosmoView: PDF offline, pagine, zoom, rotazione, selezione testo, ricerca per pagine, password, ultima pagina ricordata, stampa delle pagine renderizzate e copia identica all’originale. Non esegue script o azioni dei documenti.
+- CosmoView: PDF offline, pagine, zoom, rotazione persistente della pagina selezionata, selezione testo, ricerca per pagine, password, ultima pagina ricordata e stampa delle pagine renderizzate. Senza modifiche la copia è identica all’originale. Non esegue script o azioni dei documenti.
 - Impostazioni complete: tema chiaro/scuro/sistema, accento anche HEX personalizzato, scala 80–150%, densità, barra laterale, preferenze degli editor, aggiornamenti, backup/ripristino dell’archivio, esportazione/importazione delle preferenze JSON e svuotamento con conferma. Nessuna voce è un controllo dimostrativo.
 - Bozze e file PDF conservati localmente in IndexedDB, riapertura dall’archivio, ricerca, rinomina ed eliminazione delle copie locali.
 - File originali conservati: l’esportazione chiede dove salvare la copia.
-- Nessun account, nessun CDN, nessuna telemetria; font e decoder PDF sono inclusi nel pacchetto.
+- Nessun account, nessun CDN, nessuna telemetria; font e decoder PDF sono inclusi nel pacchetto. Connessioni Node/Electron bloccate anche nel processo principale, nessun controllo aggiornamenti online. Il controllo ortografico desktop è disabilitato per impedire il download automatico di dizionari.
 
 ## Compatibilità: limiti espliciti
 
@@ -36,7 +36,7 @@ L’importazione Word ricostruisce il corpo; non riproduce fedelmente paginazion
 
 I fogli preservano i dati fuori dall’area visibile, ma non garantiscono la conservazione di ogni oggetto Excel. Macro, grafici, pivot, riferimenti a cartelle esterne, nomi definiti, formule matriciali dinamiche, formati DOC/XLS/XLSM, spostamento relativo delle formule copiate e fogli enormi non sono supportati. Le 102 funzioni abilitate non equivalgono al motore completo Excel: formule finanziarie, casi limite di date/criteri e cartelle complesse richiedono ulteriore verifica. Gli intervalli incollati sono testo tabulato; le formule vengono inserite come scritte, senza traslazione dei riferimenti. I CSV importati trattano le stringhe che iniziano con “=” come testo, per evitare l’esecuzione implicita di formule. Le formule non riconosciute mostrano un errore e non usano risultati memorizzati obsoleti. Excel è invitato a ricalcolare le formule all’apertura.
 
-Il visualizzatore PDF non modifica i PDF, non esegue OCR su scansioni e non offre ancora firma, annotazioni o compilazione moduli. La ricerca trova le pagine che contengono il testo. La stampa PDF è rasterizzata per pagina, adatta alla lettura e limitata a 100 pagine; la copia salvata conserva invece integralmente i byte originali.
+Il visualizzatore PDF permette soltanto la rotazione persistente di una pagina per volta; non modifica testo o immagini, non esegue OCR su scansioni e non offre ancora firma, annotazioni o compilazione moduli. La rotazione aggiorna la bozza ed è inclusa nella copia salvata. I PDF cifrati e quelli con firme o campi firma rilevati non vengono modificati: resta possibile salvare la copia originale. Il rilevamento non certifica la validità delle firme. La ricerca trova le pagine che contengono il testo. La stampa PDF è rasterizzata per pagina, adatta alla lettura e limitata a 100 pagine; il salvataggio conserva invece i contenuti PDF originali senza rasterizzarli. Per la rotazione si usa [pdf-lib 1.17.1, licenza MIT](https://github.com/Hopding/pdf-lib/blob/v1.17.1/LICENSE.md), incluso nel pacchetto offline.
 
 I backup .cosmoffice contengono fino a 48 MB di contenuti e vengono ripristinati come nuove copie in una transazione locale. Sono esclusi password e preferenze; queste ultime si esportano separatamente. Le bozze locali non sostituiscono un backup. L’apertura dei file è limitata a 50 MB. L’interfaccia si adatta anche a schermi stretti; ciò non equivale a un’app Android/iOS.
 
@@ -51,7 +51,7 @@ node scripts/pdf-assets.mjs
 npm run dev
 ```
 
-Per usare solo l’anteprima nel browser: `npm run dev:web`. Gli editor non richiedono un server dopo l’installazione desktop: i file dell’app vengono caricati dal pacchetto locale.
+`npm run dev` compila e avvia Electron da file locali, senza server; per aggiornare il codice riavvia il comando. Per usare solo l’anteprima di sviluppo nel browser: `npm run dev:web` avvia un server locale destinato ai test, separato dall’app desktop. Gli editor installati caricano soltanto file del pacchetto locale.
 
 ```sh
 npm test
@@ -68,7 +68,7 @@ Per il controllo indipendente: `npm run test:interop`, con LibreOffice installat
 
 Ogni push su `main` avvia test, un controllo indipendente con LibreOffice e crea gli installer di anteprima per Windows x64, Linux x64 e macOS Intel/Apple Silicon. Gli artefatti sono nella scheda **Actions**, disponibili per 14 giorni. Le build di anteprima non sono firmate e non attivano l’aggiornamento automatico.
 
-Il workflow per tag `v*` controlla la versione, richiede le credenziali di firma per Windows/macOS e carica una **release in bozza**. Pubblicandola, i pacchetti di release possono controllare e scaricare aggiornamenti da GitHub. Il riavvio per installare avviene su richiesta dell’utente dopo il salvataggio delle bozze. Su Linux l’aggiornamento automatico riguarda AppImage; per DEB si installa il pacchetto aggiornato. Il flusso end-to-end richiede repository pubblico, certificati e almeno due versioni pubblicate; non è ancora collaudato.
+Il workflow per tag `v*` controlla la versione, richiede le credenziali di firma per Windows/macOS e carica una **release in bozza**. Il download dei pacchetti avviene fuori dall’app: CosmOffice non contatta GitHub e non esegue aggiornamenti online, nemmeno nelle release firmate. Per aggiornare si installa un nuovo pacchetto locale. Firma e notarizzazione restano da collaudare con certificati reali.
 
 Segreti necessari per le release:
 
@@ -98,5 +98,5 @@ Interfaccia e loghi vettoriali sono stati creati per Cosmonet. Il logo CosmoNet 
 1. Collaudo di documenti reali e installer su tutte le piattaforme desktop.
 2. Ulteriore espansione del motore di calcolo e della fedeltà DOCX/XLSX; valutazione di un motore Office completo per le funzioni avanzate.
 3. Riferimenti relativi nell’incolla, nomi definiti, ordinamento/filtri, grafici, impaginazione avanzata e OCR/annotazioni PDF.
-4. Firma, notarizzazione e prova reale dell’aggiornamento da una release alla successiva.
+4. Firma, notarizzazione e prova dell’installazione locale di una versione successiva.
 5. App Android/iOS con accesso ai file nativo, store e aggiornamenti previsti dalle piattaforme.

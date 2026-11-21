@@ -31,7 +31,7 @@ try {
   const channel = process.env.COSMO_BROWSER || 'chrome'; browser = await chromium.launch({ ...(channel === 'chromium' ? {} : { channel }), headless: true });
   const page = await browser.newPage(); await page.goto('http://127.0.0.1:5173');
   for (const file of manifest.files) {
-    for (const variant of file.kind === 'pdf' ? ['originale'] : ['originale', 'esportato']) {
+    for (const variant of ['originale', 'esportato']) {
       const input = `${variant === 'originale' ? 'tests/fixtures' : 'test-results/corpus'}/${file.name}`;
       const folder = join(root, `${variant}-${file.name}`); await mkdir(folder, { recursive: true });
       const pdfPath = file.kind === 'pdf' ? input : await convert(input, folder);

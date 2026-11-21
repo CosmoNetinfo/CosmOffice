@@ -52,7 +52,7 @@ export default function SettingsPage({ documents, refresh, onBack, update, onErr
       <Row title="Orientamento pagina" description="Usato anche nell’esportazione DOCX e PDF.">{select('writerOrientation', 'Orientamento pagina', [['portrait', 'Verticale'], ['landscape', 'Orizzontale']])}</Row>
       <Row title="Margini della pagina" description="Margine uniforme sui quattro lati.">{select('writerMargin', 'Margini pagina', [10, 15, 20, 25, 30].map(n => [n, `${n} mm`]))}</Row>
       <Row title="Interlinea" description="Distanza tra le righe del testo e nei DOCX esportati.">{select('lineHeight', 'Interlinea predefinita', [[1, 'Singola'], [1.15, '1,15'], [1.5, '1,5'], [1.65, '1,65'], [2, 'Doppia']])}</Row>
-      <Row title="Controllo ortografico" description="Usa il controllo ortografico disponibile nel sistema.">{toggle('spellcheck', 'Controllo ortografico')}</Row>
+      <Row title="Controllo ortografico" description={window.cosmoffice?.spellcheckAvailable === false ? 'Non disponibile nel pacchetto desktop: i download automatici dei dizionari sono disabilitati per garantire il funzionamento senza rete.' : 'Usa il controllo ortografico disponibile nel sistema.'}>{window.cosmoffice?.spellcheckAvailable === false ? <span>Non disponibile offline</span> : toggle('spellcheck', 'Controllo ortografico')}</Row>
     </Group>}
     {tab === 'grid' && <Group title="CosmoGrid" description="Personalizza numeri, griglia e scambio di dati.">
       <Row title="Formato dei numeri" description="Separatore decimale e delle migliaia nella griglia.">{select('gridLocale', 'Formato numeri', [['it-IT', 'Italiano · 1.234,56'], ['en-US', 'Inglese · 1,234.56'], ['de-DE', 'Tedesco · 1.234,56']])}</Row>
@@ -81,11 +81,9 @@ export default function SettingsPage({ documents, refresh, onBack, update, onErr
     </>}
     {tab === 'updates' && <>
       <div className="settings-about"><img src="./brand/suite.svg" alt=""/><div><h2>CosmOffice</h2><p>Versione {version} · Anteprima desktop</p></div></div>
-      <Group title="Aggiornamenti, con il tuo controllo">
-        <Row title="Controlla e scarica automaticamente" description="Quando sei online, cerca nuove release e scaricale. L’installazione richiede sempre un riavvio confermato.">{toggle('automaticUpdates', 'Aggiornamenti automatici')}</Row>
-        <Row title="Stato aggiornamenti" description={update.message}><button className="button secondary" disabled={busy || !window.cosmoffice?.checkUpdates || update.phase === 'checking' || update.phase === 'disabled'} onClick={() => run(async () => { const result = await window.cosmoffice.checkUpdates(); if (result) setMessage(result.message); })}><RefreshCw size={16}/> Controlla ora</button></Row>
-        {update.phase === 'ready' && <Row title="Nuova versione pronta" description="Le bozze sono già salvate. Riavvia CosmOffice per installare la nuova versione."><button className="button primary" onClick={onInstallUpdate}>Riavvia e installa</button></Row>}
-      </Group><div className="settings-explanation"><SlidersHorizontal size={18}/><p>Le anteprime non hanno ancora un canale di aggiornamento firmato. Le release abiliteranno il controllo tramite GitHub; puoi continuare a lavorare offline.</p></div>
+      <Group title="Aggiornamenti offline">
+        <Row title="Nessun controllo online" description="CosmOffice non cerca né scarica aggiornamenti. Installa un nuovo pacchetto locale per aggiornare l’app."><span>Solo installazione locale</span></Row>
+      </Group><div className="settings-explanation"><SlidersHorizontal size={18}/><p>Documenti e preferenze restano sul dispositivo. Non servono account o connessioni a server.</p></div>
     </>}
     <footer className="settings-footer"><span><Check size={13}/> {busy ? 'Operazione in corso…' : 'Le modifiche si applicano subito'}</span><span>Cosmonet · CosmOffice {version}</span></footer>
     </div></div></div>

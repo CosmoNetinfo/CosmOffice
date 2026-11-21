@@ -45,7 +45,7 @@ export default function App() {
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
   const [draftState, setDraftState] = useState('saved');
-  const [update, setUpdate] = useState({ phase: 'disabled', message: 'Gli aggiornamenti saranno attivati nelle release firmate.' });
+  const [update, setUpdate] = useState({ phase: 'disabled', message: 'Modalità completamente offline. Per aggiornare installa un nuovo pacchetto locale.' });
   const pending = useRef(Promise.resolve());
   const revisions = useRef(new Map());
   const editorApi = useRef(null);
@@ -54,7 +54,6 @@ export default function App() {
 
   const refresh = useCallback(() => listDrafts().then(setDocuments).catch(() => setNotice('Archivio locale non disponibile. Esporta il lavoro per conservarlo.')), []);
   useEffect(() => { refresh(); window.cosmoffice?.updateStatus().then(setUpdate); return window.cosmoffice?.onUpdate(setUpdate); }, [refresh]);
-  useEffect(() => { window.cosmoffice?.setUpdatePreferences?.(settings.automaticUpdates); }, [settings.automaticUpdates]);
   useEffect(() => window.cosmoffice?.onBeforeClose?.(async () => { document.activeElement?.blur(); await retryFailedDrafts(); window.cosmoffice.closeReady(!saveFailed.current); }), []);
   useEffect(() => {
     if (!notice) return;
@@ -193,7 +192,7 @@ export default function App() {
         {draftState === 'error' && <div className="draft-error-bar" role="alert"><span>La bozza non è salvata. Il lavoro rimane aperto: esporta una copia per conservarlo.</span><button className="button secondary" onClick={retryFailedDrafts}>Riprova salvataggio</button></div>}
         {active.compatibilityWarnings?.length > 0 && <details className="compatibility-details"><summary>Elementi da verificare prima dell’esportazione ({active.compatibilityWarnings.length})</summary><ul>{active.compatibilityWarnings.map(warning => <li key={warning}>{warning}</li>)}</ul><p>Conserva l’originale e controlla la copia esportata prima di usarla.</p></details>}
         {active.imported && <div className="import-notice"><CircleHelp size={15}/><span>Importazione semplificata: {active.kind === 'write' ? 'impaginazione, revisioni e alcuni elementi potrebbero cambiare.' : 'grafici, macro e funzioni avanzate non sono supportati.'} L’originale rimane sul disco. Esporta una copia e controllala.</span></div>}
-        {active.kind === 'write' ? <WriteEditor key={active.id} record={active} onEdit={onEdit} api={editorApi} onError={setNotice}/> : active.kind === 'pdf' ? <Suspense fallback={<div className="loading-editor">Apertura PDF…</div>}><PdfViewer key={active.id} record={active} api={editorApi} onError={setNotice}/></Suspense> : <Suspense fallback={<div className="loading-editor">Apertura foglio…</div>}><GridEditor key={active.id} record={active} onEdit={onEdit} api={editorApi} onError={setNotice}/></Suspense>}
+        {active.kind === 'write' ? <WriteEditor key={active.id} record={active} onEdit={onEdit} api={editorApi} onError={setNotice}/> : active.kind === 'pdf' ? <Suspense fallback={<div className="loading-editor">Apertura PDF…</div>}><PdfViewer key={active.id} record={active} api={editorApi} onError={setNotice} onEdit={onEdit}/></Suspense> : <Suspense fallback={<div className="loading-editor">Apertura foglio…</div>}><GridEditor key={active.id} record={active} onEdit={onEdit} api={editorApi} onError={setNotice}/></Suspense>}
       </>}
     </main>
     {busy && <div className="busy" role="status"><LoaderCircle className="spin" size={18}/> Elaborazione del file…</div>}
@@ -224,7 +223,7 @@ function WriteEditor({ record, onEdit, api, onError }) {
       return preserveDocxParts(await exportDocument(editor.getJSON(), record.name, settings), record.sourceDocx);
     }, snapshot: () => editor.getHTML() };
   }, [editor, record.name, record.imported, record.sourceDocx, api, settings]);
-  useEffect(() => { if (editor) editor.view.dom.spellcheck = settings.spellcheck; }, [editor, settings.spellcheck]);
+  useEffect(() => { if (editor) editor.view.dom.spellcheck = settings.spellcheck && window.cosmoffice?.spellcheckAvailable !== false; }, [editor, settings.spellcheck]);
   useEffect(() => { setZoom(settings.writerZoom); }, [settings.writerZoom]);
   const command = callback => { if (editor) callback(editor.chain().focus()).run(); };
   const paperWidth = settings.writerPaper === 'Letter' ? 816 : 794, paperHeight = settings.writerPaper === 'Letter' ? 1056 : 1123;

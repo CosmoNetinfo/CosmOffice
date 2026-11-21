@@ -5,7 +5,7 @@ Eseguite localmente su Windows il 21 novembre 2026.
 | Verifica | Esito |
 | --- | --- |
 | Compilazione Vite | Superata |
-| Test di formule e interoperabilità DOCX/XLSX/CSV | 24 test superati |
+| Test del motore, corpus, PDF e guardiano offline | 31 test superati; output completi in `docs/report/ULTIMO.md` |
 | Test browser su Chrome | Superati |
 | Importazione, modifica ed esportazione DOCX | Superata; testo letto con Mammoth dopo l’esportazione |
 | Ripristino bozze dopo ricaricamento | Superato |
@@ -56,13 +56,13 @@ Gli script riproducibili sono in `scripts/smoke.mjs`, `scripts/preferences-smoke
 
 La build precedente (0.1.0, commit 60a01b5) ha completato con successo test e pacchetti GitHub Actions per Windows, Linux e macOS Intel/Apple Silicon. Anche la 0.2.0 ha completato la pipeline (commit 15bd8f8). Anche la 0.2.1 ha completato la pipeline (commit 4836704). La stessa pipeline, con un controllo aggiuntivo di interoperabilità, viene applicata alla 0.2.2.
 
-Questi test non dimostrano la compatibilità totale Office. Non sono ancora stati collaudati l’installer su un computer pulito, l’avvio delle app macOS/Linux su dispositivi reali, il passaggio tra release con aggiornamento automatico, tutte le varianti di PDF protetti, l’OCR, documenti Office complessi o le app mobili.
+Questi test non dimostrano la compatibilità totale Office. Non sono ancora stati collaudati l’installer su un computer pulito, l’avvio delle app macOS/Linux su dispositivi reali, tutte le varianti di PDF protetti, l’OCR, documenti Office complessi o le app mobili. L’aggiornamento online è stato rimosso: si installano pacchetti locali.
 
 Il confronto indipendente locale usa LibreOffice installato su Windows con un profilo di test isolato. È un controllo su file sintetici: non dimostra la compatibilità totale con Microsoft Word o Excel e non misura la fedeltà visiva su documenti complessi. Il rapporto viene salvato in `test-results/interop-report.json`.
 # Corpus stabile di solidità
 
 `tests/fixtures/manifest.json` fissa 5 DOCX, 5 XLSX e 3 PDF con SHA-256. `npm run test:browser` comprende `scripts/corpus-smoke.mjs`: modifica e doppio salvataggio/riapertura Word ed Excel, ripristino delle bozze Word e conservazione della sorgente nel backup. Verifica testo, tabelle, elenchi, immagini, intestazioni/piè di pagina, valori, risultati delle formule, formati, fogli, filtri e celle fuori dall’area visibile. Le formule vengono confrontate in sintassi normalizzata: parentesi equivalenti non sono perdite.
 
-Per i PDF si verificano tutte le pagine con il motore, la scansione priva di testo, la navigazione fino a pagina 20 e la copia identica. In questo passo la rotazione è ancora solo una modifica della vista: non viene dichiarata modifica persistente.
+Per i PDF si verificano tutte le pagine con il motore, la scansione priva di testo, la navigazione fino a pagina 20 e la copia identica prima delle modifiche. Il corpus ora ruota l’ultima pagina, torna immediatamente alle bozze, ricarica l’app, salva e riapre il PDF modificato; confronta testo, numero pagine e rotazioni di tutte le pagine. Prova anche quota esaurita, blocco della navigazione, esportazione di recupero e nuovo salvataggio della bozza. `tests/pdf-editing.test.mjs` confronta i flussi binari originali di testo, font e immagini e verifica il blocco di un campo firma sintetico; non è una prova di firma crittografica valida o di PDF cifrati reali.
 
 Dopo i test browser, `node scripts/fixtures-office.mjs` apre originali e copie DOCX/XLSX con LibreOffice, produce PDF e controlla i testi attesi con PDF.js. Salva tutte le pagine e fogli di contatto in `test-results/corpus-office-*`, con esito JSON in `test-results/corpus-office-report.json`. In CI il lavoro `interop` scarica gli export del lavoro `checks` prima di questo controllo. Non è una certificazione Microsoft Office.

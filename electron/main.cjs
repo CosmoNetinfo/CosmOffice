@@ -1,67 +1,37 @@
-const { app, BrowserWindow, dialog, ipcMain, Menu } = require('electron');
+const electron = require('electron');
+const { installOffline, configureSession } = require('./offline.cjs');
+installOffline(electron);
+const { app, BrowserWindow, dialog, ipcMain, Menu } = electron;
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { randomUUID } = require('node:crypto');
-const { autoUpdater } = require('electron-updater');
 
 app.setName('CosmOffice');
 if (process.env.COSMO_TEST_PROFILE) app.setPath('userData', process.env.COSMO_TEST_PROFILE);
 let window;
 let closeAllowed = false;
-let updatesEnabled = true, updatesConfigured = false, preferencesReceived = false;
-let updater = { phase: 'disabled', message: 'Aggiornamenti disponibili nelle release configurate.' };
+const updater = Object.freeze({ phase: 'disabled', message: 'Modalità completamente offline. Per aggiornare installa un nuovo pacchetto locale.' });
 const MAX_FILE = 50 * 1024 * 1024;
 const supported = new Set(['.docx', '.xlsx', '.csv', '.tsv', '.pdf', '.txt', '.html', '.cosmoffice', '.json']);
 
 function trusted(event) {
   if (!window || event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame) throw new Error('Richiesta non autorizzata.');
 }
-function update(state) {
-  updater = state;
-  if (window && !window.isDestroyed()) window.webContents.send('office:update', state);
-}
-function configureUpdates() {
-  if (!app.isPackaged) return;
-  // Preview builds intentionally have no feed. Signed release builds provide this file.
-  fs.access(path.join(process.resourcesPath, 'app-update.yml')).then(() => {
-    autoUpdater.autoDownload = updatesEnabled;
-    updatesConfigured = true;
-    autoUpdater.autoInstallOnAppQuit = false;
-    autoUpdater.on('checking-for-update', () => update({ phase: 'checking', message: 'Controllo aggiornamenti…' }));
-    autoUpdater.on('update-available', () => update({ phase: 'downloading', message: 'Aggiornamento in download…' }));
-    autoUpdater.on('update-not-available', () => update({ phase: 'current', message: 'CosmOffice è aggiornato.' }));
-    autoUpdater.on('update-downloaded', () => update({ phase: 'ready', message: 'Aggiornamento pronto. Salva il lavoro prima di riavviare.' }));
-    autoUpdater.on('error', () => update({ phase: 'offline', message: 'Aggiornamenti non raggiungibili. Puoi continuare a lavorare offline.' }));
-    const check = () => { if (updatesEnabled) autoUpdater.checkForUpdates().catch(() => {}); };
-    if (preferencesReceived) check();
-    setInterval(check, 4 * 60 * 60 * 1000).unref();
-  }).catch(() => {});
-}
-
 function createWindow() {
   closeAllowed = false;
   Menu.setApplicationMenu(null);
-  const dev = !app.isPackaged && process.env.COSMO_DEV === '1';
   window = new BrowserWindow({
     width: 1440, height: 940, minWidth: 800, minHeight: 620,
     title: 'CosmOffice', backgroundColor: '#f5f7fa',
     show: process.env.COSMO_TEST !== '1',
     icon: path.join(__dirname, '../public/brand/suite.png'),
-    webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, spellcheck: true },
+    webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, spellcheck: false },
   });
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   window.webContents.on('will-navigate', (event) => event.preventDefault());
   window.webContents.on('render-process-gone', () => { closeAllowed = true; });
-  window.webContents.session.setPermissionRequestHandler((_, __, callback) => callback(false));
-  // Neither documents nor pasted HTML can load remote assets or make network requests.
-  window.webContents.session.webRequest.onBeforeRequest((details, callback) => {
-    const url = new URL(details.url);
-    const allowed = ['file:', 'data:', 'blob:', 'devtools:'].includes(url.protocol)
-      || (dev && ['http:', 'ws:'].includes(url.protocol) && url.hostname === '127.0.0.1' && url.port === '5173');
-    callback({ cancel: !allowed });
-  });
-  if (dev) window.loadURL('http://127.0.0.1:5173');
-  else window.loadFile(path.join(__dirname, '../dist/index.html'));
+  configureSession(window.webContents.session);
+  window.loadFile(path.join(__dirname, '../dist/index.html'));
   window.on('close', event => {
     if (closeAllowed) return;
     event.preventDefault();
@@ -70,7 +40,6 @@ function createWindow() {
 }
 app.whenReady().then(() => {
   createWindow();
-  configureUpdates();
 });
 
 ipcMain.handle('office:open', async event => {
@@ -104,15 +73,10 @@ ipcMain.handle('office:print', event => {
 ipcMain.handle('office:update-status', event => { trusted(event); return updater; });
 ipcMain.handle('office:update-preferences', (event, enabled) => {
   trusted(event); if (typeof enabled !== 'boolean') throw new Error('Preferenza non valida.');
-  updatesEnabled = enabled; preferencesReceived = true; autoUpdater.autoDownload = enabled;
-  if (updatesConfigured && enabled) autoUpdater.checkForUpdates().catch(() => {});
+  return updater; // Compatibilità con preferenze di vecchie versioni: nessuna attività di rete.
 });
 ipcMain.handle('office:check-updates', async event => {
-  trusted(event); if (!updatesConfigured) return updater;
-  autoUpdater.autoDownload = true;
-  await autoUpdater.checkForUpdates().catch(() => {});
-  autoUpdater.autoDownload = updatesEnabled;
-  return updater;
+  trusted(event); return updater;
 });
 ipcMain.handle('office:export-pdf', async event => {
   trusted(event);
@@ -129,7 +93,7 @@ ipcMain.handle('office:close-ready', async (event, saved) => {
 });
 ipcMain.handle('office:install-update', event => {
   trusted(event);
-  if (updater.phase === 'ready') { closeAllowed = true; autoUpdater.quitAndInstall(); }
+  return updater;
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (window && !window.isDestroyed()) window.show(); else createWindow(); });

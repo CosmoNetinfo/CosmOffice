@@ -5,13 +5,17 @@ import { createPdfTask } from './pdf-engine.mjs';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw, Search, LoaderCircle, FileLock2, Printer } from 'lucide-react';
 
 
-export default function PdfViewer({ record, api, onError }) {
+export default function PdfViewer({ record, api, onError, onEdit }) {
   const { settings } = usePreferences();
   const [pdf, setPdf] = useState(null);
   const [page, setPage] = useState(() => { if (!settings.rememberPdfPage) return 1; try { return Math.max(1, Number(JSON.parse(localStorage.getItem('cosmoffice.pdf-positions.v1') || '{}')[record.id]) || 1); } catch { return 1; } });
   const [pageInput, setPageInput] = useState('1');
   const [scale, setScale] = useState(settings.pdfZoom / 100);
-  const [rotation, setRotation] = useState(0);
+  const [bytes, setBytes] = useState(record.payload);
+  const bytesRef = useRef(record.payload);
+  const editOperation = useRef(Promise.resolve(record.payload));
+  const [editing, setEditing] = useState(false);
+  const mounted = useRef(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [password, setPassword] = useState('');
@@ -29,10 +33,12 @@ export default function PdfViewer({ record, api, onError }) {
   const [pageSize, setPageSize] = useState({ width: 655, height: 926 });
   const [printing, setPrinting] = useState(false);
   const printPages = useRef(null);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
 
   useEffect(() => {
     // PDF.js transfers the buffer to its worker: copy it so the original can still be saved.
-    const task = createPdfTask(record.payload);
+    setPdf(null); setLoading(true); setError('');
+    const task = createPdfTask(bytes);
     let cancelled = false;
     task.onPassword = (callback, reason) => {
       if (cancelled) return;
@@ -43,9 +49,9 @@ export default function PdfViewer({ record, api, onError }) {
     task.promise.then(document => { if (!cancelled) { setPdf(document); setPage(n => Math.min(n, document.numPages)); setPasswordPrompt(''); } }).catch(reason => {
       if (!cancelled) { setError(`Impossibile leggere il PDF: ${reason.message}`); setLoading(false); }
     });
-    api.current = { export: async () => new Uint8Array(record.payload).slice(), snapshot: () => record.payload };
+    api.current = { export: async () => new Uint8Array(await editOperation.current).slice(), snapshot: () => editOperation.current };
     return () => { cancelled = true; task.destroy(); };
-  }, [record.id]);
+  }, [record.id, bytes]);
 
   useEffect(() => { setPageInput(String(page)); if (pdf && settings.rememberPdfPage) { try { const entries = JSON.parse(localStorage.getItem('cosmoffice.pdf-positions.v1') || '{}'); delete entries[record.id]; entries[record.id] = page; const recent = Object.fromEntries(Object.entries(entries).slice(-500)); localStorage.setItem('cosmoffice.pdf-positions.v1', JSON.stringify(recent)); } catch {} } }, [page, pdf, settings.rememberPdfPage, record.id]);
   useEffect(() => {
@@ -59,7 +65,7 @@ export default function PdfViewer({ record, api, onError }) {
       if (renderTask.current) { renderTask.current.cancel(); await renderTask.current.promise.catch(() => {}); }
       const pdfPage = await pdf.getPage(page);
       if (cancelled) return;
-      const viewport = pdfPage.getViewport({ scale, rotation: (pdfPage.rotate + rotation) % 360 });
+      const viewport = pdfPage.getViewport({ scale });
       setPageSize({ width: viewport.width, height: viewport.height });
       const outputScale = Math.min(window.devicePixelRatio || 1, 2);
       canvas.current.width = Math.floor(viewport.width * outputScale);
@@ -85,7 +91,25 @@ export default function PdfViewer({ record, api, onError }) {
       if (!cancelled && reason.name !== 'RenderingCancelledException' && reason.name !== 'AbortException') { setError(`Pagina non leggibile: ${reason.message}`); setLoading(false); }
     });
     return () => { cancelled = true; task?.cancel(); textLayer?.cancel(); };
-  }, [pdf, page, scale, rotation]);
+  }, [pdf, page, scale]);
+
+  function rotateCurrentPage() {
+    if (!pdf || editing || loading || printing) return;
+    setEditing(true);
+    const original = bytesRef.current;
+    const operation = import('./pdf-editing.mjs').then(({ rotatePdfPage }) => rotatePdfPage(original, page)).then(result => {
+      bytesRef.current = result;
+      if (mounted.current) setBytes(result);
+      return result;
+    }).catch(reason => {
+      console.error('Rotazione PDF non riuscita:', reason);
+      if (mounted.current) onError(reason.message);
+      return original;
+    }).finally(() => { if (mounted.current) setEditing(false); });
+    editOperation.current = operation;
+    // Register the asynchronous write immediately: navigation and native close await it.
+    onEdit(() => operation);
+  }
 
   function highlight(text) {
     const term = text.trim().toLocaleLowerCase('it');
@@ -148,7 +172,7 @@ export default function PdfViewer({ record, api, onError }) {
   return <div className="editor-body pdf-editor">
     <div className="toolbar pdf-toolbar" role="toolbar" aria-label="Strumenti PDF">
       <div className="tool-group pdf-pages"><button className="tool" aria-label="Pagina precedente" disabled={!pdf || page === 1} onClick={() => setPage(n => n - 1)}><ChevronLeft size={18}/></button><input aria-label="Numero pagina PDF" inputMode="numeric" value={pageInput} onChange={e => setPageInput(e.target.value)} onBlur={goToPage} onKeyDown={e => e.key === 'Enter' && goToPage()}/><span>/ {pdf?.numPages || '—'}</span><button className="tool" aria-label="Pagina successiva" disabled={!pdf || page === pdf.numPages} onClick={() => setPage(n => n + 1)}><ChevronRight size={18}/></button></div>
-      <div className="tool-group"><button className="tool" aria-label="Riduci zoom PDF" disabled={scale <= .4} onClick={() => setScale(n => Math.max(.4, Math.round((n - .1) * 10) / 10))}><ZoomOut size={18}/></button><button className="text-tool pdf-zoom" aria-label="Ripristina zoom PDF al 100%" onClick={() => setScale(1)}>{Math.round(scale * 100)}%</button><button className="tool" aria-label="Aumenta zoom PDF" disabled={scale >= 3} onClick={() => setScale(n => Math.min(3, Math.round((n + .1) * 10) / 10))}><ZoomIn size={18}/></button><button className="tool" aria-label="Ruota pagina PDF" onClick={() => setRotation(n => (n + 90) % 360)}><RotateCw size={17}/></button></div>
+      <div className="tool-group"><button className="tool" aria-label="Riduci zoom PDF" disabled={scale <= .4} onClick={() => setScale(n => Math.max(.4, Math.round((n - .1) * 10) / 10))}><ZoomOut size={18}/></button><button className="text-tool pdf-zoom" aria-label="Ripristina zoom PDF al 100%" onClick={() => setScale(1)}>{Math.round(scale * 100)}%</button><button className="tool" aria-label="Aumenta zoom PDF" disabled={scale >= 3} onClick={() => setScale(n => Math.min(3, Math.round((n + .1) * 10) / 10))}><ZoomIn size={18}/></button><button className="tool" aria-label="Ruota pagina PDF" title="Ruota questa pagina di 90° e salva la modifica nella bozza" disabled={!pdf || editing || loading || printing} onClick={rotateCurrentPage}><RotateCw size={17}/></button></div>
       <button className="text-tool" disabled={!pdf || printing} onClick={printPdf}><Printer size={16}/>{printing ? 'Preparazione stampa…' : 'Stampa PDF'}</button>
       <form className="pdf-search" onSubmit={find}><Search size={16}/><input aria-label="Cerca nel PDF" placeholder="Cerca nel documento" value={query} onChange={e => { searchRevision.current++; setQuery(e.target.value); setMatches([]); setSearchState(''); highlight(e.target.value); }}/><button type="submit">Cerca</button><button type="button" className="tool" aria-label="Risultato precedente" disabled={!matches.length} onClick={() => moveMatch(-1)}><ChevronLeft size={16}/></button><button type="button" className="tool" aria-label="Risultato successivo" disabled={!matches.length} onClick={() => moveMatch(1)}><ChevronRight size={16}/></button></form>
     </div>
@@ -156,7 +180,7 @@ export default function PdfViewer({ record, api, onError }) {
     <div className="pdf-workspace">
       {passwordPrompt ? <form className="pdf-password" onSubmit={event => { event.preventDefault(); passwordCallback.current?.(password); setPassword(''); setPasswordPrompt(''); setLoading(true); }}><FileLock2 size={30}/><h2>PDF protetto</h2><p>{passwordPrompt}</p><input autoFocus type="password" aria-label="Password PDF" value={password} onChange={e => setPassword(e.target.value)} required/><button className="button primary">Apri PDF</button><small>La password viene usata solo sul tuo dispositivo.</small></form> : error ? <div className="pdf-error" role="alert"><h2>Il PDF non si apre</h2><p>{error}</p><p>Puoi tornare alle bozze e scegliere un altro file.</p></div> : <div className="pdf-paper" style={{ width: pageSize.width, height: pageSize.height }}><canvas ref={canvas} aria-label={`Pagina ${page} del PDF`}/><div className="textLayer" ref={layer}/>{loading && <div className="pdf-loading" role="status"><LoaderCircle className="spin" size={22}/> Lettura pagina…</div>}</div>}
     </div>
-    <div className="editor-status"><span>CosmoView<i/>PDF · Sola lettura</span><span>{pdf ? `Pagina ${page} di ${pdf.numPages}` : 'Lettura locale'}<i/>Nessun file caricato online</span></div>
+    <div className="editor-status"><span>CosmoView<i/>{editing ? 'Rotazione e salvataggio…' : 'PDF · Lettura e rotazione pagina'}</span><span>{pdf ? `Pagina ${page} di ${pdf.numPages}` : 'Lettura locale'}<i/>Nessun file caricato online</span></div>
     <div className="pdf-print-pages" ref={printPages}/>
     <style>{'@media print { .pdf-editor .pdf-workspace { display: none !important; } .pdf-print-pages { display: block !important; } .pdf-print-pages > img { display: block; max-width: 170mm; max-height: 257mm; width: auto; height: auto; margin: 0 auto; break-after: page; } .pdf-print-pages > img:last-child { break-after: auto; } }'}</style>
   </div>;

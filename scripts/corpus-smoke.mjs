@@ -9,11 +9,23 @@ import { openWorkbook } from '../src/workbooks.mjs';
 import { invariantFormula } from '../src/formulas.mjs';
 
 const manifest = JSON.parse(await readFile('tests/fixtures/manifest.json', 'utf8'));
+const requested = process.argv.slice(2), selected = requested.length ? manifest.files.filter(file => requested.includes(file.name)) : manifest.files;
+assert.ok(selected.length && (!requested.length || selected.length === requested.length), 'nomi dei campioni richiesti validi');
 const folder = 'test-results/corpus'; await mkdir(folder, { recursive: true });
 const server = await createServer({ server: { host: '127.0.0.1', port: 5173, strictPort: true } }); await server.listen();
 const channel = process.env.COSMO_BROWSER || 'chrome';
-let browser; const results = [], errors = [], external = [];
+let browser; const results = [], errors = [], external = [], diagnostics = [];
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+async function inspectPdf(page, bytes) {
+  return page.evaluate(async data => {
+    const { createPdfTask } = await import('/src/pdf-engine.mjs'); const task = createPdfTask(new Uint8Array(data)); const pdf = await task.promise;
+    try {
+      const texts = [], rotations = [];
+      for (let i = 1; i <= pdf.numPages; i++) { const page = await pdf.getPage(i); texts.push((await page.getTextContent()).items.map(item => item.str || '').join(' ')); rotations.push(page.rotate); }
+      return { pages: pdf.numPages, texts, rotations };
+    } finally { await task.destroy(); }
+  }, Array.from(bytes));
+}
 async function verifyDoc(bytes, file) {
   const zip = await JSZip.loadAsync(bytes);
   const text = (await mammoth.extractRawText({ buffer: Buffer.from(bytes) })).value;
@@ -53,15 +65,19 @@ async function verifyGrid(original, bytes) {
 }
 try {
   browser = await chromium.launch({ ...(channel === 'chromium' ? {} : { channel }), headless: true });
-  for (const file of manifest.files) {
+  for (const file of selected) {
     const original = await readFile(`tests/fixtures/${file.name}`); assert.equal(hash(original), file.sha256);
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     await context.addInitScript(() => {
       window.testFiles = []; window.testSaved = [];
+      window.failDraftWrites = false;
+      const put = IDBObjectStore.prototype.put;
+      IDBObjectStore.prototype.put = function(...args) { if (window.failDraftWrites) throw new DOMException('Spazio esaurito durante il test PDF', 'QuotaExceededError'); return put.apply(this, args); };
       window.cosmoffice = { openFile: async () => { const file = window.testFiles.shift(); return file ? { name: file.name, bytes: new Uint8Array(file.bytes) } : null; }, saveFile: async (name, bytes) => { window.testSaved.push({ name, bytes: Array.from(bytes) }); return { name }; }, updateStatus: async () => ({ phase: 'disabled', message: 'Test offline' }), onUpdate: () => () => {} };
     });
     const page = await context.newPage();
     page.on('pageerror', error => errors.push(`${file.name}: ${error.message}`));
+    page.on('console', message => { if (message.type() === 'error') diagnostics.push(`${file.name}: ${message.text()}`); });
     page.on('request', request => { if (/^https?:/.test(request.url()) && !request.url().startsWith('http://127.0.0.1:5173/')) external.push(request.url()); });
     async function open(bytes) {
       await page.evaluate(data => window.testFiles.push(data), { name: file.name, bytes: Array.from(bytes) });
@@ -80,7 +96,7 @@ try {
         const editor = page.locator('.document-page'); await editor.waitFor();
         for (const text of file.text) assert.ok((await editor.innerText()).includes(text));
         await editor.click(); await page.keyboard.press('ControlOrMeta+End'); await page.keyboard.press('ArrowDown'); await page.keyboard.press('Enter'); await page.keyboard.type('Modifica corpus conservata.');
-        await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.reload();
+        await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor(); await page.reload();
         await page.getByRole('button', { name: new RegExp(`${file.name.slice(0, -5)} CosmoWrite`) }).click();
         if (file.header) {
           const sourceRetained = await page.evaluate(async () => {
@@ -129,36 +145,47 @@ try {
         await verifyGrid(book, await exportFile('Esporta XLSX'));
       } else {
         await page.waitForFunction(() => document.querySelector('.pdf-paper canvas')?.width > 0 && !document.querySelector('.pdf-loading'));
-        const metadata = await page.evaluate(async bytes => {
-          const { createPdfTask } = await import('/src/pdf-engine.mjs'); const task = createPdfTask(new Uint8Array(bytes)); const pdf = await task.promise;
-          const texts = []; for (let i = 1; i <= pdf.numPages; i++) texts.push((await (await pdf.getPage(i)).getTextContent()).items.map(item => item.str || '').join(' '));
-          const result = { pages: pdf.numPages, texts }; await task.destroy(); return result;
-        }, Array.from(original));
+        const metadata = await inspectPdf(page, original);
         assert.equal(metadata.pages, file.pages);
         if (file.scanned) assert.ok(metadata.texts.every(text => !text.trim())); else assert.ok(metadata.texts[0].includes(file.text));
         if (file.pages > 1) {
           await page.getByRole('textbox', { name: 'Numero pagina PDF' }).fill(String(file.pages)); await page.getByRole('textbox', { name: 'Numero pagina PDF' }).press('Enter');
           await page.waitForFunction(() => !document.querySelector('.pdf-loading') && document.querySelector('.textLayer')?.textContent.includes('Marcatore pagina 20'));
         }
+        assert.equal(hash(await exportFile('Salva copia PDF')), file.sha256, 'senza modifiche la copia PDF resta identica');
+        if (file.name === '01-testo.pdf') await page.evaluate(() => { window.failDraftWrites = true; });
         await page.getByRole('button', { name: 'Ruota pagina PDF', exact: true }).click();
-        await page.waitForFunction(() => !document.querySelector('.pdf-loading'));
+        if (file.name === '01-testo.pdf') {
+          await page.getByRole('button', { name: 'Torna alle bozze' }).click();
+          await page.getByRole('status').filter({ hasText: 'Il documento rimane aperto' }).waitFor();
+          assert.equal(await page.locator('.pdf-editor').count(), 1);
+          const rescued = await inspectPdf(page, await exportFile('Salva copia PDF'));
+          assert.equal(rescued.rotations[0], (metadata.rotations[0] + 90) % 360, 'PDF esportabile anche con quota esaurita');
+          await page.evaluate(() => { window.failDraftWrites = false; });
+        }
+        // Navigation immediately after the click must await editing and draft persistence.
+        await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor(); await page.reload();
+        await page.getByRole('button', { name: new RegExp(`${file.name.slice(0, -4)} CosmoView`) }).click();
+        await page.waitForFunction(() => document.querySelector('.pdf-paper canvas')?.width > 0 && !document.querySelector('.pdf-loading'));
         output = await exportFile('Salva copia PDF');
-        // Al momento la rotazione è una preferenza di vista; la copia deve essere identica.
-        assert.equal(hash(output), file.sha256);
+        const saved = await inspectPdf(page, output);
+        assert.equal(saved.pages, metadata.pages); assert.deepEqual(saved.texts, metadata.texts, 'testi di tutte le pagine conservati');
+        assert.deepEqual(saved.rotations, metadata.rotations.map((rotation, i) => (rotation + (i === file.pages - 1 ? 90 : 0)) % 360), 'ruota solo la pagina selezionata');
         await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await open(output);
         await page.waitForFunction(() => document.querySelector('.pdf-paper canvas')?.width > 0 && !document.querySelector('.pdf-loading'));
+        const reopened = await inspectPdf(page, await exportFile('Salva copia PDF')); assert.deepEqual(reopened, saved);
       }
       await writeFile(`${folder}/${file.name}`, output);
       await page.screenshot({ path: `${folder}/${file.name}.png` });
       assert.equal(hash(await readFile(`tests/fixtures/${file.name}`)), file.sha256, 'originale immutato');
-      results.push({ file: file.name, status: 'PASS', modification: file.kind === 'pdf' ? 'Solo vista, copia identica' : 'Persistente' });
+      results.push({ file: file.name, status: 'PASS', modification: file.kind === 'pdf' ? 'Rotazione persistente della pagina selezionata' : 'Persistente' });
       console.log(`PASS ${file.name}`);
     } catch (error) {
       await page.screenshot({ path: `${folder}/${file.name}-errore.png` }).catch(() => {});
       results.push({ file: file.name, status: 'FAIL', error: error.message }); console.error(`FAIL ${file.name}: ${error.message}`);
     } finally { await context.close(); }
   }
-  await writeFile(`${folder}/report.json`, JSON.stringify({ results, errors, external }, null, 2));
+  await writeFile(`${folder}/report.json`, JSON.stringify({ results, errors, external, diagnostics }, null, 2));
   assert.deepEqual(errors, []); assert.deepEqual(external, []);
-  assert.equal(results.filter(result => result.status === 'PASS').length, 13, 'tutti i file del corpus');
+  assert.equal(results.filter(result => result.status === 'PASS').length, selected.length, `tutti i ${selected.length} file selezionati del corpus; diagnostica: ${diagnostics.join('\n')}`);
 } finally { await browser?.close(); await server.close(); }

@@ -6,6 +6,8 @@ Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o c
 
 | ID | Problema e riproduzione | Stato | Verifica |
 | --- | --- | --- | --- |
+| NET-001 | Il processo principale poteva contattare GitHub nelle release firmate per verificare/scaricare aggiornamenti. | Rimosso e bloccato dal guardiano offline; esiti nel report | Test Node delle API, Electron reale con nessun tentativo spontaneo e NetLog; richiesta intenzionale dal main rilevata e bloccata |
+| NET-002 | Il controllo ortografico Electron può scaricare dizionari Hunspell dal CDN senza un’azione esplicita dell’utente. | Download evitato disabilitando l’ortografia desktop; manca un dizionario incorporato | Sessioni e webPreferences con spellcheck disattivato; disponibilità indicata nelle impostazioni |
 | DAT-008 | `05-intestazioni.docx`: esportare dopo una modifica eliminava intestazione, logo e piè di pagina con campo PAGE. | Corretto, esiti nel report del passo | `scripts/corpus-smoke.mjs`: conservazione parti e relazioni, ricaricamento bozza, backup, doppia esportazione e riapertura |
 | DAT-009 | DOCX con commenti, note, revisioni o oggetti non supportati potevano essere esportati eliminando quelle parti, dopo un semplice avviso. | Rischio contenuto: export bloccato sui contenuti rilevati; supporto completo assente | Prova negativa commenti e sezioni multiple in `scripts/corpus-smoke.mjs`. Il rilevamento non copre tutti i possibili oggetti Office. |
 | DAT-001 | Inserire `00123` o un identificativo di oltre 15 cifre poteva togliere gli zeri o arrotondare il valore. | Corretto nella revisione locale 0.2.2 | `tests/reliability.test.mjs`, salvataggio e riapertura XLSX; prova nell'app Windows |
@@ -22,13 +24,18 @@ Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o c
 | --- | --- | --- | --- |
 | CAL-001 | Una stringa come `#N/A` veniva confusa con un errore vero; IFERROR, ISERROR e risultati salvati potevano essere errati. | Corretto nella revisione locale 0.2.2 | `tests/formulas.test.mjs`, `tests/reliability.test.mjs`, verifica con LibreOffice |
 | CAL-002 | Stringhe vuote e celle vuote erano indistinguibili per ISTEXT e ISBLANK. | Corretto nella revisione locale 0.2.2 | Test dei predicati e dei tipi |
+| PDF-001 | Il pulsante «Ruota pagina PDF» ruotava la vista di tutte le pagine e la rotazione spariva nella copia salvata. | Corretto: rotazione persistente della sola pagina selezionata, esiti nel report | Tre PDF del corpus, ricaricamento bozza, salvataggio/riapertura; confronto delle rotazioni di tutte le pagine e dei flussi binari originali |
 | DOC-001 | Il formato orizzontale DOCX veniva scambiato due volte, lasciando larghezza e altezza incoerenti. | Corretto nella 0.2.0 | Controllo OOXML della pagina orizzontale in `tests/files.test.mjs` |
 
 ## Limiti noti da verificare con il corpus richiesto
 
+### Messaggi e usabilità
+
+- UX-001: i fallimenti di apertura/salvataggio nativi mostravano il prefisso tecnico inglese di Electron. Rimosso al confine IPC per le operazioni sui file; tradotti i codici di file occupato, permessi, spazio esaurito e percorso assente. La prova desktop del fallimento di scrittura controlla anche il messaggio visualizzato.
+
 - DOCX: intestazioni e piè di pagina a sezione singola vengono conservati nell’export ma non mostrati. Commenti, revisioni e oggetti complessi rilevati bloccano l’esportazione: manca il supporto completo alla modifica di questi documenti. Le bozze importate prima di questa correzione non contengono la sorgente DOCX: occorre reimportare l’originale per conservarne intestazioni e piè di pagina.
-- PDF: CosmoView è un lettore. La rotazione attuale modifica la vista; la copia esportata conserva i byte originali. Modifica persistente del documento non ancora implementata.
-- Il traffico di rete del renderer è bloccato; il meccanismo di aggiornamento delle build firmate prevede attualmente accessi a GitHub. Va adeguato al nuovo vincolo di nessuna chiamata esterna.
+- PDF: lettura e rotazione persistente della pagina. Mancano modifica testo, OCR, annotazioni e moduli. Senza modifiche, la copia conserva i byte originali. PDF cifrati e firme/campi firma rilevati bloccano la modifica; nessuna certificazione della validità delle firme.
+- Aggiornamenti online rimossi e API di rete bloccate. Il controllo ortografico desktop resta disabilitato finché non saranno distribuiti dizionari locali con licenze verificate.
 - I controlli locali precedenti coprono un corpus ristretto generato per i test, non tutti i file Microsoft.
 
 ## Prove indipendenti
@@ -38,3 +45,10 @@ Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o c
 I nuovi bug del corpus `tests/fixtures` verranno aggiunti con file, passaggi di riproduzione, comportamento atteso ed esito verificato.
 
 Primo giro del corpus: 9/13 PASS. DAT-008 era una perdita reale. I tre confronti XLSX falliti confrontavano formule testuali identiche carattere per carattere; il serializzatore aggiunge parentesi senza cambiarne il significato. Il test ora confronta la sintassi normalizzata e il risultato, oltre a valori, formati, immagini, unioni e filtri. Queste differenze equivalenti non sono classificate come bug dell’app.
+
+### Problemi del banco di prova
+
+- QA-001: il test PDF eseguiva `reload()` appena inviato il clic «Torna alle bozze», prima della conclusione del gestore asincrono e del salvataggio. Risultavano tre PDF non ruotati. Corretto attendendo la schermata iniziale prima del riavvio; resta il controllo dei byte esportati, delle rotazioni di tutte le pagine e della quota esaurita. La traccia ha smentito la prima ipotesi di perdita durante la normale navigazione dell’app.
+- QA-002: il test Electron tentava di chiudere un NetLog di sessione avviato invece dal flag CLI globale, ricevendo `No net log in progress`. Corretto leggendo il log dopo la chiusura del processo. Nessuna connessione è stata necessaria per il controllo.
+- QA-003: la creazione dei pacchetti dentro `release/` faceva ricaricare Vite e poteva produrre avvisi watcher `EBUSY`. Esclusi `release/` e `test-results/` dal monitoraggio; i controlli vengono ripetuti senza confezionamento concorrente.
+- QA-004: il confronto di immagini Poppler prima/dopo rotazione era troppo rigido rispetto all’arrotondamento della griglia pixel e all’antialiasing. Il confronto visivo mantiene la soglia di differenza, applica una media locale di un pixel e ammette al massimo un pixel di allineamento; quantità di contenuto e orientamento restano verificati. La prova dei flussi binari controlla separatamente che testo, font e immagini dei campioni restino identici.

@@ -26,6 +26,9 @@ jobs:
       - run: npm run test:browser
         env:
           COSMO_BROWSER: chromium
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends poppler-utils
+      - run: node scripts/pdf-independent.mjs
+      - run: xvfb-run -a node scripts/offline-smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

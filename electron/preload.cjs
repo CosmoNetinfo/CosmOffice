@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('cosmoffice', Object.freeze({
+  spellcheckAvailable: false,
   openFile: () => ipcRenderer.invoke('office:open'),
   saveFile: (name, bytes) => ipcRenderer.invoke('office:save', { name, bytes }),
   print: () => ipcRenderer.invoke('office:print'),

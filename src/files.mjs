@@ -1,5 +1,16 @@
 import DOMPurify from 'dompurify';
 
+async function nativeFileOperation(operation) {
+  try { return await operation(); }
+  catch (error) {
+    const message = String(error?.message || 'Operazione sul file non riuscita.').replace(/^Error invoking remote method '[^']+':\s*/, '').replace(/^Error:\s*/, '');
+    if (/\b(EBUSY|EPERM|EACCES)\b/.test(message)) throw new Error('Il file è occupato o non hai i permessi necessari. Scegli un’altra destinazione.');
+    if (/\bENOSPC\b/.test(message)) throw new Error('Spazio su disco insufficiente. Scegli un’altra destinazione.');
+    if (/\bENOENT\b/.test(message)) throw new Error('File o cartella non trovati. Controlla il percorso e riprova.');
+    throw new Error(message);
+  }
+}
+
 export function safeHtml(html) {
   const clean = DOMPurify.sanitize(html, { FORBID_TAGS: ['style', 'iframe', 'video', 'audio', 'form', 'input', 'object', 'embed', 'svg', 'math'], FORBID_ATTR: ['srcset', 'target'] });
   const parsed = new DOMParser().parseFromString(clean, 'text/html');
@@ -16,7 +27,7 @@ export function safeHtml(html) {
   return parsed.body.innerHTML;
 }
 export async function chooseFile() {
-  if (window.cosmoffice) return window.cosmoffice.openFile();
+  if (window.cosmoffice) return nativeFileOperation(() => window.cosmoffice.openFile());
   return new Promise(resolve => {
     const input = document.createElement('input'); input.type = 'file'; input.accept = '.docx,.xlsx,.csv,.tsv,.pdf,.txt,.html';
     input.onchange = async () => { const file = input.files[0]; resolve(file ? { name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) } : null); };
@@ -24,7 +35,7 @@ export async function chooseFile() {
   });
 }
 export async function saveFile(name, bytes, type) {
-  if (window.cosmoffice) return window.cosmoffice.saveFile(name, bytes);
+  if (window.cosmoffice) return nativeFileOperation(() => window.cosmoffice.saveFile(name, bytes));
   const url = URL.createObjectURL(new Blob([bytes], { type }));
   const link = document.createElement('a'); link.href = url; link.download = name; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 10000);

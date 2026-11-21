@@ -22,9 +22,6 @@
     "uuid": "11.1.1",
     "minimatch": "11.0.1"
   },
-  "dependencies": {
-    "electron-updater": "6.8.11"
-  },
   "devDependencies": {
     "@formulajs/formulajs": "4.6.1",
     "@tiptap/extension-highlight": "3.35.0",
@@ -45,6 +42,7 @@
     "lucide-react": "1.77.0",
     "mammoth": "1.13.0",
     "papaparse": "5.7.1",
+    "pdf-lib": "1.17.1",
     "pdfjs-dist": "6.5.438",
     "playwright": "1.65.1",
     "react": "19.3.1",
