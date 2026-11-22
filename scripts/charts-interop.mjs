@@ -5,6 +5,7 @@ import { resolve, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import JSZip from 'jszip';
 import { DOMParser } from '@xmldom/xmldom';
+import { PDFDocument } from 'pdf-lib';
 import { openWorkbook } from '../src/workbooks.mjs';
 import { chartModels, chartData } from '../src/charts.mjs';
 const C = 'http://schemas.openxmlformats.org/drawingml/2006/chart';
@@ -27,6 +28,10 @@ assert.equal(chartModels(original).length, 3, 'occorre il file realmente creato 
 await convert(input, 'ods', intermediate);
 await convert(join(intermediate, 'grafici-ui.ods'), 'xlsx', output);
 await convert(input, 'pdf', output);
+const printed = await PDFDocument.load(await readFile(join(output, 'grafici-ui.pdf')));
+assert.equal(printed.getPageCount(), 1, 'CHART-002: tutti i grafici devono stare su una sola pagina');
+const printedPage = printed.getPage(0);
+assert.ok(printedPage.getWidth() > printedPage.getHeight(), 'pagina di stampa orizzontale');
 const roundtrip = new Uint8Array(await readFile(join(output, 'grafici-ui.xlsx')));
 const zip = await JSZip.loadAsync(roundtrip);
 const parts = [];
@@ -62,5 +67,5 @@ for (const part of parts) {
 assert.deepEqual(seen.map(item => item.type).sort(), ['bar', 'line', 'pie']);
 const external = await openWorkbook(roundtrip);
 assert.equal(external.cosmoUnsupportedCharts, true, 'i grafici riscritti da LibreOffice devono attivare la protezione');
-const report = { result: 'PASS', engine: 'LibreOffice: XLSX → ODS → XLSX e PDF', charts: seen, output: root, limits: 'Microsoft Excel non eseguito. I file riscritti da LibreOffice vengono aperti in sola lettura da CosmOffice per conservarne i grafici.' };
+const report = { result: 'PASS', engine: 'LibreOffice: XLSX → ODS → XLSX e PDF', charts: seen, print: { pages: printed.getPageCount(), landscape: printedPage.getWidth() > printedPage.getHeight() }, output: root, limits: 'Microsoft Excel non eseguito. I file riscritti da LibreOffice vengono aperti in sola lettura da CosmOffice per conservarne i grafici. Adattamento a una pagina anche in altezza: i fogli grandi si riducono in stampa.' };
 await writeFile('test-results/charts-interop-report.json', JSON.stringify(report, null, 2)); console.log(JSON.stringify(report, null, 2));

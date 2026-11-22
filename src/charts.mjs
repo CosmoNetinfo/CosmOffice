@@ -68,6 +68,9 @@ export function newChart(book, sheetId, start, end, type) {
 export function prepareCharts(book) {
   const models = chartModels(book).filter(model => book.getWorksheet(model.sheetId));
   book.properties.cosmoCharts = models;
+  for (const sheet of book.worksheets.filter(sheet => models.some(model => model.sheetId === sheet.id))) {
+    sheet.pageSetup = { ...sheet.pageSetup, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 1 };
+  }
   delete book.properties.cosmoChartDataSheetName;
   if (!models.some(model => model.labels.some(Boolean))) return;
   let name = '_CosmoGrafici', index = 1;

@@ -33,7 +33,7 @@ Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o c
 
 ### Messaggi e usabilità
 
-- CHART-002: la stampa/PDF con impostazioni predefinite di LibreOffice può spezzare i grafici su più pagine. Riprodotto sul campione grafici-ui.xlsx (4 pagine); dati e oggetti XLSX presenti, adattamento automatico alla pagina non implementato.
+- CHART-002: risolto sul campione grafici-ui.xlsx. I fogli con grafici esportano orientamento orizzontale e adattamento a una pagina in larghezza e altezza (altezza aggiunta con autorizzazione esplicita dell’utente). LibreOffice produce 1 pagina orizzontale con tutti i grafici interi, verificata anche visivamente con Poppler. I fogli grandi vengono ridotti in stampa.
 
 - UX-001: i fallimenti di apertura/salvataggio nativi mostravano il prefisso tecnico inglese di Electron. Rimosso al confine IPC per le operazioni sui file; tradotti i codici di file occupato, permessi, spazio esaurito e percorso assente. La prova desktop del fallimento di scrittura controlla anche il messaggio visualizzato.
 
