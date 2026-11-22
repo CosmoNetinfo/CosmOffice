@@ -1,10 +1,14 @@
 # Decisioni e alternative tecniche
 
+## Dati del titolare forniti dall’utente — 22 novembre 2026
+
+Daniele Spalletti, recapito danielespalletti@cosmonet.info: inseriti nei testi correnti al posto del segnaposto della licenza A, su indicazione esplicita dell’utente. Non aggiunti indirizzi o ragioni sociali. Condizioni A invariate, B non adottata; revisione professionale ancora necessaria. Non modificati i report storici, app, metadati di packaging, preferenza aggiornamenti, versioni o Release.
+
 ## Adozione esplicita della licenza A — 22 novembre 2026
 
 Su istruzione del titolare viene adottata A in [LICENSE](../LICENSE), partendo dalla sezione A di [LICENZA-BOZZE.md](LICENZA-BOZZE.md). Uso gratuito anche professionale, codice originale e grafica riservati, nessuna redistribuzione degli installer, link alle Release ufficiali condivisibile. B non adottata, conservata come alternativa storica. Non si scelgono MIT, Apache-2.0 o un motore documentale.
 
-Titolare e recapito: [TITOLARE E RECAPITO: DA COMPILARE]. Revisione professionale del testo definitivo ancora necessaria; questa stesura non è consulenza legale. Nessun dato anagrafico o legge applicabile inventati. Gli aggiornamenti sono descritti come disattivabili senza stabilirne qui lo stato iniziale; la preferenza predefinita non cambia ed è ancora da decidere.
+Titolare e recapito: Daniele Spalletti (danielespalletti@cosmonet.info). Revisione professionale del testo definitivo ancora necessaria; questa stesura non è consulenza legale. Nessun dato anagrafico o legge applicabile inventati. Gli aggiornamenti sono descritti come disattivabili senza stabilirne qui lo stato iniziale; la preferenza predefinita non cambia ed è ancora da decidere.
 
 Non modificati src/, electron/, configurazione di packaging, schermate di accettazione, pagina NSIS, versione, tag o Release. L’audit dei quattro installer 0.2.2 rileva package.json senza campo license, copyright/author storici “Cosmonet” e assenza della licenza propria nel payload; presenti avvisi di terzi e licenza separata del lessico. La 0.2.2 pubblicata conserva l’assetto precedente: nessun aggiornamento retroattivo. Eventuale inclusione del nuovo testo nei futuri pacchetti è da concordare, non una correzione silenziosa.
 

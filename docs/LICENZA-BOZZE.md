@@ -2,7 +2,7 @@
 
 Stato del 22 novembre 2026: **A adottata per esplicita scelta del titolare; B non adottata**, conservata come alternativa storica. Il testo operativo del repository è in [LICENSE](../LICENSE). La 0.2.2 già pubblicata resta invariata e conserva il precedente assetto di licenza: questa adozione non ne sostituisce installer, metadati o file.
 
-Titolare e recapito: [TITOLARE E RECAPITO: DA COMPILARE]. Il testo definitivo deve essere rivisto da un professionista; questa stesura non è consulenza legale. Nessuna schermata di accettazione o pagina NSIS viene introdotta.
+Titolare e recapito: Daniele Spalletti (danielespalletti@cosmonet.info). Il testo definitivo deve essere rivisto da un professionista; questa stesura non è consulenza legale. Nessuna schermata di accettazione o pagina NSIS viene introdotta.
 
 ## A — Uso gratuito, codice e marchio riservati
 
@@ -10,7 +10,7 @@ Titolare e recapito: [TITOLARE E RECAPITO: DA COMPILARE]. Il testo definitivo de
 
 **Licenza d’uso gratuita di CosmOffice — A adottata**
 
-1. **Titolare e ambito.** [TITOLARE E RECAPITO: DA COMPILARE] concede questa licenza sul software originale CosmOffice distribuito ufficialmente da Cosmonet. I componenti di altri autori e i dati del dizionario seguono le proprie licenze, indicate separatamente.
+1. **Titolare e ambito.** Daniele Spalletti (danielespalletti@cosmonet.info) concede questa licenza sul software originale CosmOffice distribuito ufficialmente da Cosmonet. I componenti di altri autori e i dati del dizionario seguono le proprie licenze, indicate separatamente.
 2. **Uso gratuito.** Puoi installare e usare CosmOffice senza corrispettivi di licenza, scadenza temporale o abbonamento, per finalità personali, scolastiche, associative e professionali, anche su più computer. Puoi conservarne copie di sicurezza. L’uso della versione ricevuta non dipende dall’acquisto di aggiornamenti o servizi.
 3. **Diritti riservati.** Il codice originale e gli elementi grafici rimangono del titolare. Questa licenza non concede di modificarli, creare o distribuire versioni derivate, concederli in sublicenza o vendere copie del programma. Non è consentita la redistribuzione degli installer di CosmOffice. Per suggerire il download puoi condividere il collegamento alle Release ufficiali: https://github.com/CosmoNetinfo/CosmOffice/releases/latest. Restano salvi i diritti inderogabili di legge, quelli concessi dalle licenze dei singoli componenti e dalle condizioni della piattaforma del repository.
 4. **Nomi e loghi.** Non è concessa una licenza sul marchio CosmOffice, sui nomi delle sue applicazioni o sui loghi. Puoi citare correttamente il prodotto senza suggerire approvazioni o affiliazioni inesistenti. Non rimuovere attribuzioni obbligatorie dalle copie consentite.
@@ -57,8 +57,8 @@ Una licenza open source deve permettere redistribuzione, modifiche e uso commerc
 4. Verificare attribuzioni, intestazioni e NOTICE necessari, con le licenze di terzi inalterate.
 5. Aggiornare repository e successivi pacchetti soltanto dopo autorizzazione. La disponibilità del sorgente da sola non cambia la licenza attuale.
 
-## Dati mancanti e verifiche successive
+## Dati del titolare e verifiche successive
 
-Scelta A registrata; B, MIT e Apache-2.0 non adottate. Mancano [TITOLARE E RECAPITO: DA COMPILARE] e la revisione professionale del testo definitivo. Il divieto di redistribuzione degli installer è confermato dall’istruzione del titolare. Legge applicabile e dati anagrafici non sono stati inventati. Restano da allineare i futuri pacchetti: la 0.2.2 non viene riscritta. Nessuna scelta del motore documentale.
+Scelta A registrata; B, MIT e Apache-2.0 non adottate. Titolare e recapito forniti dall’utente: Daniele Spalletti (danielespalletti@cosmonet.info). Resta necessaria la revisione professionale del testo definitivo. Il divieto di redistribuzione degli installer è confermato dall’istruzione del titolare. Legge applicabile e ulteriori dati anagrafici non sono stati inventati. Restano da allineare i futuri pacchetti: la 0.2.2 non viene riscritta. Nessuna scelta del motore documentale.
 
 Le fonti sono state consultate come testi di licenza e documentazione pubblica; nessun codice di terzi è stato studiato o copiato per questo documento. Nessuna nuova dipendenza o modifica a THIRD_PARTY_NOTICES.txt è necessaria.

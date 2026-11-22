@@ -151,15 +151,15 @@ Per rigenerarle: npm run build, poi node scripts/screenshots.mjs. Richiede Node.
 
 ## Licenza
 
-CosmOffice è utilizzabile gratuitamente, anche per lavoro e su più computer, senza scadenza o abbonamento. Il codice originale e la grafica restano riservati a [TITOLARE E RECAPITO: DA COMPILARE]. Non è consentito modificarli, distribuire versioni derivate, concederli in sublicenza, vendere copie o ridistribuire gli installer, fatti salvi i diritti inderogabili e quelli sui componenti di terzi.
+CosmOffice è utilizzabile gratuitamente, anche per lavoro e su più computer, senza scadenza o abbonamento. Il codice originale e la grafica restano riservati a Daniele Spalletti (danielespalletti@cosmonet.info). Non è consentito modificarli, distribuire versioni derivate, concederli in sublicenza, vendere copie o ridistribuire gli installer, fatti salvi i diritti inderogabili e quelli sui componenti di terzi.
 
 Per condividerlo, usa il [link alle Release ufficiali](https://github.com/CosmoNetinfo/CosmOffice/releases/latest). Non viene concessa una licenza su marchio e loghi; puoi citare correttamente il prodotto. I tuoi documenti rimangono tuoi. Librerie di terzi e lessico italiano mantengono le proprie licenze separate, riportate in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt).
 
-Testo adottato: [LICENSE](LICENSE), opzione A; B non adottata. Titolare e recapito: [TITOLARE E RECAPITO: DA COMPILARE]. **Il testo definitivo deve essere rivisto da un professionista; questa stesura non è consulenza legale.** La 0.2.2 pubblicata conserva la licenza precedente e non viene modificata: gli installer non includono il file della licenza propria, come documentato nell’audit. L’adozione nel repository non aggiorna i pacchetti già pubblicati.
+Testo adottato: [LICENSE](LICENSE), opzione A; B non adottata. Titolare e recapito: Daniele Spalletti (danielespalletti@cosmonet.info). **Il testo definitivo deve essere rivisto da un professionista; questa stesura non è consulenza legale.** La 0.2.2 pubblicata conserva la licenza precedente e non viene modificata: gli installer non includono il file della licenza propria, come documentato nell’audit. L’adozione nel repository non aggiorna i pacchetti già pubblicati.
 
 ## Componenti e marchio
 
-Interfaccia e loghi vettoriali sono stati creati per Cosmonet. Il logo CosmoNet originale è un materiale fornito nel workspace. I componenti di terze parti mantengono le loro licenze; `node scripts/notices.mjs` genera le attribuzioni distribuite nel pacchetto. Il codice originale, la grafica e i diritti sui marchi restano riservati secondo LICENSE a [TITOLARE E RECAPITO: DA COMPILARE].
+Interfaccia e loghi vettoriali sono stati creati per Cosmonet. Il logo CosmoNet originale è un materiale fornito nel workspace. I componenti di terze parti mantengono le loro licenze; `node scripts/notices.mjs` genera le attribuzioni distribuite nel pacchetto. Il codice originale, la grafica e i diritti sui marchi restano riservati secondo LICENSE a Daniele Spalletti (danielespalletti@cosmonet.info).
 
 ## Sviluppo successivo
 

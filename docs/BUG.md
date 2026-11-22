@@ -1,6 +1,6 @@
 # Registro dei bug CosmOffice
 
-Aggiornamento del 22 novembre 2026: scelta A adottata in LICENSE, con uso gratuito e riserva su codice e marchio. Nessun bug applicativo chiuso. Restano [TITOLARE E RECAPITO: DA COMPILARE], revisione professionale e distribuzione del testo nei futuri pacchetti. La precedente lacuna sulla concessione d’uso nel repository è affrontata dal nuovo testo; non si dichiara risolta la coerenza con la 0.2.2 già pubblicata.
+Aggiornamento del 22 novembre 2026: scelta A adottata in LICENSE, con uso gratuito e riserva su codice e marchio. Nessun bug applicativo chiuso. Titolare e recapito forniti: Daniele Spalletti (danielespalletti@cosmonet.info). Restano revisione professionale e distribuzione del testo nei futuri pacchetti. La precedente lacuna sulla concessione d’uso nel repository è affrontata dal nuovo testo; non si dichiara risolta la coerenza con la 0.2.2 già pubblicata.
 
 Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o comportamento errati), P3 (limiti di impaginazione o usabilità). Uno stato risolto richiede una prova; le incompatibilità non ancora riprodotte non vengono dichiarate risolte.
 
@@ -27,7 +27,7 @@ Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o c
 
 ### LIC-001 — Distribuzione del testo della licenza propria
 
-Aperto, rilevato con ispezione statica dei quattro installer pubblici 0.2.2, senza eseguirli. package.json non dichiara license; configurazione e payload non includono il file della licenza propria. Presenti THIRD_PARTY_NOTICES.txt, licenze Electron/Chromium e attribuzione separata Morph-it!, che non costituiscono la licenza di CosmOffice. I metadati author/copyright riportano ancora “Cosmonet”, mentre il nuovo testo usa [TITOLARE E RECAPITO: DA COMPILARE]. La 0.2.2 pubblicata resta con l’assetto precedente, il cui LICENSE è nel tag. Nessun pacchetto o metadato viene corretto qui: allineamento dei futuri pacchetti e revisione professionale sono ancora necessari. Hash dei quattro asset e risultati nel report del passo.
+Aperto, rilevato con ispezione statica dei quattro installer pubblici 0.2.2, senza eseguirli. package.json non dichiara license; configurazione e payload non includono il file della licenza propria. Presenti THIRD_PARTY_NOTICES.txt, licenze Electron/Chromium e attribuzione separata Morph-it!, che non costituiscono la licenza di CosmOffice. I metadati author/copyright riportano ancora “Cosmonet”, mentre il nuovo testo usa Daniele Spalletti (danielespalletti@cosmonet.info). La 0.2.2 pubblicata resta con l’assetto precedente, il cui LICENSE è nel tag. Nessun pacchetto o metadato viene corretto qui: allineamento dei futuri pacchetti e revisione professionale sono ancora necessari. Hash dei quattro asset e risultati nel report del passo.
 
 | ID | Problema e riproduzione | Stato | Verifica |
 | --- | --- | --- | --- |

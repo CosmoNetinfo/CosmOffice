@@ -4,6 +4,7 @@ Verifica del 22 novembre 2026, dopo il commit updater. I lavori delle run sotto 
 
 | Commit | Build principale | Esito dei lavori |
 | --- | --- | --- |
+| 4180acd, adozione A | [45075768129](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45075768129) | checks, interop, Windows, Linux, Mac: 5/5 success |
 | e775fb0, bozze di licenza | [45063906266](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45063906266) | checks, interop, Windows, Linux, Mac: 5/5 success |
 | 06945c6, updater TLS Node | [45056887388](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45056887388) | checks, interop, Windows, Linux, Mac: 5/5 success; rete Linux e rete/consenso nel pacchetto Windows superati |
 | 8ff6d8d, DMG Mac | [45050553763](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45050553763) | checks, interop, Windows, Linux, Mac: 5/5 success |
