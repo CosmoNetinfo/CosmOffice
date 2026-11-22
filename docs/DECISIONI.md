@@ -1,6 +1,16 @@
 # Decisioni e alternative tecniche
 
+## Adozione esplicita della licenza A — 22 novembre 2026
+
+Su istruzione del titolare viene adottata A in [LICENSE](../LICENSE), partendo dalla sezione A di [LICENZA-BOZZE.md](LICENZA-BOZZE.md). Uso gratuito anche professionale, codice originale e grafica riservati, nessuna redistribuzione degli installer, link alle Release ufficiali condivisibile. B non adottata, conservata come alternativa storica. Non si scelgono MIT, Apache-2.0 o un motore documentale.
+
+Titolare e recapito: [TITOLARE E RECAPITO: DA COMPILARE]. Revisione professionale del testo definitivo ancora necessaria; questa stesura non è consulenza legale. Nessun dato anagrafico o legge applicabile inventati. Gli aggiornamenti sono descritti come disattivabili senza stabilirne qui lo stato iniziale; la preferenza predefinita non cambia ed è ancora da decidere.
+
+Non modificati src/, electron/, configurazione di packaging, schermate di accettazione, pagina NSIS, versione, tag o Release. L’audit dei quattro installer 0.2.2 rileva package.json senza campo license, copyright/author storici “Cosmonet” e assenza della licenza propria nel payload; presenti avvisi di terzi e licenza separata del lessico. La 0.2.2 pubblicata conserva l’assetto precedente: nessun aggiornamento retroattivo. Eventuale inclusione del nuovo testo nei futuri pacchetti è da concordare, non una correzione silenziosa.
+
 ## Bozze di licenza utenti, nessuna adozione
+
+Nota storica: il paragrafo seguente descrive il precedente passo delle sole bozze; la successiva scelta A è registrata sopra.
 
 Il 22 novembre 2026 sono state preparate le due alternative richieste in [LICENZA-BOZZE.md](LICENZA-BOZZE.md): A, uso gratuito con codice e marchio riservati; B, codice aperto con MIT oppure Apache-2.0 da selezionare. La scelta resta del titolare, incluse titolarità, ambito dei file e redistribuzione degli installer. Non sono modificati LICENSE, pacchetti, schermate di accettazione o licenze di terzi. È stata esclusa l’adozione automatica di una bozza: la sola pubblicazione di questo confronto non concede diritti. Nessuna decisione sul motore.
 
@@ -147,7 +157,7 @@ Conservare l'OOXML originale e cambiare solo le celle o le parti effettivamente 
 
 La gratuità per l'utente non implica che qualunque SDK o redistribuzione sia gratuita o compatibile con codice proprietario. Non sono stati acquistati servizi, accettate licenze commerciali o scelti nuovi componenti.
 
-**Proposta non implementata:** verificare con il titolare come formalizzare l'uso gratuito degli eseguibili, mantenendo proprietari codice e marchi. L'attuale LICENSE del repository riserva i diritti sul codice; questo studio non la modifica e non inventa condizioni per gli utenti finali.
+**Proposta storica dello studio, ora seguita dalla scelta A:** l’uso gratuito degli eseguibili è formalizzato nel LICENSE adottato il 22 novembre 2026, mantenendo proprietari codice e marchi. Lo studio iniziale non aveva modificato la licenza; la successiva istruzione esplicita e i dati ancora mancanti sono registrati nella sezione di adozione sopra.
 
 ## Decisioni rinviate
 

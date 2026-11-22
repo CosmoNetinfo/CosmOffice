@@ -1,25 +1,31 @@
-# Bozze della licenza utenti e stato aggiornato
+# Adozione della licenza d’uso A
 
 ## 1. Obiettivo
 
-Completare il punto ancora aperto e già richiesto: due bozze in docs/LICENZA-BOZZE.md, senza modificare LICENSE, scegliere una licenza o decidere il motore. Confermare la CI dell’ultimo codice e aggiornare gli stati documentali superati.
+Adottare la sezione A di docs/LICENZA-BOZZE.md come licenza d’uso nel repository, su istruzione esplicita del titolare. Uso gratuito, codice originale e grafica riservati, nessuna redistribuzione degli installer, condivisione del link ufficiale consentita. B non adottata. Nessuna modifica dell’app o della Release.
 
 ## 2. Cosa hai fatto
 
-- docs/LICENZA-BOZZE.md: A, uso gratuito con codice e marchio riservati; B, apertura del codice con MIT oppure Apache-2.0 da selezionare. Testi italiani proposti, confronto, limiti, titolare e ambito da confermare. Le bozze non sono operative e non cambiano gli installer.
-- CHANGELOG.md: aggiunta documentale in Non rilasciato.
-- docs/ROADMAP.md: corrette le voci che dichiaravano ancora assenti Release, Mac e updater; bozze consegnate, scelta in attesa.
-- docs/DECISIONI.md: nessuna adozione automatica, né scelta del motore.
-- docs/CI.md: CI updater 06945c6 verificata verde, cinque lavori success, con link.
-- docs/BUG.md e docs/VALIDATION.md: nessun bug applicativo chiuso; resta il tema della concessione d’uso da risolvere con la decisione del titolare.
-- docs/ricerca/CODICE-STUDIATO.md: registro delle tre fonti pubbliche di licenza/documentazione, nessun codice consultato o copiato.
+### Modificato
+
+- LICENSE: otto clausole italiane della bozza A; rimossi i riferimenti a bozza, inserito il segnaposto esatto del titolare, esplicitato il divieto di redistribuire installer e il link alle Release. Garanzie e responsabilità conservano la riserva dei diritti inderogabili, senza nuove condizioni o legge applicabile inventata. Terzi e lessico italiano separati.
+- README.md: sezione Licenza, uso gratuito, limiti, link ufficiale, marchi/loghi, documenti dell’utente e revisione professionale necessaria. Riferimenti allo stato proprietario allineati.
+- docs/LICENZA-BOZZE.md: A adottata, B conservata come alternativa non adottata. Clausole A e LICENSE confrontate automaticamente, stesso testo al netto del formato.
+- docs/DECISIONI.md e ROADMAP.md: scelta esplicita datata 22 novembre 2026, dati mancanti e nessuna adozione di B o scelta del motore.
+- docs/BUG.md: LIC-001 aperto per distribuzione della licenza propria e incoerenze dei metadati; nessuna falsa chiusura.
+- docs/VALIDATION.md, CI.md e ricerca/CODICE-STUDIATO.md: verifiche, ultima CI delle bozze e consultazione tecnica NSIS registrata.
+- CHANGELOG.md: voce in Non rilasciato, senza nuova versione.
 - Questo report e copia identica docs/report/ULTIMO.md.
 
-Fonti effettivamente lette il 22 novembre 2026: [MIT, OSI](https://opensource.org/license/mit), [Apache-2.0, ASF](https://www.apache.org/licenses/LICENSE-2.0), [Open Source Definition, OSI](https://opensource.org/osd). Parafrasi originali e link ai testi completi, nessuna nuova libreria. scripts/notices.mjs rieseguito, avvisi invariati.
+### Non toccato
+
+src/, electron/, scripts/ e workflow tracciati, package.json, package-lock.json, electron-builder.config.cjs, preferenza predefinita degli aggiornamenti, interfaccia, schermate di accettazione e pagine NSIS. Nessun pacchetto pubblico, Release, asset, tag o versione modificato. Test effettuati con script esistenti; strumenti temporanei di audit solo nella cartella test-results ignorata da Git. Nessuna nuova libreria.
+
+THIRD_PARTY_NOTICES.txt rigenerato con scripts/notices.mjs e rimasto invariato; le licenze dei singoli componenti e del lessico restano autonome. Nessun codice esterno copiato. Consultati soltanto i file MIT già installati app-builder-lib 26.18.0 out/targets/nsis/NsisTarget.js e out/util/license.js, per verificare il reperimento delle risorse NSIS. Il nuovo LICENSE senza estensione non introduce una risorsa license.txt/rtf/html; nessun file o opzione di accettazione aggiunti. Registro dei file in docs/ricerca/CODICE-STUDIATO.md.
 
 ## 3. Esiti reali di build e test
 
-Tutti i comandi finali sotto sono terminati con exit 0; output effettivi copiati, rimossi soltanto gli spazi finali. Anche per questo passo solo documentale sono state eseguite le verifiche richieste prima del push.
+Tutti i comandi finali elencati sotto sono terminati con exit 0. Output reali copiati, rimossi soltanto gli spazi finali. Il desktop-smoke avvia il pacchetto Windows locale già presente: prova il codice applicativo invariato, non l’inclusione del nuovo LICENSE in un installer. Nessun nuovo installer viene costruito o pubblicato da questo passo.
 
 ### npm run build — exit 0
 
@@ -54,12 +60,7 @@ dist/assets/index-CZEScb41.js             2,321.36 kB │ gzip: 696.28 kB
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 3.21s
-[PLUGIN_TIMINGS] JavaScript callbacks ran for 2.2s of this 3.2s build (69%).
-The slowest callbacks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):
-  - plugin vite:prepare-out-dir renderStart (66%, 2.1s, 1 call)
-Additional callback time came from callbacks under 1s.
-See https://rolldown.rs/reference/InputOptions.checks#bundlertimings for more details.
+✓ built in 1.62s
 ```
 
 ### npm test — exit 0
@@ -69,73 +70,73 @@ See https://rolldown.rs/reference/InputOptions.checks#bundlertimings for more de
 > cosmoffice@0.2.2 test
 > node --test tests/*.test.mjs
 
-✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (80.4077ms)
-✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (82.7571ms)
-✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (139.4489ms)
-✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (209.4559ms)
-✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (34.9603ms)
-✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (45.357ms)
-✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (50.5526ms)
-✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (34.2553ms)
-✔ Diagnostica: messaggi, nomi e percorsi arbitrari non entrano negli eventi (6.7813ms)
-✔ Diagnostica: il contesto ammette solo valori controllati, nessun campo libero (0.5835ms)
+✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (90.1035ms)
+✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (89.4385ms)
+✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (148.4523ms)
+✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (201.7443ms)
+✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (28.8447ms)
+✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (34.7094ms)
+✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (31.7193ms)
+✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (25.8839ms)
+✔ Diagnostica: messaggi, nomi e percorsi arbitrari non entrano negli eventi (7.7261ms)
+✔ Diagnostica: il contesto ammette solo valori controllati, nessun campo libero (0.7215ms)
 Rapporto con 50 eventi e ultima traccia: 4931 byte UTF-8 (limite 6144).
-✔ Registro locale: ultimi 50, persistenza sicura, riapertura e svuotamento (51.2395ms)
-✔ Registro non scrivibile: memoria disponibile e svuotamento non dichiarato riuscito (4.3744ms)
-✔ DOCX exports real text, bold marks and tables readable by another parser (130.5264ms)
-✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (98.1679ms)
-✔ unknown formulas retain their source without exporting a misleading cached number (13.4515ms)
-✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (3.3133ms)
-✔ cross-sheet formulas survive XLSX round trips and get calculated results (19.5121ms)
-✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (10.2212ms)
-✔ landscape DOCX uses a physically wider page with matching orientation (8.5375ms)
-✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (10.1477ms)
-✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (208.5442ms)
-✔ references, arithmetic, precedence and percentages (4.3127ms)
-✔ Italian aliases, absolute references, text and lazy IF (1.0213ms)
-✔ cycles, division by zero and unknown functions are visible and propagated (0.8339ms)
-✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (1.291ms)
-✔ Excel address limits and column naming (1.5191ms)
-✔ conditional sums, lookups, text, dates and error handling (4.354ms)
-✔ quoted sheet names, absolute references and cycles across sheets (0.6917ms)
-✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.4026ms)
-✔ literal text resembling errors stays text while actual formula errors propagate (0.8401ms)
-✔ empty strings, blank cells and boolean predicates retain their separate types (0.6415ms)
-✔ Prova guidata: otto sole scelte controllate, nessun campo o valore libero (2.6933ms)
-✔ Il processo principale carica l’interfaccia locale e non usa API di rete dirette (14.5185ms)
-✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (267.0571ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (46.662ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (16.5747ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (95.4528ms)
-✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (24.9386ms)
-✔ Mac: anteprima senza identità, firma forzata o notarizzazione (5.7694ms)
-✔ Release: completa Linux preservando Windows e rifiuta AppImage con nome inatteso (73.8729ms)
-✔ Release: note dal CHANGELOG e piattaforma mancante dichiarata, senza prerelease (1.0701ms)
-✔ Release: hash reali e pubblicazione soltanto dopo upload, nessun certificato necessario (52.6546ms)
-✔ Excel exports do not mutate the open workbook, even when exported concurrently (153.147ms)
-✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (49.0615ms)
-✔ damaged files and mismatched Office extensions are rejected before import (15.5417ms)
-✔ unsupported parts produce specific warnings without changing the original file (44.8738ms)
-✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (13.2382ms)
-✔ XLSX caches keep literal error-like strings separate from actual error cells (11.733ms)
-✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (1098.78ms)
-✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (2065.7709ms)
-✔ TLS Node spento o URL iniziale estraneo: nessun worker, nessuna connessione (4.4886ms)
-✔ TLS Node: certificato obbligatorio, intestazioni minime e CDN del solo repository (8.4399ms)
-✔ TLS Node: redirect ad altro host, HTTP o repository CDN bloccato prima del contatto (2.0984ms)
-✔ TLS Node: errore di certificato senza fallback (0.8994ms)
-✔ TLS Node: limite dei byte, originale preesistente preservato e parziale rimosso (22.3121ms)
-✔ TLS Node: disattivazione termina il worker e pulisce il temporaneo posseduto (6.5978ms)
-✔ Aggiornamenti: URL limitati al repository, rifiuto di credenziali, altri host e percorsi (2.6876ms)
-✔ Aggiornamenti: elenco SHA-256 rigoroso e confronto semantico delle versioni (2.9598ms)
-✔ Mac: notifica senza download del DMG; preferenza disattivata senza richieste (21.7333ms)
-✔ Windows: download verificato, installer alterato respinto prima dell’esecuzione (39.0475ms)
-✔ SHA errato: nessun installer pronto, nessun temporaneo e nessuna esecuzione (6.7717ms)
-✔ Disattivazione durante il controllo: risposta tardiva ignorata, nessun download (4.8317ms)
-✔ AppImage: sostituzione verificata; un documento con estensione AppImage rimane intatto (26.5739ms)
-✔ Installer Windows: interattivo dopo consenso, nessuna shell né opzione silenziosa (0.9525ms)
-✔ AppImage: solo la propria APPDIR, mai APPIMAGE ereditata da un altro programma (31.7716ms)
-✔ Disattivazione senza disco scrivibile: rete spenta subito e avviso di mancato salvataggio (4.7614ms)
+✔ Registro locale: ultimi 50, persistenza sicura, riapertura e svuotamento (49.15ms)
+✔ Registro non scrivibile: memoria disponibile e svuotamento non dichiarato riuscito (4.0012ms)
+✔ DOCX exports real text, bold marks and tables readable by another parser (133.7696ms)
+✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (103.2042ms)
+✔ unknown formulas retain their source without exporting a misleading cached number (19.1613ms)
+✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (4.3855ms)
+✔ cross-sheet formulas survive XLSX round trips and get calculated results (21.4689ms)
+✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (11.9212ms)
+✔ landscape DOCX uses a physically wider page with matching orientation (10.8198ms)
+✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (13.8629ms)
+✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (213.2239ms)
+✔ references, arithmetic, precedence and percentages (4.8841ms)
+✔ Italian aliases, absolute references, text and lazy IF (0.827ms)
+✔ cycles, division by zero and unknown functions are visible and propagated (0.7ms)
+✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (0.6941ms)
+✔ Excel address limits and column naming (1.5696ms)
+✔ conditional sums, lookups, text, dates and error handling (4.364ms)
+✔ quoted sheet names, absolute references and cycles across sheets (0.5604ms)
+✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.4421ms)
+✔ literal text resembling errors stays text while actual formula errors propagate (0.7726ms)
+✔ empty strings, blank cells and boolean predicates retain their separate types (0.6407ms)
+✔ Prova guidata: otto sole scelte controllate, nessun campo o valore libero (2.8004ms)
+✔ Il processo principale carica l’interfaccia locale e non usa API di rete dirette (7.1054ms)
+✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (234.3958ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (36.8833ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (9.3176ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (79.0495ms)
+✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (17.8558ms)
+✔ Mac: anteprima senza identità, firma forzata o notarizzazione (2.7758ms)
+✔ Release: completa Linux preservando Windows e rifiuta AppImage con nome inatteso (50.911ms)
+✔ Release: note dal CHANGELOG e piattaforma mancante dichiarata, senza prerelease (0.9237ms)
+✔ Release: hash reali e pubblicazione soltanto dopo upload, nessun certificato necessario (31.2337ms)
+✔ Excel exports do not mutate the open workbook, even when exported concurrently (149.759ms)
+✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (49.1901ms)
+✔ damaged files and mismatched Office extensions are rejected before import (14.2963ms)
+✔ unsupported parts produce specific warnings without changing the original file (38.381ms)
+✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (19.9751ms)
+✔ XLSX caches keep literal error-like strings separate from actual error cells (15.0609ms)
+✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (792.6389ms)
+✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1854.996ms)
+✔ TLS Node spento o URL iniziale estraneo: nessun worker, nessuna connessione (2.712ms)
+✔ TLS Node: certificato obbligatorio, intestazioni minime e CDN del solo repository (4.2393ms)
+✔ TLS Node: redirect ad altro host, HTTP o repository CDN bloccato prima del contatto (4.5467ms)
+✔ TLS Node: errore di certificato senza fallback (1.15ms)
+✔ TLS Node: limite dei byte, originale preesistente preservato e parziale rimosso (23.2275ms)
+✔ TLS Node: disattivazione termina il worker e pulisce il temporaneo posseduto (2.8165ms)
+✔ Aggiornamenti: URL limitati al repository, rifiuto di credenziali, altri host e percorsi (3.1912ms)
+✔ Aggiornamenti: elenco SHA-256 rigoroso e confronto semantico delle versioni (2.7091ms)
+✔ Mac: notifica senza download del DMG; preferenza disattivata senza richieste (17.0233ms)
+✔ Windows: download verificato, installer alterato respinto prima dell’esecuzione (29.802ms)
+✔ SHA errato: nessun installer pronto, nessun temporaneo e nessuna esecuzione (11.2067ms)
+✔ Disattivazione durante il controllo: risposta tardiva ignorata, nessun download (3.8382ms)
+✔ AppImage: sostituzione verificata; un documento con estensione AppImage rimane intatto (20.9705ms)
+✔ Installer Windows: interattivo dopo consenso, nessuna shell né opzione silenziosa (0.857ms)
+✔ AppImage: solo la propria APPDIR, mai APPIMAGE ereditata da un altro programma (35.2514ms)
+✔ Disattivazione senza disco scrivibile: rete spenta subito e avviso di mancato salvataggio (4.7793ms)
 ℹ tests 66
 ℹ suites 0
 ℹ pass 66
@@ -143,7 +144,7 @@ Rapporto con 50 eventi e ultima traccia: 4931 byte UTF-8 (limite 6144).
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 3594.2636
+ℹ duration_ms 4570.7397
 ```
 
 ### npm run test:browser — exit 0
@@ -182,7 +183,7 @@ Rapporto con 50 eventi e ultima traccia: 4931 byte UTF-8 (limite 6144).
   ],
   "errors": []
 }
-20:54:43 [vite] (client) [console.warn] Warning: Indexing all PDF objects
+21:28:24 [vite] (client) [console.warn] Warning: Indexing all PDF objects
 {
   "result": "PASS",
   "scenarios": [
@@ -210,6 +211,52 @@ PASS 03-venti-pagine.pdf
 PASS ortografia italiana: Write, Grid, impostazioni, parole personali, riavvio pagina e nessuna richiesta esterna.
 PASS grafici: categorie nelle celle, nuovi XLSX senza fogli nascosti, dati aggiornati e file riaperti; vecchia anteprima in sola lettura con copia identica; grafici esterni con export bloccato; nessuna richiesta esterna.
 PASS prova guidata nel browser: 24 radio, rapporto aggiornato e schermata acquisita.
+```
+
+### npm run test:openxml — exit 0
+
+```text
+
+> cosmoffice@0.2.2 test:openxml
+> node scripts/validate-openxml.mjs
+
+  Individuazione dei progetti da ripristinare...
+V:\CosmonetOffice\scripts\openxml-validator\OpenXmlCheck.csproj : warning NU1900: Si è verificato un errore durante il recupero dei dati sulla vulnerabilità del pacchetto: Non è possibile caricare l'indice del servizio per l'origine https://api.nuget.org/v3/index.json.
+  Tutti i progetti sono aggiornati per il ripristino.
+V:\CosmonetOffice\scripts\openxml-validator\OpenXmlCheck.csproj : warning NU1900: Si è verificato un errore durante il recupero dei dati sulla vulnerabilità del pacchetto: Non è possibile caricare l'indice del servizio per l'origine https://api.nuget.org/v3/index.json.
+  OpenXmlCheck -> V:\CosmonetOffice\scripts\openxml-validator\bin\Release\net10.0\OpenXmlCheck.dll
+
+Compilazione completata.
+
+V:\CosmonetOffice\scripts\openxml-validator\OpenXmlCheck.csproj : warning NU1900: Si è verificato un errore durante il recupero dei dati sulla vulnerabilità del pacchetto: Non è possibile caricare l'indice del servizio per l'origine https://api.nuget.org/v3/index.json.
+V:\CosmonetOffice\scripts\openxml-validator\OpenXmlCheck.csproj : warning NU1900: Si è verificato un errore durante il recupero dei dati sulla vulnerabilità del pacchetto: Non è possibile caricare l'indice del servizio per l'origine https://api.nuget.org/v3/index.json.
+    Avvisi: 2
+    Errori: 0
+
+Tempo trascorso 00:00:05.04
+PASS V:\CosmonetOffice\test-results\corpus\01-testo-stili.docx: 0 errori Open XML SDK
+PASS V:\CosmonetOffice\test-results\corpus\02-tabella.docx: 0 errori Open XML SDK
+PASS V:\CosmonetOffice\test-results\corpus\03-immagine.docx: 0 errori Open XML SDK
+PASS V:\CosmonetOffice\test-results\corpus\04-elenchi.docx: 0 errori Open XML SDK
+PASS V:\CosmonetOffice\test-results\corpus\05-intestazioni.docx: 0 errori Open XML SDK
+PASS V:\CosmonetOffice\test-results\corpus\01-formule.xlsx: 0 errori Open XML SDK
+PASS V:\CosmonetOffice\test-results\corpus\02-piu-fogli.xlsx: 0 errori Open XML SDK
+PASS V:\CosmonetOffice\test-results\corpus\03-formati.xlsx: 0 errori Open XML SDK
+PASS V:\CosmonetOffice\test-results\corpus\04-unioni-immagine.xlsx: 0 errori Open XML SDK
+PASS V:\CosmonetOffice\test-results\corpus\05-dati-filtro.xlsx: 0 errori Open XML SDK
+PASS V:\CosmonetOffice\test-results\openxml\smoke.docx: 0 errori Open XML SDK
+PASS V:\CosmonetOffice\test-results\openxml\smoke.xlsx: 0 errori Open XML SDK
+PASS V:\CosmonetOffice\test-results\grafici-ui.xlsx: 0 errori Open XML SDK
+FAIL V:\CosmonetOffice\test-results\openxml\negative\schema-errato.docx: 1 errori Open XML SDK
+{"id":"Sch_InvalidElementContentExpectingComplex","description":"The element has invalid child element \u0027http://schemas.openxmlformats.org/wordprocessingml/2006/main:cosmoInvalido\u0027.","part":"/word/document.xml","path":"/w:document[1]/w:body[1]"}
+FAIL V:\CosmonetOffice\test-results\openxml\negative\schema-errato.xlsx: 1 errori Open XML SDK
+{"id":"Sch_AttributeValueDataTypeDetailed","description":"The attribute \u0027orientation\u0027 has invalid value \u0027diagonale\u0027. The Enumeration constraint failed.","part":"/xl/worksheets/sheet1.xml","path":"/x:worksheet[1]/x:pageSetup[1]"}
+PASS Open XML SDK: 13 esportati validi e invariati; DOCX e XLSX volutamente errati respinti con codice 1.
+FAIL V:\CosmonetOffice\test-results\openxml\legacy-copy.xlsx: apertura non riuscita: The document cannot be opened because there is an invalid part with an unexpected content type.
+[Part Uri=/xl/drawings/cosmoDrawing1.xml],
+[Content Type=application/vnd.openxmlformats-officedocument.drawingml.drawing+xml],
+[Expected Content Type=application/vnd.openxmlformats-officedocument.drawing+xml].
+ECCEZIONE STORICA VERIFICATA: copia v1 identica, errore MIME del disegno conservato e segnalato nel report separato. Nessuna eccezione per i nuovi esportati.
 ```
 
 ### node scripts/offline-smoke.mjs — exit 0
@@ -259,32 +306,88 @@ PASS prova guidata nel browser: 24 radio, rapporto aggiornato e schermata acquis
 Attribuzioni e licenze raccolte.
 ```
 
+### Controllo YAML e ambito delle modifiche — exit 0
+
+```text
+PASS YAML: .github/workflows/build.yml
+PASS YAML: .github/workflows/release-linux.yml
+PASS YAML: .github/workflows/release-mac.yml
+PASS YAML: .github/workflows/release.yml
+PASS adozione: otto clausole corrispondenti ad A, B non adottata, segnaposto corretto e nessuno stato iniziale degli aggiornamenti nel testo.
+PASS ambito: app, workflow, packaging, versione e avvisi di terzi invariati; nessuna pagina NSIS aggiunta.
+```
+
+### Ispezione statica dei metadati — exit 0
+
+Quattro archivi aperti con 7-Zip 26.06; estratti in test-results soltanto i payload necessari a leggere package.json, Info.plist, nomi dei file di licenza e attribuzione del lessico. Nessun installer eseguito. SHA-256 dei download confrontati con i digest pubblici GitHub prima dell’estrazione e ricontrollati dopo tutte le prove.
+
+| Pacchetto pubblico | SHA-256 | package.json incorporato |
+| --- | --- | --- |
+| CosmOffice-0.2.2-win-x64-Setup.exe | ce37586a69151fbe56dc555acf2f49f4fc031dfc62cc6e20a3e03c8052c1f69a | versione 0.2.2, private:true, author:Cosmonet, license assente |
+| CosmOffice-0.2.2-linux-x86_64.AppImage | 6eb41f36df41d6bcfc1876430ae21abd0bbd59dc9cd7e26d8d4f476e17253792 | versione 0.2.2, private:true, author:Cosmonet, license assente |
+| CosmOffice-0.2.2-mac-x64.dmg | bb4cb8652c9f8a3fde213aea897543b3faba9ddeeac1af12bceb17c457d136a0 | versione 0.2.2, private:true, author:Cosmonet, license assente |
+| CosmOffice-0.2.2-mac-arm64.dmg | a572e8c51955d9c741e9e9a6ff4b46137dfe8d9ffe7d037aede9e8f4dc161fac | versione 0.2.2, private:true, author:Cosmonet, license assente |
+
+Metadati PE Windows reali:
+
+~~~text
+ProductName     : CosmOffice
+CompanyName     : Cosmonet
+LegalCopyright  : Copyright © 2026 Cosmonet
+ProductVersion  : 0.2.2
+FileDescription : CosmOffice — CosmoWrite, CosmoGrid e CosmoView, suite desktop offline Cosmonet
+Comments        :
+~~~
+
+I due Info.plist riportano CFBundleIdentifier=it.cosmonet.cosmoffice, CFBundleName=CosmOffice, CFBundleShortVersionString=0.2.2 e NSHumanReadableCopyright=Copyright © 2026 Cosmonet.
+
+Risultato comune ai quattro payload: nessun LICENSE della propria applicazione nella radice ASAR o nelle risorse esterne, THIRD_PARTY_NOTICES.txt presente, LICENSE.electron.txt e LICENSES.chromium.html presenti, ATTRIBUZIONE.txt di Morph-it! nel dizionario con CC BY-SA 2.0. Le licenze Electron/Chromium non sono una dichiarazione di licenza di tutto CosmOffice.
+
+Nel sorgente, package.json non ha campo license e mantiene author:Cosmonet; electron-builder.config.cjs mantiene copyright:Copyright © 2026 Cosmonet e non include LICENSE nelle risorse. Nessuna diversa licenza propria dichiarata esplicitamente nei metadati esaminati, ma licenza mancante e titolare storico non sono allineati al nuovo testo. Non sono stati cambiati in silenzio.
+
+### Fallimenti e avvisi incontrati
+
+Il primo comando rg sugli elenchi ha restituito exit 1 per il glob passato letteralmente su Windows:
+
+~~~text
+rg: test-results/licenza-a/*.listing.txt: IO error for operation on test-results/licenza-a/*.listing.txt: La sintassi del nome del file, della directory o del volume non è corretta. (os error 123)
+~~~
+
+Ripetuto con -g '*.listing.txt' e directory separata: exit 0, risultati letti. Non è un errore dell’app; gli elenchi 7-Zip erano già tutti stati generati con exit 0.
+
+7-Zip nell’AppImage segnala “There are data after the end of archive”, Tail Size=141855, con exit 0: avviso conservato, non dichiarato assente. Hash uguale al digest pubblico; lettura dei file riuscita. Nei test SDK compaiono rifiuti intenzionali delle copie negative e del vecchio XLSX storico, non errori dei nuovi esportati. Eventuali avvisi Vite, PDF negativo e NU1900 sono mantenuti negli output sopra. Nessun fallimento dei comandi finali è stato nascosto.
+
 ## 4. Cosa funziona, provato
 
-Build, 66 test unitari, suite browser, offline-smoke e desktop-smoke passati sullo stesso codice applicativo del main. Verifica locale: nessuna differenza in src/, electron/, scripts/, workflow, manifesti o THIRD_PARTY_NOTICES.txt. LICENSE byte per byte uguale alla base; SHA-256 7e116e2af67da1731c58945412a0f5b266a0b90f4ae9db7a02d21a831ee05305.
+Il repository adotta A. Uso gratuito anche professionale e su più computer; codice originale, grafica e marchi riservati; installer non redistribuibili, link ufficiale condivisibile; documenti dell’utente esclusi dalla concessione di diritti al titolare. Otto clausole allineate fra bozza adottata e LICENSE. B non adottata e nessuna nuova licenza aperta applicata.
 
-I collegamenti locali del nuovo documento sono validi. Le fonti ufficiali sono state aperte e confrontate. La bozza A distingue uso gratuito da riserva del codice; B non introduce divieti di vendita/modifica incompatibili con l’opzione aperta. Marchi e componenti di terzi restano separati. Nessun testo adottato implicitamente.
+Build, 66 test unitari, browser, SDK, offline, desktop e quattro YAML passati. I 13 nuovi esportati passano SDK senza eccezioni; la copia storica continua a essere verificata a parte. Nessuna connessione aggiunta o modifica alla preferenza degli aggiornamenti; la licenza descrive il controllo come disattivabile senza dichiararlo acceso o spento all’avvio.
 
-CI dell’ultimo codice 06945c6: [45056887388](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45056887388), checks, interop, Windows, Linux e Mac tutti success. Si tratta della run già completata e interrogata di nuovo, non di una previsione della CI di questo documento.
+I quattro file pubblici sono byte-identici ai digest GitHub registrati. Il tag v0.2.2 resta sul commit 2128469f6682b377135503973fc910c98bc941e2. Nessuna richiesta di scrittura verso la Release è stata effettuata.
 
 ## 5. Cosa NON funziona o non hai potuto provare
 
-**Non provato:** validità legale definitiva, titolarità/contributi e adeguatezza nei diversi ordinamenti: sono bozze da verificare prima dell’adozione. Nessuna scelta A/B, MIT/Apache, concessione sul marchio o autorizzazione alla redistribuzione è stata applicata.
+### Dati e verifiche mancanti
 
-Il LICENSE attuale resta restrittivo e non viene risolto automaticamente il rapporto fra gratuità dichiarata e diritti d’uso concessi. La bozza A propone condivisione del link invece di copie degli installer, ma tale limite richiede la scelta esplicita del titolare. Nessuna schermata di accettazione aggiunta.
+- **Titolare e recapito: [TITOLARE E RECAPITO: DA COMPILARE].** Nessun nome, indirizzo o ragione sociale inventati. I riferimenti “Cosmonet” dei metadati sono osservazioni storiche, non dati anagrafici verificati del titolare.
+- **Revisione professionale:** il testo definitivo deve essere rivisto da un professionista. Questa stesura non è consulenza legale; i test non certificano validità o titolarità.
+- **Coerenza con versioni pubblicate:** la **0.2.2 pubblicata contiene ancora la licenza precedente nel suo assetto di rilascio**, non A. Precisazione verificata: il vecchio LICENSE è nel repository al tag v0.2.2, SHA-256 7e116e2af67da1731c58945412a0f5b266a0b90f4ae9db7a02d21a831ee05305; i quattro installer non contengono il file della licenza propria. Non si dichiara falsamente di aver trovato il vecchio LICENSE dentro i payload. Nessun pacchetto o nota della Release viene sostituito.
+- **Distribuzione futura:** package.json senza license, configurazione senza inclusione di LICENSE e copyright storico restano da allineare, dopo definizione del titolare e istruzioni. LIC-001 resta aperto. Nessuna aggiunta implicita di pagina NSIS o accettazione.
 
-Restano non provati installazione su computer puliti, UAC/installer effettivo, AppImage vera in uso e Mac fisici. La Release 0.2.2 resta immutata e non contiene l’updater successivo di main. Nessuna nuova Release pubblicata.
+Non provati installazioni pulite, hardware Mac, conclusione dell’installer/UAC, AppImage reale in uso, accettazione o validità del contratto. Non necessaria né effettuata una nuova prova funzionale del codice updater, che non cambia. Nessuna nuova versione o tag.
 
 ## 6. Bug e dubbi
 
-Nessun test fallito in questo passo e nessun bug tecnico dichiarato risolto. Restano gli avvisi di build già documentati e i limiti di compatibilità del corpus. I vecchi stati contraddittori della roadmap sono stati allineati alle prove esistenti; non è stata inventata una nuova verifica fisica.
+LIC-001 aperto, distribuzione della licenza propria e metadati non allineati. Non risolto da una modifica solo al repository. Nessun bug applicativo chiuso da questo passo e nessuna libertà aggiuntiva introdotta nei testi. La scelta del motore e le altre idee di ricerca restano sospese.
 
 ## 7. Hash del commit e CI
 
-Base: 06945c6e55ec6f18d2a6e0c5af1f4e1c2736b6c4. Hash del presente passo: git log -1 --format=%H -- docs/report/2026-11-22_2054_bozze-licenza-utenti.md; comunicato dopo il push. Un report incluso nel commit non può contenere il proprio hash finale.
+Base: e775fb0823684ac450c00e6caab4703b0ce4181f. Hash di questo passo: git log -1 --format=%H -- docs/report/2026-11-22_2125_adozione-licenza-a.md; comunicato dopo il push. Il proprio hash non può essere incluso nel contenuto dello stesso commit.
 
-La CI di questo nuovo commit documentale esisterà solo dopo il push; sarà controllata e comunicata con il link. Quella di 06945c6 è già verde, come riportato sopra e in docs/CI.md.
+CI della base e775fb0 verificata nuovamente: [45063906266](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45063906266), cinque lavori success. Anche updater 06945c6: [45056887388](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45056887388), cinque success.
+
+La run del nuovo commit di adozione non esiste ancora al momento della scrittura. Dopo il push sarà controllata e il link con l’esito reale verrà comunicato; nessun verde anticipato.
 
 ## 8. Prossimo passo
 
-Pull --rebase e push su main dopo i controlli verdi. La decisione successiva è del titolare: A oppure B; se B, MIT oppure Apache-2.0. Prima di applicarla confermare titolare, ambito, marchio e politica di redistribuzione, e far verificare il testo definitivo. Nessuna altra idea o scelta del motore implementata.
+Pull --rebase e push del solo commit di adozione su main; seguire la nuova CI e segnalare l’esito. Completare [TITOLARE E RECAPITO: DA COMPILARE] e revisione professionale. Per futuri pacchetti, definire l’allineamento del testo e dei metadati senza riscrivere 0.2.2 né introdurre pagine di accettazione non richieste. La scelta dello stato iniziale degli aggiornamenti resta dell’utente.

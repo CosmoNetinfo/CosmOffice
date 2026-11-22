@@ -6,6 +6,7 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Aggiunto
 
+- Licenza d’uso A adottata in LICENSE: uso gratuito, codice originale e grafica riservati, nessuna redistribuzione degli installer; consentito condividere il link ufficiale. Titolare e recapito da compilare, revisione professionale necessaria. B non adottata; pacchetti 0.2.2 e impostazione aggiornamenti invariati. Audit dei metadati rileva l’assenza del file della licenza propria negli installer pubblici; allineamento futuro non eseguito.
 - Due bozze non operative della licenza utenti in docs/LICENZA-BOZZE.md: uso gratuito con codice e marchio riservati, oppure apertura del codice con confronto MIT/Apache-2.0. Nessuna licenza selezionata e LICENSE invariato.
 - Updater nel main per una successiva versione: TLS Node con certificato verificato, soli host GitHub del progetto, SHA-256 e conferma esplicita prima di installare. Windows NSIS e AppImage, Mac solo notifica. Interruttore per disattivarlo; audit Node e NetLog Chromium nei test. Non incluso retroattivamente negli installer 0.2.2.
 - DMG Mac Intel/Apple Silicon in CI, senza firma o notarizzazione, con verifica del contenitore e dell’architettura; guida “Aprire CosmOffice su Mac”. Nessun collaudo su hardware fisico dichiarato.

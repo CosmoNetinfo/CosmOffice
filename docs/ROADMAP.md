@@ -56,7 +56,7 @@ Scheda di compatibilità prima dell'export; confronto locale prima/dopo; control
 
 Richiesta aggiuntiva eseguita dopo la preparazione Release: screenshot reali riproducibili e README illustrato, senza modifiche al codice dell’app. Esiti e verifica pubblica nel report del passo. Dopo Linux e immagini sono stati completati i DMG Mac e l’updater TLS Node nel main; restano i collaudi fisici dichiarati.
 
-Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro e app mobili non vengono implementati in questa ricerca. L'app rimane gratuita e proprietaria, con componenti soggetti alle proprie licenze. Non viene cambiata la licenza del progetto.
+Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro e app mobili non vengono implementati in questa ricerca. L’app rimane gratuita e proprietaria; la scelta A ora concede l’uso gratuito in LICENSE e lascia separati i diritti dei componenti di terzi.
 
 ## Ordine operativo richiesto dopo lo studio
 
@@ -65,6 +65,6 @@ Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro
 3. Aggiornamenti da GitHub Releases: implementati nel main con trasporto TLS Node, host chiusi e conferma esplicita; audit/NetLog e prove del pacchetto nel report del passo. Non inclusi retroattivamente negli installer 0.2.2. Installazione su computer puliti e AppImage reale in uso non provate. Nessun altro motore o idea dello studio.
 4. Mac DMG non firmato e guida con titolo esatto: pubblicati entrambi e verificati con download anonimo/SHA-256, CI verde. Nessuna prova su computer fisici.
 5. Release ordinaria CosmOffice 0.2.2 (anteprima): pubblicata e verificata con download anonimo di Windows, Linux e due DMG Mac e SHA-256, dopo la correzione DIST-001. Checksum, limiti e domande ai tester inclusi nelle note dal CHANGELOG. Screenshot riproducibili e successivo updater nel main completati separatamente.
-6. Bozze di licenza utenti: preparate in [LICENZA-BOZZE.md](LICENZA-BOZZE.md), scelta del titolare in attesa; LICENSE invariato, nessun testo adottato.
+6. Licenza utenti: A adottata in [LICENSE](../LICENSE) il 22 novembre 2026; B conservata in [LICENZA-BOZZE.md](LICENZA-BOZZE.md) e non adottata. Mancano [TITOLARE E RECAPITO: DA COMPILARE], revisione professionale e allineamento dei futuri pacchetti. Nessuna redistribuzione installer; link ufficiale condivisibile. Release 0.2.2 invariata, ancora con l’assetto precedente e senza il file della licenza propria nel payload.
 
 Le altre proposte rimangono sospese; nessun motore scelto.

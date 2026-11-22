@@ -149,9 +149,17 @@ Schermate reali dell’interfaccia browser di sviluppo, generate automaticamente
 
 Per rigenerarle: npm run build, poi node scripts/screenshots.mjs. Richiede Node.js 24, dipendenze npm e Chrome installato; in CI si può usare Chromium con COSMO_BROWSER=chromium. [Procedura e limiti delle catture](docs/SCREENSHOTS.md).
 
+## Licenza
+
+CosmOffice è utilizzabile gratuitamente, anche per lavoro e su più computer, senza scadenza o abbonamento. Il codice originale e la grafica restano riservati a [TITOLARE E RECAPITO: DA COMPILARE]. Non è consentito modificarli, distribuire versioni derivate, concederli in sublicenza, vendere copie o ridistribuire gli installer, fatti salvi i diritti inderogabili e quelli sui componenti di terzi.
+
+Per condividerlo, usa il [link alle Release ufficiali](https://github.com/CosmoNetinfo/CosmOffice/releases/latest). Non viene concessa una licenza su marchio e loghi; puoi citare correttamente il prodotto. I tuoi documenti rimangono tuoi. Librerie di terzi e lessico italiano mantengono le proprie licenze separate, riportate in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt).
+
+Testo adottato: [LICENSE](LICENSE), opzione A; B non adottata. Titolare e recapito: [TITOLARE E RECAPITO: DA COMPILARE]. **Il testo definitivo deve essere rivisto da un professionista; questa stesura non è consulenza legale.** La 0.2.2 pubblicata conserva la licenza precedente e non viene modificata: gli installer non includono il file della licenza propria, come documentato nell’audit. L’adozione nel repository non aggiorna i pacchetti già pubblicati.
+
 ## Componenti e marchio
 
-Interfaccia e loghi vettoriali sono stati creati per Cosmonet. Il logo CosmoNet originale è un materiale fornito nel workspace. I componenti di terze parti mantengono le loro licenze; `node scripts/notices.mjs` genera le attribuzioni distribuite nel pacchetto. Il codice e il marchio proprietari restano riservati a Cosmonet, salvo successiva scelta esplicita del titolare.
+Interfaccia e loghi vettoriali sono stati creati per Cosmonet. Il logo CosmoNet originale è un materiale fornito nel workspace. I componenti di terze parti mantengono le loro licenze; `node scripts/notices.mjs` genera le attribuzioni distribuite nel pacchetto. Il codice originale, la grafica e i diritti sui marchi restano riservati secondo LICENSE a [TITOLARE E RECAPITO: DA COMPILARE].
 
 ## Sviluppo successivo
 
@@ -177,7 +185,7 @@ I file delle precedenti anteprime con categorie personalizzate diverse dalle cel
 
 Lo studio del 22 novembre 2026 confronta otto prodotti senza modificare il codice dell’app né scegliere un nuovo motore. Sono disponibili il [confronto con le fonti](docs/ricerca/CONFRONTO.md), le [opportunità ordinate](docs/ricerca/OPPORTUNITA.md), il [registro delle consultazioni](docs/ricerca/CODICE-STUDIATO.md), le [alternative tecniche](docs/DECISIONI.md) e la [roadmap](docs/ROADMAP.md). Le proposte richiedono una scelta dell’utente prima di essere implementate.
 
-[CHANGELOG](CHANGELOG.md), [BUG](docs/BUG.md) e [VALIDATION](docs/VALIDATION.md) distinguono le prove effettive dai limiti. Il validatore Microsoft è ora bloccante in CI per i nuovi esportati del corpus; la validità dello schema non certifica la fedeltà visiva o la correttezza di ogni documento. Nessuna release viene pubblicata in questo passo. Il codice originale rimane proprietario: non viene cambiata la licenza del progetto.
+[CHANGELOG](CHANGELOG.md), [BUG](docs/BUG.md) e [VALIDATION](docs/VALIDATION.md) distinguono le prove effettive dai limiti. Il validatore Microsoft è ora bloccante in CI per i nuovi esportati del corpus; la validità dello schema non certifica la fedeltà visiva o la correttezza di ogni documento. Nessuna release viene pubblicata in questo passo. Il codice originale rimane proprietario; la successiva scelta A concede l’uso gratuito secondo LICENSE, senza aprire il codice.
 
 ## Validazione del formato Office
 

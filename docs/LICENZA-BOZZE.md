@@ -1,32 +1,32 @@
-# Licenza d’uso: due bozze da scegliere
+# Licenza d’uso: scelta A e alternativa conservata
 
-Stato del 22 novembre 2026: **proposte non adottate**, per la scelta del titolare. Questo documento non concede diritti e non modifica [LICENSE](../LICENSE), che attualmente riserva il codice originale e gli elementi grafici a Cosmonet. Non viene applicata alcuna bozza agli installer già pubblicati.
+Stato del 22 novembre 2026: **A adottata per esplicita scelta del titolare; B non adottata**, conservata come alternativa storica. Il testo operativo del repository è in [LICENSE](../LICENSE). La 0.2.2 già pubblicata resta invariata e conserva il precedente assetto di licenza: questa adozione non ne sostituisce installer, metadati o file.
 
-Prima dell’adozione occorre verificare titolarità e dati del soggetto concedente, contributi esterni, ambito dei file e testo definitivo con un professionista. I segnaposto sotto non sono dati già accertati. Nessuna nuova schermata di accettazione o modifica del pacchetto viene introdotta da questo passo.
+Titolare e recapito: [TITOLARE E RECAPITO: DA COMPILARE]. Il testo definitivo deve essere rivisto da un professionista; questa stesura non è consulenza legale. Nessuna schermata di accettazione o pagina NSIS viene introdotta.
 
 ## A — Uso gratuito, codice e marchio riservati
 
-### Testo proposto per gli utenti
+### Testo adottato nel repository
 
-**Licenza d’uso gratuita di CosmOffice — bozza A**
+**Licenza d’uso gratuita di CosmOffice — A adottata**
 
-1. **Titolare e ambito.** [RAGIONE SOCIALE O NOME DEL TITOLARE, RECAPITO] concede questa licenza sul software originale CosmOffice distribuito ufficialmente da Cosmonet. I componenti di altri autori e i dati del dizionario seguono le proprie licenze, indicate separatamente.
+1. **Titolare e ambito.** [TITOLARE E RECAPITO: DA COMPILARE] concede questa licenza sul software originale CosmOffice distribuito ufficialmente da Cosmonet. I componenti di altri autori e i dati del dizionario seguono le proprie licenze, indicate separatamente.
 2. **Uso gratuito.** Puoi installare e usare CosmOffice senza corrispettivi di licenza, scadenza temporale o abbonamento, per finalità personali, scolastiche, associative e professionali, anche su più computer. Puoi conservarne copie di sicurezza. L’uso della versione ricevuta non dipende dall’acquisto di aggiornamenti o servizi.
-3. **Diritti riservati.** Il codice originale e gli elementi grafici rimangono del titolare. Questa licenza non concede di modificarli, creare o distribuire versioni derivate, concederli in sublicenza o vendere copie del programma. Per suggerire il download puoi condividere il collegamento alle Release ufficiali. Restano salvi i diritti inderogabili di legge, quelli concessi dalle licenze dei singoli componenti e dalle condizioni della piattaforma del repository.
+3. **Diritti riservati.** Il codice originale e gli elementi grafici rimangono del titolare. Questa licenza non concede di modificarli, creare o distribuire versioni derivate, concederli in sublicenza o vendere copie del programma. Non è consentita la redistribuzione degli installer di CosmOffice. Per suggerire il download puoi condividere il collegamento alle Release ufficiali: https://github.com/CosmoNetinfo/CosmOffice/releases/latest. Restano salvi i diritti inderogabili di legge, quelli concessi dalle licenze dei singoli componenti e dalle condizioni della piattaforma del repository.
 4. **Nomi e loghi.** Non è concessa una licenza sul marchio CosmOffice, sui nomi delle sue applicazioni o sui loghi. Puoi citare correttamente il prodotto senza suggerire approvazioni o affiliazioni inesistenti. Non rimuovere attribuzioni obbligatorie dalle copie consentite.
 5. **Documenti e dati.** I tuoi documenti rimangono tuoi: questa licenza non concede al titolare diritti sul loro contenuto. Gli editor funzionano offline; il controllo aggiornamenti disattivabile è descritto nel README. Le segnalazioni sono copiate e inviate solo per tua scelta, senza invio automatico dall’app.
 6. **Anteprima e assistenza.** La versione è un’anteprima con limiti di compatibilità dichiarati. Non è promesso un risultato identico ad altre suite né un servizio di assistenza con tempi garantiti. Conserva copie dei documenti importanti e controlla le esportazioni.
-7. **Garanzie e responsabilità.** Il programma viene fornito nello stato in cui si trova, nei limiti consentiti dalla legge applicabile. Nessuna clausola esclude garanzie, responsabilità o tutele che la legge non consente di escludere. Il testo definitivo dovrà specificare le condizioni applicabili senza derogare ai diritti inderogabili dell’utente.
-8. **Altri componenti.** Questa licenza non restringe i diritti autonomi sui componenti di terzi. Consulta THIRD_PARTY_NOTICES.txt e le licenze incluse; in particolare, il lessico italiano è distribuito separatamente e non diventa proprietario per effetto di questa bozza.
+7. **Garanzie e responsabilità.** Il programma viene fornito nello stato in cui si trova, nei limiti consentiti dalla legge applicabile. Nessuna clausola esclude garanzie, responsabilità o tutele che la legge non consente di escludere. Restano salvi i diritti inderogabili dell’utente.
+8. **Altri componenti.** Questa licenza non restringe i diritti autonomi sui componenti di terzi. Consulta THIRD_PARTY_NOTICES.txt e le licenze incluse; in particolare, il lessico italiano è distribuito separatamente e non diventa proprietario per effetto di questa licenza.
 
-### Vantaggi, limiti e punti da approvare
+### Vantaggi e limiti della scelta adottata
 
-- Mantiene il controllo sul codice originale e sull’identità del prodotto; concede esplicitamente l’uso gratuito che il LICENSE attuale non descrive.
+- Mantiene il controllo sul codice originale e sull’identità del prodotto; LICENSE concede ora esplicitamente l’uso gratuito.
 - Non consente fork o distribuzione di versioni modificate del codice originale: collaborazione e manutenzione esterna dipendono da ulteriori autorizzazioni.
-- La clausola 3 propone di condividere il link ufficiale, non di ridistribuire gli installer. Il titolare deve approvare questo limite oppure autorizzare esplicitamente la condivisione di copie integre; nessuna delle opzioni è adottata ora.
+- La clausola 3 adottata vieta la redistribuzione degli installer; consente la condivisione del link alle Release ufficiali. Restano autonomi i diritti sui componenti di terzi.
 - Non rende proprietarie librerie o dizionari aperti. Non garantisce da sola la conformità legale della distribuzione.
 
-## B — Codice open source, identità del prodotto separata
+## B — Alternativa non adottata: codice open source, identità separata
 
 ### Testo proposto per gli utenti
 
@@ -57,8 +57,8 @@ Una licenza open source deve permettere redistribuzione, modifiche e uso commerc
 4. Verificare attribuzioni, intestazioni e NOTICE necessari, con le licenze di terzi inalterate.
 5. Aggiornare repository e successivi pacchetti soltanto dopo autorizzazione. La disponibilità del sorgente da sola non cambia la licenza attuale.
 
-## Decisioni lasciate al titolare
+## Dati mancanti e verifiche successive
 
-Scegliere A oppure B; se B, MIT oppure Apache-2.0. Confermare titolare, ambito dei file, politica sul marchio e, per A, la redistribuzione degli installer. Legge applicabile e condizioni definitive non sono state inventate. Nessuna scelta del motore documentale è collegata o anticipata da queste bozze.
+Scelta A registrata; B, MIT e Apache-2.0 non adottate. Mancano [TITOLARE E RECAPITO: DA COMPILARE] e la revisione professionale del testo definitivo. Il divieto di redistribuzione degli installer è confermato dall’istruzione del titolare. Legge applicabile e dati anagrafici non sono stati inventati. Restano da allineare i futuri pacchetti: la 0.2.2 non viene riscritta. Nessuna scelta del motore documentale.
 
 Le fonti sono state consultate come testi di licenza e documentazione pubblica; nessun codice di terzi è stato studiato o copiato per questo documento. Nessuna nuova dipendenza o modifica a THIRD_PARTY_NOTICES.txt è necessaria.

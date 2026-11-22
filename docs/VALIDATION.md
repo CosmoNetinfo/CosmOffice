@@ -1,5 +1,7 @@
 # Stato delle verifiche e limiti
 
+Passo adozione A del 22 novembre 2026: LICENSE e documentazione aggiornati su istruzione esplicita, senza modificare app, preferenza aggiornamenti, packaging o Release. Audit statico dei quattro installer pubblici con SHA-256 verificati: nessun campo license nel package.json incorporato, nessun file della licenza propria nel payload, avvisi di terzi e lessico separato presenti. Copyright/author restano quelli storici “Cosmonet”. Incoerenze riportate, non corrette in silenzio. Prove reali e output nel report del passo; titolare e revisione professionale mancanti non sono certificati dai test.
+
 Passo bozze di licenza del 22 novembre 2026: nessuna modifica dell’app o di LICENSE. Le prove eseguite prima del push e gli output reali sono nel report del passo. Non si presenta la stesura come approvazione legale; installazioni fisiche e limiti documentali già dichiarati restano invariati. CI del codice updater 06945c6 verificata dopo il push: [45056887388](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45056887388), tutti cinque i lavori success.
 
 Aggiornato il 22 novembre 2026 con il recupero del validatore dopo lo studio (base 3185603). Versione applicativa 0.2.2. Lo studio comparativo resta documentale, non una prova manuale delle suite concorrenti.

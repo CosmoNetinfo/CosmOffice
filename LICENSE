@@ -1,10 +1,13 @@
-Copyright (c) 2026 Cosmonet. Tutti i diritti riservati.
+Licenza d’uso gratuita di CosmOffice
+Adottata il 22 novembre 2026 — opzione A
 
-Il codice originale, i loghi e gli elementi grafici del progetto CosmOffice
-sono riservati a Cosmonet. Nessuna licenza di utilizzo, modifica,
-ridistribuzione o uso dei marchi viene concessa con la sola pubblicazione
-del repository, salvo i diritti previsti inderogabilmente dalla legge
-e dalle condizioni della piattaforma che lo ospita.
+Copyright (c) 2026 [TITOLARE E RECAPITO: DA COMPILARE]. Tutti i diritti riservati sul codice originale e sulla grafica.
 
-I componenti di terze parti restano soggetti alle rispettive licenze,
-riportate in THIRD_PARTY_NOTICES.txt e nei loro pacchetti originali.
+1. Titolare e ambito. [TITOLARE E RECAPITO: DA COMPILARE] concede questa licenza sul software originale CosmOffice distribuito ufficialmente da Cosmonet. I componenti di altri autori e i dati del dizionario seguono le proprie licenze, indicate separatamente.
+2. Uso gratuito. Puoi installare e usare CosmOffice senza corrispettivi di licenza, scadenza temporale o abbonamento, per finalità personali, scolastiche, associative e professionali, anche su più computer. Puoi conservarne copie di sicurezza. L’uso della versione ricevuta non dipende dall’acquisto di aggiornamenti o servizi.
+3. Diritti riservati. Il codice originale e gli elementi grafici rimangono del titolare. Questa licenza non concede di modificarli, creare o distribuire versioni derivate, concederli in sublicenza o vendere copie del programma. Non è consentita la redistribuzione degli installer di CosmOffice. Per suggerire il download puoi condividere il collegamento alle Release ufficiali: https://github.com/CosmoNetinfo/CosmOffice/releases/latest. Restano salvi i diritti inderogabili di legge, quelli concessi dalle licenze dei singoli componenti e dalle condizioni della piattaforma del repository.
+4. Nomi e loghi. Non è concessa una licenza sul marchio CosmOffice, sui nomi delle sue applicazioni o sui loghi. Puoi citare correttamente il prodotto senza suggerire approvazioni o affiliazioni inesistenti. Non rimuovere attribuzioni obbligatorie dalle copie consentite.
+5. Documenti e dati. I tuoi documenti rimangono tuoi: questa licenza non concede al titolare diritti sul loro contenuto. Gli editor funzionano offline; il controllo aggiornamenti disattivabile è descritto nel README. Le segnalazioni sono copiate e inviate solo per tua scelta, senza invio automatico dall’app.
+6. Anteprima e assistenza. La versione è un’anteprima con limiti di compatibilità dichiarati. Non è promesso un risultato identico ad altre suite né un servizio di assistenza con tempi garantiti. Conserva copie dei documenti importanti e controlla le esportazioni.
+7. Garanzie e responsabilità. Il programma viene fornito nello stato in cui si trova, nei limiti consentiti dalla legge applicabile. Nessuna clausola esclude garanzie, responsabilità o tutele che la legge non consente di escludere. Restano salvi i diritti inderogabili dell’utente.
+8. Altri componenti. Questa licenza non restringe i diritti autonomi sui componenti di terzi. Consulta THIRD_PARTY_NOTICES.txt e le licenze incluse; in particolare, il lessico italiano è distribuito separatamente e non diventa proprietario per effetto di questa licenza.
