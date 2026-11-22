@@ -1,6 +1,6 @@
 # CosmOffice
 
-Suite desktop offline Cosmonet: **CosmoWrite**, **CosmoGrid** e **CosmoView**.
+Suite desktop gratuita, offline e in italiano di Cosmonet: **CosmoWrite**, **CosmoGrid** e **CosmoView**.
 
 **Stato: anteprima 0.2.2.** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Android e iOS sono pianificati, non implementati.
 
@@ -114,3 +114,9 @@ Salvataggio e riapertura sono provati nell’interfaccia e tramite LibreOffice (
 Stampa dei fogli con grafici: l’XLSX esportato imposta orientamento orizzontale e adattamento a una pagina sia in larghezza sia in altezza. Questo evita che i grafici vengano spezzati; i fogli grandi vengono ridotti e possono diventare poco leggibili. Il campione con barre, linee e torta è verificato con LibreOffice PDF e rendering Poppler su una sola pagina.
 
 I file delle precedenti anteprime con categorie personalizzate diverse dalle celle originali vengono aperti in sola lettura, con un avviso italiano. Il foglio tecnico esistente resta intatto: l’export produce soltanto una copia byte per byte identica all’originale, senza riscritture. Non vengono aggiunte tabelle visibili né modificate celle per migrare questi file. La copia conserva anche le impostazioni di stampa originali. I nuovi file non creano fogli nascosti; eventuali altri fogli nascosti già presenti nei file degli utenti non vengono cancellati automaticamente.
+
+## Ricerca e priorità del progetto
+
+Lo studio del 22 novembre 2026 confronta otto prodotti senza modificare il codice dell’app né scegliere un nuovo motore. Sono disponibili il [confronto con le fonti](docs/ricerca/CONFRONTO.md), le [opportunità ordinate](docs/ricerca/OPPORTUNITA.md), il [registro delle consultazioni](docs/ricerca/CODICE-STUDIATO.md), le [alternative tecniche](docs/DECISIONI.md) e la [roadmap](docs/ROADMAP.md). Le proposte richiedono una scelta dell’utente prima di essere implementate.
+
+[CHANGELOG](CHANGELOG.md), [BUG](docs/BUG.md) e [VALIDATION](docs/VALIDATION.md) distinguono le prove effettive dai limiti. La CI funzionale verde non certifica la validità di ogni OOXML: l’audit preparatorio ha trovato difetti di conformità ancora presenti nel main di riferimento; il relativo prototipo di correzione è stato messo da parte quando è stato richiesto il solo studio. Nessuna release viene pubblicata in questo passo. Il codice originale rimane proprietario: non viene cambiata la licenza del progetto.

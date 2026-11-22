@@ -1,3 +1,21 @@
+# Stato delle verifiche e limiti
+
+Aggiornamento documentale del 22 novembre 2026. Base applicativa: 0.2.2, commit fa1619564d91ef39757d82f0e16675d371835529. Lo studio comparativo usa fonti pubbliche; non è una prova manuale di tutte le suite concorrenti.
+
+## Distinzioni necessarie
+
+- Test funzionali CosmOffice: corpus sintetico di 13 file, più campione storico dei grafici; unit test del main attuale: 41. Il report di questo passo contiene la nuova esecuzione completa e gli output reali.
+- Interoperabilità: LibreOffice apre e risalva i campioni; non equivale a Microsoft Office né a fedeltà visiva universale.
+- Conformità: l’audit Microsoft SDK preparatorio ha trovato FMT-001/002/003. Il prototipo locale di validazione e correzione è stato provato su 13 nuovi esportati ma non è nel main di questo studio. I difetti del main restano aperti in BUG.md.
+- Eccezione storica autorizzata: copia v1 identica, con diagnostica SDK di apertura fallita conservata; nessuna certificazione di apertura in Excel. Non si estende l’eccezione ai nuovi file.
+- Ricerca: licenze, funzioni e note di rilascio documentate, non benchmark. Nessun codice copyleft di implementazione consultato; nessuna nuova libreria incorporata.
+
+## Non provato
+
+Microsoft Word/Excel reali sul corpus, confronto visivo completo fra concorrenti, installazione su sistemi puliti, macOS/Linux fisici, grandi documenti reali, tutte le formule, tutti i PDF protetti, crash reali del sistema operativo. Dimensioni e prestazioni comparative non misurate. Aggiornamenti automatici, rapporto interno per tester, release pubblica e modifica dei grafici esterni non vengono implementati da questo studio.
+
+## Prove storiche, da non confondere con lo stato aggiornato
+
 # Verifiche dell’anteprima 0.2.2
 
 Eseguite localmente su Windows il 21 novembre 2026.

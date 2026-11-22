@@ -6,6 +6,7 @@ Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o c
 
 | ID | Problema e riproduzione | Stato | Verifica |
 | --- | --- | --- | --- |
+| FMT-001 | Nel main fa16195 i disegni dei grafici dichiarano application/vnd.openxmlformats-officedocument.drawingml.drawing+xml; SDK attende application/vnd.openxmlformats-officedocument.drawing+xml e rifiuta il pacchetto. | Aperto sul main. Prototipo di correzione locale separato, non pubblicato nello studio | Audit preparatorio Open XML SDK 3.5.1: AperturaFallita. Excel reale non provato; possibile rifiuto o recupero |
 | NET-001 | Il processo principale poteva contattare GitHub nelle release firmate per verificare/scaricare aggiornamenti. | Rimosso e bloccato dal guardiano offline; esiti nel report | Test Node delle API, Electron reale con nessun tentativo spontaneo e NetLog; richiesta intenzionale dal main rilevata e bloccata |
 | NET-002 | Il controllo ortografico Electron può scaricare dizionari Hunspell dal CDN senza un’azione esplicita dell’utente. | Risolto: Hunspell nativo resta disabilitato; controllo italiano applicativo con lessico incorporato e parole personali locali | Sessioni e webPreferences native disabilitate; test ortografia Write/Grid anche dentro offline-smoke con NetLog |
 | NET-003 | CI Linux del commit `defa84b`: NetLog registra il tentativo di download `en-us-10-2.bdic` dal CDN Chromium e una sonda UDP verso `[2001:4860:4860::8888]:443`, fuori dalle API JavaScript. Il costruttore Session avvia Hunspell prima dell’evento `session-created`. Windows locale non lo riproduceva. | Risolto e verificato in CI Linux: destinazione dizionari solo locale e lingue svuotate; risolutore/DoH disabilitati. | Il test rifiuta ogni TCP/UDP/QUIC/DNS e qualsiasi URL remoto nel NetLog. Nessuna eccezione per sonde o CDN. [Run fallita](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/44953248300), [run riuscita](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/44954563150) |
@@ -24,6 +25,8 @@ Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o c
 
 | ID | Problema e riproduzione | Stato | Verifica |
 | --- | --- | --- | --- |
+| FMT-002 | Ordine dei figli sz nei font XLSX e attributo editAs su oneCellAnchor non conformi allo schema Microsoft. | Aperto sul main; correzione solo nel prototipo separato | Audit SDK sui file esportati del corpus |
+| FMT-003 | La conservazione delle intestazioni DOCX duplica evenAndOddHeaders dopo compat in word/settings.xml. | Aperto sul main; correzione solo nel prototipo separato | SDK: Sch_UnexpectedElementContentExpectingComplex su 05-intestazioni.docx |
 | CAL-001 | Una stringa come `#N/A` veniva confusa con un errore vero; IFERROR, ISERROR e risultati salvati potevano essere errati. | Corretto nella revisione locale 0.2.2 | `tests/formulas.test.mjs`, `tests/reliability.test.mjs`, verifica con LibreOffice |
 | CAL-002 | Stringhe vuote e celle vuote erano indistinguibili per ISTEXT e ISBLANK. | Corretto nella revisione locale 0.2.2 | Test dei predicati e dei tipi |
 | PDF-001 | Il pulsante «Ruota pagina PDF» ruotava la vista di tutte le pagine e la rotazione spariva nella copia salvata. | Corretto: rotazione persistente della sola pagina selezionata, esiti nel report | Tre PDF del corpus, ricaricamento bozza, salvataggio/riapertura; confronto delle rotazioni di tutte le pagine e dei flussi binari originali |
@@ -63,3 +66,10 @@ Primo giro del corpus: 9/13 PASS. DAT-008 era una perdita reale. I tre confronti
 - CHART-001: LibreOffice perdeva le categorie personalizzate espresse come c:strLit. I nuovi grafici ora usano riferimenti alle celle reali dell’intervallo senza fogli nascosti. I file v1 con categorie diverse sono in sola lettura e consentono soltanto la copia identica, come richiesto dall’utente; nessuna migrazione che sovrascriva o aggiunga celle.
 - Grafici esterni o riscritti da altri programmi non sono modificabili; export bloccato per evitare perdita silenziosa. Il supporto completo di questi grafici resta da implementare.
 - Non provato: Microsoft Excel reale, grafici avanzati e cartelle grandi. La disposizione e i colori del lettore indipendente possono differire dal pannello CosmOffice.
+
+## Audit di conformità preparatorio allo studio
+
+- FMT-002 (P2): SDK segnala Sch_UnexpectedElementContentExpectingComplex su sz nei font di xl/styles.xml e Sch_UndeclaredAttribute per editAs su oneCellAnchor in xl/drawings/drawing1.xml. Confermati sugli esportati del corpus; correzione non nel main di riferimento.
+- FMT-003 (P2): 05-intestazioni.docx esportato contiene due evenAndOddHeaders in word/settings.xml; SDK segnala Sch_UnexpectedElementContentExpectingComplex. Non corretto nel main di riferimento.
+- Il vecchio campione v1 è in sola copia per decisione esplicita dell’utente. Il suo errore esatto è: The document cannot be opened because there is an invalid part with an unexpected content type. Part Uri=/xl/drawings/cosmoDrawing1.xml; Content Type=application/vnd.openxmlformats-officedocument.drawingml.drawing+xml; Expected Content Type=application/vnd.openxmlformats-officedocument.drawing+xml. La validazione si interrompe all’apertura: altri difetti non sono esclusi. Excel potrebbe rifiutare o recuperare il file; non è stato provato direttamente.
+- Il prototipo locale correggeva questi problemi ed era stato provato, ma è stato conservato separatamente al passaggio alla sola ricerca. Non si dichiara risolto un bug sul main perché una correzione esiste fuori dal main.

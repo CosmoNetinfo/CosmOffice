@@ -1,22 +1,25 @@
-# Report — parte 3: categorie nelle celle reali
+# Report — studio delle suite office
 
 ## 1. Obiettivo
 
-Non creare fogli tecnici nascosti nei nuovi XLSX e mantenere l'apertura dei file precedenti senza perdita di informazioni.
+Studiare le principali suite gratuite/open source e il nodo della fedeltà DOCX/XLSX, produrre confronto, opportunità, roadmap e alternative senza scegliere né implementare un nuovo motore. Solo ricerca e documentazione, come richiesto nell'ultimo prompt.
 
 ## 2. Cosa hai fatto
 
-- src/charts.mjs e src/workbooks.mjs: categorie dei nuovi grafici riferite alle celle reali dell'intervallo; metadati versione 2, riconoscimento senza foglio tecnico e nessuna generazione di veryHidden.
-- Per i vecchi grafici v1 con categorie diverse dalle celle: sola lettura, foglio tecnico esistente intatto ed export esclusivamente byte per byte identico. È la soluzione espressamente richiesta dall'utente al posto della proposta di tabelle visibili, rifiutata e non implementata.
-- src/GridCharts.jsx e src/GridEditor.jsx: avviso italiano sulla precedente anteprima, comandi di modifica disabilitati per quei file, grafici ancora visibili. Nei nuovi grafici le etichette modificano le celle reali; il pannello avverte che questo vale anche per gli altri grafici che le condividono. Nessuna cella aggiunta per migrare file vecchi.
-- tests/chart-legacy.test.mjs, tests/charts.test.mjs e tests/fixtures/legacy/: campione immutabile v1 creato prima della modifica, hash verificato, categorie discordanti conservate, copia originale e nuovi file senza fogli nascosti. I 13 campioni del manifest restano invariati.
-- scripts/charts-smoke.mjs e scripts/charts-interop.mjs: verifica interfaccia e round trip LibreOffice senza fogli nascosti; prova negativa dei grafici esterni ancora bloccati; prova di sola copia per i vecchi grafici.
-- scripts/charts-desktop-check.mjs e scripts/offline-smoke.mjs: prova del vecchio file anche in Electron e copia identica sul filesystem del pacchetto Windows.
-- README.md, docs/BUG.md, questo report e docs/report/ULTIMO.md: comportamento e deroga esplicita per i vecchi file. scripts/notices.mjs eseguito; nessuna nuova libreria.
+- docs/ricerca/CONFRONTO.md: confronto di LibreOffice, ONLYOFFICE, Collabora, Calligra, AbiWord, Gnumeric, Apache OpenOffice e CryptPad, con licenze, tecnologia, funzioni, confini ed evidenze mancanti. Nessuna esclusiva CosmOffice inventata.
+- docs/ricerca/OPPORTUNITA.md: proposte ordinate per valore e difficoltà nei tre gruppi richiesti.
+- docs/ricerca/CODICE-STUDIATO.md: registro delle fonti e delle consultazioni, distinguendo documentazione copyleft da componenti permissivi e specifiche. Nessun codice di implementazione GPL/AGPL/MPL consultato, nessuna copia o riscrittura ravvicinata.
+- docs/DECISIONI.md: decisioni pregresse e alternative aperte per il motore attuale, conversione locale, integrazione completa, modifica selettiva dell'originale, percorso ODF e motore originale da specifiche. Nessuna scelta dell'architettura fatta al posto dell'utente.
+- docs/ROADMAP.md: priorità e stati espliciti, con difetti di integrità prima di nuove funzioni.
+- CHANGELOG.md: introdotto il formato richiesto con Aggiunto, Modificato, Corretto, Rimosso e Limiti noti, senza inventare release o date di pubblicazione.
+- README.md, docs/BUG.md e docs/VALIDATION.md: collegamenti allo studio, stato e limiti aggiornati.
+- Questo report e docs/report/ULTIMO.md: stessa copia e fonti complete sotto.
+
+Il lavoro precedente sul validatore SDK, non ancora pubblicato, è stato preservato localmente con git stash prima dello studio. Non è stato inserito in questo commit. I relativi artefatti di compilazione sono stati conservati sotto test-results, non pubblicati. Nessuna modifica a src/, electron/, scripts/, tests/, dipendenze, workflow o licenza del progetto. scripts/notices.mjs eseguito; THIRD_PARTY_NOTICES.txt non cambia perché non viene incorporato alcun nuovo componente.
 
 ## 3. Esiti reali di build e test
 
-Sequenza finale a sorgenti fermi: tutti i comandi seguenti terminati con codice 0.
+Nuova sequenza sul codice main fa1619564d91ef39757d82f0e16675d371835529, non sul prototipo messo da parte. Tutti i comandi seguenti terminati con codice 0. Il pacchetto è stato ricostruito da questo stesso codice prima di desktop-smoke.
 
 ### npm run build
 
@@ -47,7 +50,7 @@ dist/assets/index-CaqtXkIh.js             2,321.06 kB │ gzip: 695.89 kB
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1.46s
+✓ built in 2.76s
 ```
 
 ### npm test
@@ -56,47 +59,47 @@ dist/assets/index-CaqtXkIh.js             2,321.06 kB │ gzip: 695.89 kB
 > cosmoffice@0.2.2 test
 > node --test tests/*.test.mjs
 
-✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (84.6351ms)
-✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (80.1231ms)
-✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (132.0776ms)
-✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (191.8864ms)
-✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (24.0772ms)
-✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (30.5931ms)
-✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (20.7985ms)
-✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (20.4465ms)
-✔ DOCX exports real text, bold marks and tables readable by another parser (118.7017ms)
-✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (97.1519ms)
-✔ unknown formulas retain their source without exporting a misleading cached number (15.2622ms)
-✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (4.888ms)
-✔ cross-sheet formulas survive XLSX round trips and get calculated results (13.4576ms)
-✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (14.7003ms)
-✔ landscape DOCX uses a physically wider page with matching orientation (8.9321ms)
-✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (10.384ms)
-✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (203.6258ms)
-✔ references, arithmetic, precedence and percentages (3.9801ms)
-✔ Italian aliases, absolute references, text and lazy IF (0.7027ms)
-✔ cycles, division by zero and unknown functions are visible and propagated (0.6501ms)
-✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (0.6505ms)
-✔ Excel address limits and column naming (1.452ms)
-✔ conditional sums, lookups, text, dates and error handling (4.1664ms)
-✔ quoted sheet names, absolute references and cycles across sheets (0.6431ms)
-✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.4244ms)
-✔ literal text resembling errors stays text while actual formula errors propagate (0.9034ms)
-✔ empty strings, blank cells and boolean predicates retain their separate types (0.726ms)
-✔ Il processo principale non contiene updater o caricamenti da server (8.4049ms)
-✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (210.5919ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (31.2914ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (9.4237ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (85.7928ms)
-✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (17.5339ms)
-✔ Excel exports do not mutate the open workbook, even when exported concurrently (134.1318ms)
-✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (41.4702ms)
-✔ damaged files and mismatched Office extensions are rejected before import (10.263ms)
-✔ unsupported parts produce specific warnings without changing the original file (43.2163ms)
-✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (10.8206ms)
-✔ XLSX caches keep literal error-like strings separate from actual error cells (10.1427ms)
-✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (741.1641ms)
-✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1945.0771ms)
+✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (71.3008ms)
+✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (85.7143ms)
+✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (119.729ms)
+✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (178.7052ms)
+✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (30.9734ms)
+✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (38.4478ms)
+✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (23.3274ms)
+✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (27.2248ms)
+✔ DOCX exports real text, bold marks and tables readable by another parser (102.0822ms)
+✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (76.0393ms)
+✔ unknown formulas retain their source without exporting a misleading cached number (10.1249ms)
+✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (4.3208ms)
+✔ cross-sheet formulas survive XLSX round trips and get calculated results (11.9748ms)
+✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (12.7267ms)
+✔ landscape DOCX uses a physically wider page with matching orientation (8.5113ms)
+✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (7.4203ms)
+✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (164.6773ms)
+✔ references, arithmetic, precedence and percentages (5.378ms)
+✔ Italian aliases, absolute references, text and lazy IF (0.9585ms)
+✔ cycles, division by zero and unknown functions are visible and propagated (1.1014ms)
+✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (0.8432ms)
+✔ Excel address limits and column naming (1.4384ms)
+✔ conditional sums, lookups, text, dates and error handling (5.1737ms)
+✔ quoted sheet names, absolute references and cycles across sheets (0.8137ms)
+✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.7347ms)
+✔ literal text resembling errors stays text while actual formula errors propagate (0.8425ms)
+✔ empty strings, blank cells and boolean predicates retain their separate types (0.9875ms)
+✔ Il processo principale non contiene updater o caricamenti da server (9.4459ms)
+✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (227.5212ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (46.5605ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (13.8241ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (109.3318ms)
+✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (21.1358ms)
+✔ Excel exports do not mutate the open workbook, even when exported concurrently (123.2678ms)
+✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (40.1417ms)
+✔ damaged files and mismatched Office extensions are rejected before import (9.262ms)
+✔ unsupported parts produce specific warnings without changing the original file (45.3865ms)
+✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (16.4099ms)
+✔ XLSX caches keep literal error-like strings separate from actual error cells (14.8181ms)
+✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (961.0271ms)
+✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1867.2734ms)
 ℹ tests 41
 ℹ suites 0
 ℹ pass 41
@@ -104,7 +107,7 @@ dist/assets/index-CaqtXkIh.js             2,321.06 kB │ gzip: 695.89 kB
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 3431.0453
+ℹ duration_ms 3137.0186
 ```
 
 ### npm run test:browser
@@ -142,7 +145,7 @@ dist/assets/index-CaqtXkIh.js             2,321.06 kB │ gzip: 695.89 kB
   ],
   "errors": []
 }
-09:02:37 [vite] (client) [console.warn] Warning: Indexing all PDF objects
+10:05:41 [vite] (client) [console.warn] Warning: Indexing all PDF objects
 {
   "result": "PASS",
   "scenarios": [
@@ -174,9 +177,9 @@ PASS grafici: categorie nelle celle, nuovi XLSX senza fogli nascosti, dati aggio
 ### node scripts/charts-interop.mjs
 
 ```text
-convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795334652054\ods\grafici-ui.ods using filter : calc8
-convert V:\CosmonetOffice\test-results\charts-interop-1795334652054\ods\grafici-ui.ods as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795334652054\xlsx\grafici-ui.xlsx using filter : Calc Office Open XML
-convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795334652054\xlsx\grafici-ui.pdf using filter : calc_pdf_Export
+convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795338436978\ods\grafici-ui.ods using filter : calc8
+convert V:\CosmonetOffice\test-results\charts-interop-1795338436978\ods\grafici-ui.ods as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795338436978\xlsx\grafici-ui.xlsx using filter : Calc Office Open XML
+convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795338436978\xlsx\grafici-ui.pdf using filter : calc_pdf_Export
 {
   "result": "PASS",
   "engine": "LibreOffice: XLSX → ODS → XLSX e PDF",
@@ -228,7 +231,7 @@ convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\
     "pages": 1,
     "landscape": true
   },
-  "output": "V:\\CosmonetOffice\\test-results\\charts-interop-1795334652054",
+  "output": "V:\\CosmonetOffice\\test-results\\charts-interop-1795338436978",
   "limits": "Microsoft Excel non eseguito. I file riscritti da LibreOffice vengono aperti in sola lettura da CosmOffice per conservarne i grafici. Adattamento a una pagina anche in altezza: i fogli grandi si riducono in stampa."
 }
 ```
@@ -266,7 +269,7 @@ dist/assets/index-CaqtXkIh.js             2,321.06 kB │ gzip: 695.89 kB
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1.11s
+✓ built in 1.12s
 
 > cosmoffice@0.2.2 icons
 > node scripts/icons.mjs
@@ -330,22 +333,93 @@ Attribuzioni e licenze raccolte.
 }
 ```
 
+Controllo documentale aggiuntivo realmente eseguito:
+
+```text
+PASS: collegamenti locali e perimetro di sola documentazione; nessuna modifica a codice, test, dipendenze o workflow.
+```
+
 ## 4. Cosa funziona (provato)
 
-41 test del motore e tutte le suite browser passati. I nuovi file hanno categorie nei riferimenti reali A2:A3 e nessun foglio hidden/veryHidden, verificato prima e dopo LibreOffice. Riapertura nell'app e riconoscimento v2 passati. Il vecchio campione conserva A2=Gennaio e la categoria separata Gennaio personalizzato per il grafico a barre; linee e torta restano Gennaio. Grafici visibili ma non modificabili, avviso italiano presente e copia identica provata sia nel browser sia sul filesystem Windows. Nessuna connessione in offline-smoke.
+41 test del motore e tutte le suite browser passati, incluso il corpus di 13 file, categorie reali, vecchio file in sola copia e ortografia. LibreOffice conferma i tre grafici e la pagina orizzontale del campione. Offline-smoke senza nuove connessioni. Pacchetto Windows avviato e salvataggi/riaperture provati. Collegamenti locali dei documenti verificati. Tutti i cambiamenti di questo passo sono documentali.
+
+Le fonti distinguono prodotti ed edizioni: Collabora ha anche un desktop locale; ONLYOFFICE Desktop non richiede un account per lavorare sui file locali; Gnumeric dichiara di non distribuire binari Windows; la guida AOO4 distingue apertura e salvataggio OOXML. Sono riscontri documentali, non nostre prove comparative delle applicazioni.
 
 ## 5. Cosa NON funziona o non hai potuto provare
 
-I vecchi file con categorie discordanti non sono modificabili: consentono soltanto la copia identica con il foglio tecnico e le impostazioni di stampa originali, come richiesto dall'utente. Non viene tentata una migrazione. Eventuali altri fogli nascosti già presenti nei file degli utenti non vengono cancellati automaticamente. Grafici esterni non riconosciuti ancora in sola lettura con export bloccato fino alla parte 8. Non provato: Microsoft Excel reale, tutte le varianti storiche e file modificati da terzi. Parti 4–8 da svolgere.
+- Nessun motore, novità, integrazione, rapporto interno per i tester, aggiornamento automatico o release viene implementato o pubblicato da questo studio. Le richieste precedenti restano documentate come non completate, senza fingere che lo siano.
+- Non provato: installazione di tutte le suite, confronto visivo sullo stesso corpus reale, Microsoft Word/Excel effettivi, computer fisici Mac/Linux, installer su sistemi puliti, crash reali e prestazioni comparative.
+- Il sito storico AbiWord non era raggiungibile dal nostro strumento: usati documentazione del progetto, manuale distribuito e metadati dei pacchetti, con limite dichiarato. Alcuni URL iniziali Calligra restituivano 404: sono stati sostituiti dai collegamenti ufficiali corretti.
+- Non è dimostrata una funzione esclusiva di CosmOffice rispetto a ogni suite. Offline, italiano, PDF e gratuità non sono esclusive sufficienti. Le novità proposte richiedono validazione e scelta dell'utente.
+- I test funzionali verdi non certificano la conformità di ogni OOXML: FMT-001/002/003 restano aperti sul main di riferimento. Il prototipo SDK locale di correzione non è distribuito qui.
 
 ## 6. Bug e dubbi
 
-La prima esecuzione mirata passava 5 test su 6: il test immagini inseriva ancora un'etichetta nel modello v1 invece di una cella reale. Un errore nello script di modifica ne aveva impedito l'aggiornamento. Corretto il test senza cambiare il campione storico e ripetuta l'intera sequenza. Non sono state create tabelle visibili né sovrascritti dati per i vecchi file. Restano l'avviso di dimensione bundle e i limiti documentati.
+Difetti emersi nell'audit preparatorio precedente e ora registrati onestamente sul main: ordine sz dei font XLSX (Sch_UnexpectedElementContentExpectingComplex), editAs non dichiarato su oneCellAnchor (Sch_UndeclaredAttribute), duplicazione evenAndOddHeaders nel DOCX (Sch_UnexpectedElementContentExpectingComplex) e tipo MIME del disegno dei grafici errato.
+
+Errore esatto di apertura del vecchio XLSX, riportato dal wrapper del validatore:
+
+```text
+AperturaFallita
+The document cannot be opened because there is an invalid part with an unexpected content type.
+[Part Uri=/xl/drawings/cosmoDrawing1.xml],
+[Content Type=application/vnd.openxmlformats-officedocument.drawingml.drawing+xml],
+[Expected Content Type=application/vnd.openxmlformats-officedocument.drawing+xml].
+```
+
+Il difetto era anche nel generatore corrente del main. Il prototipo locale lo correggeva, ma non è stato pubblicato perché il lavoro corrente è solo di studio. Excel potrebbe rifiutare il vecchio file o proporre un recupero: è un rischio dedotto dalla non conformità e dal rifiuto SDK, non una prova fatta in Excel. La validazione storica si ferma all'apertura, quindi non esclude altri difetti. La copia identica è l'eccezione storica esplicitamente autorizzata; non viene estesa ai nuovi esportati.
+
+Una lettura iniziale dei metadati delle librerie con require è fallita per ERR_PACKAGE_PATH_NOT_EXPORTED; riletti i package.json direttamente dal filesystem. Nessun test applicativo della nuova sequenza è fallito. Restano l'avviso dimensione bundle e pacchetti non firmati.
 
 ## 7. Hash del commit
 
-Base: 405a613ae05b8574d18c01affd920d22b705eba9, cinque lavori CI verdi, run 44999964554. Codice e report condividono un unico commit della parte 3; hash finale nella cronologia del file e nel riepilogo conclusivo (un hash autoreferenziale non può essere scritto nello stesso commit).
+Base applicativa verificata: fa1619564d91ef39757d82f0e16675d371835529; CI precedente verde, run 45001481213. Studio e report vengono pubblicati insieme in un solo commit documentale. L'hash effettivo del nuovo commit è nella cronologia del presente file e nella risposta conclusiva; un hash autoreferenziale non può essere inserito nel medesimo commit senza modificarlo.
 
 ## 8. Prossimo passo
 
-Parte 4: aggiungere alla CI il validatore Open XML SDK Microsoft per gli XLSX e DOCX esportati, rendendo gli errori bloccanti.
+Attendere la scelta dell'utente sulle alternative di docs/DECISIONI.md. Nessuna proposta viene implementata automaticamente. Prima di ampliare il prodotto, la roadmap pone i difetti di formato e le prove sui documenti reali. Le future Release dovranno essere derivate dal CHANGELOG e riportare novità, correzioni, limiti, prove mancanti e prossimi passi.
+
+### Fonti usate nello studio
+
+Fonti effettivamente usate per la ricerca, collegate anche vicino alle affermazioni nei documenti. Nessuna recensione di terzi è stata usata per dichiarare prestazioni o superiorità.
+
+1. [Keep a Changelog](https://keepachangelog.com/it-IT/1.1.0/)
+2. [versionamento semantico](https://semver.org/lang/it/)
+3. [Mammoth](https://raw.githubusercontent.com/mwilliamson/mammoth.js/master/README.md)
+4. [ExcelJS 4.4.0](https://raw.githubusercontent.com/exceljs/exceljs/v4.4.0/README.md)
+5. [parametri di avvio ufficiali](https://help.libreoffice.org/latest/en-US/text/shared/guide/start_parameters.html)
+6. [licenze LibreOffice](https://www.libreoffice.org/licenses/)
+7. [limiti dei filtri Office](https://help.libreoffice.org/latest/en-US/text/shared/guide/ms_import_export_limitations.html)
+8. [ONLYOFFICE Desktop](https://helpcenter.onlyoffice.com/desktop/getting-started)
+9. [Docs API](https://api.onlyoffice.com/docs/docs-api/get-started/how-it-works)
+10. [termini Collabora](https://www.collaboraonline.com/terms/collabora-online-mplv2/)
+11. [ECMA-376 e convenzioni di pacchetto](https://ecma-international.org/publications-and-standards/standards/ecma-376/)
+12. [funzioni Writer](https://help.libreoffice.org/latest/en-US/text/swriter/main0503.html)
+13. [funzioni Calc](https://help.libreoffice.org/latest/en-US/text/scalc/main0503.html)
+14. [PDF desktop](https://helpcenter.onlyoffice.com/docs/userguides/pdf_editor/hometab.aspx)
+15. [note di rilascio desktop](https://helpcenter.onlyoffice.com/desktop/desktop-changelog)
+16. [release desktop 26.04](https://www.collaboraonline.com/blog/collabora-office-26-04-release/)
+17. [FAQ delle edizioni](https://www.collaboraonline.com/faqs/)
+18. [Calligra 4.0 e passaggio Qt6/KF6](https://calligra.org/news/2024-08-calligra-4.0/)
+19. [Words e licenza GPL-2.0-or-later](https://apps.kde.org/calligra.words/)
+20. [distribuzione](https://calligra.org/download/)
+21. [manuale del programma, distribuito da Debian](https://manpages.debian.org/testing/abiword/abiword.1.en.html)
+22. [metadati GTK e licenza del pacchetto SUSE](https://packagehub.suse.com/packages/abiword/)
+23. [documentazione README](https://raw.githubusercontent.com/AbiWord/abiword/master/README)
+24. [informazioni di copyright](https://raw.githubusercontent.com/AbiWord/abiword/master/COPYRIGHT.TXT)
+25. [progetto e GPL 2 oppure 3](https://gnome.pages.gitlab.gnome.org/gnumeric-web/)
+26. [manuale](https://gnome.pages.gitlab.gnome.org/gnumeric/manual/chapter-welcome.html)
+27. [rilascio 1.12.62](https://gnome.pages.gitlab.gnome.org/gnumeric-web/announcements/1.12/gnumeric-1.12.62.html)
+28. [download ufficiale](https://gnome.pages.gitlab.gnome.org/gnumeric-web/download.html)
+29. [prodotti](https://www.openoffice.org/product/)
+30. [licenza](https://www.openoffice.org/license.html)
+31. [opzioni di caricamento e salvataggio](https://wiki.openoffice.org/wiki/Documentation/AOO4_User_Guides/Getting_Started/Setting_Up_and_Customizing_Apache_OpenOffice/Choosing_Options_for_Loading_and_Saving_Documents)
+32. [presentazione e licenza](https://cryptpad.org/about/)
+33. [FAQ e integrazione Office](https://docs.cryptpad.org/en/FAQ.html)
+34. [sito storico](https://www.abisource.com/)
+35. [Microsoft: validare un DOCX](https://learn.microsoft.com/en-us/office/open-xml/word/how-to-validate-a-word-processing-document)
+36. [release SDK](https://github.com/dotnet/Open-XML-SDK/releases)
+37. [licenza SDK](https://raw.githubusercontent.com/dotnet/Open-XML-SDK/v3.5.1/LICENSE)
+38. [FileFormatVersions.cs del SDK](https://raw.githubusercontent.com/dotnet/Open-XML-SDK/v3.5.1/src/DocumentFormat.OpenXml.Framework/FileFormatVersions.cs)
+39. [Classe Font nella documentazione SDK](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.font?view=openxml-3.0.1)
+40. [GitHub Release API](https://docs.github.com/en/rest/releases/releases)
