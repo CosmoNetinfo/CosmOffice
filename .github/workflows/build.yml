@@ -35,6 +35,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends poppler-utils
       - run: node scripts/pdf-independent.mjs
       - run: xvfb-run -a node scripts/offline-smoke.mjs
+      - run: xvfb-run -a node scripts/debug-smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -100,6 +101,10 @@ jobs:
       - run: npx electron-builder --config electron-builder.config.cjs ${{ matrix.target }} --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
+      - run: node scripts/debug-smoke.mjs
+        if: runner.os == 'Windows'
+        env:
+          COSMO_DEBUG_PACKAGE: '1'
       - uses: actions/upload-artifact@v4
         with:
           name: CosmOffice-anteprima-${{ matrix.name }}

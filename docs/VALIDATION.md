@@ -4,7 +4,7 @@ Aggiornato il 22 novembre 2026 con il recupero del validatore dopo lo studio (ba
 
 ## Distinzioni necessarie
 
-- Test funzionali CosmOffice: corpus sintetico di 13 file, più campione storico dei grafici; unit test del main attuale: 41. Il report di questo passo contiene la nuova esecuzione completa e gli output reali.
+- Test funzionali CosmOffice: corpus sintetico di 13 file, più campione storico dei grafici; unit test dopo il rapporto tester: 45. Il report di questo passo contiene la nuova esecuzione completa e gli output reali.
 - Interoperabilità: LibreOffice apre e risalva i campioni; non equivale a Microsoft Office né a fedeltà visiva universale.
 - Conformità: recuperate le correzioni FMT-001/002/003 e il validatore Microsoft Open XML SDK 3.5.1, schema Microsoft365. Controllo bloccante in CI su 13 nuovi esportati, hash invariati dopo la lettura e due controlli negativi. Gli esiti reali della ripresa sono nel report corrente. La validità dello schema non equivale alla fedeltà dei documenti.
 - Eccezione storica autorizzata: copia v1 identica, con diagnostica SDK di apertura fallita conservata; nessuna certificazione di apertura in Excel. Non si estende l’eccezione ai nuovi file.
@@ -12,7 +12,7 @@ Aggiornato il 22 novembre 2026 con il recupero del validatore dopo lo studio (ba
 
 ## Non provato
 
-Microsoft Word/Excel reali sul corpus, confronto visivo completo fra concorrenti, installazione su sistemi puliti, macOS/Linux fisici, grandi documenti reali, tutte le formule, tutti i PDF protetti, crash reali del sistema operativo. Dimensioni e prestazioni comparative non misurate. Aggiornamenti automatici, rapporto interno per tester, release pubblica e modifica dei grafici esterni non vengono implementati da questo studio.
+Microsoft Word/Excel reali sul corpus, confronto visivo completo fra concorrenti, installazione su sistemi puliti, macOS/Linux fisici, grandi documenti reali, tutte le formule, tutti i PDF protetti, crash reali del sistema operativo. Dimensioni e prestazioni comparative non misurate. Aggiornamenti automatici, release pubblica e modifica dei grafici esterni restano da eseguire. Il rapporto tester è stato aggiunto successivamente allo studio; prove e limiti nel report corrente.
 
 ## Prove storiche, da non confondere con lo stato aggiornato
 
@@ -84,3 +84,9 @@ Il confronto indipendente locale usa LibreOffice installato su Windows con un pr
 Per i PDF si verificano tutte le pagine con il motore, la scansione priva di testo, la navigazione fino a pagina 20 e la copia identica prima delle modifiche. Il corpus ora ruota l’ultima pagina, torna immediatamente alle bozze, ricarica l’app, salva e riapre il PDF modificato; confronta testo, numero pagine e rotazioni di tutte le pagine. Prova anche quota esaurita, blocco della navigazione, esportazione di recupero e nuovo salvataggio della bozza. `tests/pdf-editing.test.mjs` confronta i flussi binari originali di testo, font e immagini e verifica il blocco di un campo firma sintetico; non è una prova di firma crittografica valida o di PDF cifrati reali.
 
 Dopo i test browser, `node scripts/fixtures-office.mjs` apre originali e copie DOCX/XLSX con LibreOffice, produce PDF e controlla i testi attesi con PDF.js. Salva tutte le pagine e fogli di contatto in `test-results/corpus-office-*`, con esito JSON in `test-results/corpus-office-report.json`. In CI il lavoro `interop` scarica gli export del lavoro `checks` prima di questo controllo. Non è una certificazione Microsoft Office.
+
+## Rapporto tester locale
+
+Test di privacy con marcatore riconoscibile nel nome, percorso e contenuto di un PDF; eventi reali renderer/promise non gestiti ed evento main simulato; notifiche simulate di blocco/crash della finestra. Sono verificati anteprima, app e formato, clipboard Windows reale, file locale senza marcatore, riapertura della schermata e svuotamento. Unit test: limite 50, persistenza e controllo dei campi. Le prove del pacchetto e la ripetizione completa sono riportate nel report. Non provati crash reali di Chromium/OS, spegnimento improvviso o cattura di ogni errore prima dell’inizializzazione.
+
+Caso negativo aggiuntivo: una directory al posto del file del registro simula un percorso non scrivibile. Gli eventi restano in memoria, il rapporto segnala il problema e lo svuotamento non restituisce un falso successo.

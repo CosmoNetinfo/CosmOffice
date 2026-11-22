@@ -95,3 +95,7 @@ L'utente deve scegliere quale alternativa approfondire e quali file rappresentan
 ## Recupero del validatore — 22 novembre 2026
 
 Autorizzato dall’utente dopo lo studio. Si usa Microsoft Open XML SDK 3.5.1 (MIT) solo nello sviluppo/CI, con dipendenze bloccate e telemetria .NET disattivata; nessun runtime .NET aggiunto all’app. Il controllo funzionale da solo non intercettava i quattro difetti di schema: il validatore è quindi bloccante sui nuovi esportati del corpus. Due campioni volutamente errati impediscono un falso positivo del controllo. Il vecchio XLSX resta esclusivamente una copia identica, con audit separato del suo errore noto e checksum fisso: non viene sanato in silenzio. Nessun motore alternativo scelto.
+
+## Rapporto tester: messaggi sicuri
+
+Autorizzato esplicitamente dopo lo studio. Si conservano soltanto categoria, classe dell’errore da una lista, data, app e tre posizioni anonimizzate della traccia. I messaggi liberi non sono conservati né inviati via IPC: rimuovere solo i percorsi non impedirebbe a una libreria di includere il testo di una cella. Non si aggiunge alcuna libreria o connessione. Il processo principale controlla anche i dati del renderer e quelli riletti dal registro. Il testo copiato è l’istantanea già mostrata, così un evento successivo non aggiunge dettagli non letti. I dettagli tecnici ridotti possono rendere la diagnosi meno precisa: scelta di riservatezza, non promessa di individuare ogni difetto.

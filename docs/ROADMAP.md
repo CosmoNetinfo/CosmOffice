@@ -34,7 +34,7 @@ Stati: **Fatto e provato** = evidenza nei test/report; **Parziale** = sottoinsie
 | Ordine | Voce | Stato | Vincolo |
 | --- | --- | --- | --- |
 | 6 | Installer su sistemi puliti e accessibilità | Pianificato / non provato | Windows, Linux e Mac reali; tastiera e lettore schermo |
-| 7 | Rapporto per i tester copiabile e solo locale | Richiesto in precedenza, non implementato | Ultimi 50 eventi, revisione prima della copia, niente contenuti, nomi, percorsi o identificativi |
+| 7 | Rapporto per i tester copiabile e solo locale | Implementato; verifiche nel report corrente | Ultimi 50 eventi, messaggi controllati, tracce anonimizzate, copia esplicita e nessun invio |
 | 8 | Release pubblica, checksum e guide di primo avvio | Richiesta in precedenza, non eseguita da questo studio | Testi dal CHANGELOG; esiti parziali dichiarati; nessuna falsa certificazione |
 | 9 | Aggiornamenti automatici soltanto dalle Release autorizzate | Richiesti in precedenza, attualmente assenti | Integrità e comportamento senza rete provati; nessun altro host ammesso senza decisione |
 | 10 | Verifica finale delle licenze e distribuzione del dizionario sostituibile | Pianificato | Fonte, licenza e sostituibilità del pacchetto verificate, senza confondere dati e codice |

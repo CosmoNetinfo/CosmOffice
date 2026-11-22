@@ -6,10 +6,13 @@ import { SpellingProvider } from './Spelling.jsx';
 import './styles.css';
 import './pdf.css';
 import './preferences.css';
+import { installDebug, recordError } from './debug.mjs';
+installDebug();
 
 class Boundary extends React.Component {
   state = { error: null };
   static getDerivedStateFromError(error) { return { error }; }
+  componentDidCatch(error) { recordError('react', error); }
   render() {
     if (this.state.error) return <div className="fatal"><img src="./brand/suite.svg" alt=""/><h1>Non è stato possibile aprire questa schermata.</h1><p>Le bozze già salvate rimangono sul dispositivo.</p><button onClick={() => location.reload()}>Riapri CosmOffice</button><details><summary>Dettagli</summary>{this.state.error.message}</details></div>;
     return this.props.children;

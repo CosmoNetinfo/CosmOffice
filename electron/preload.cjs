@@ -2,6 +2,16 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('cosmoffice', Object.freeze({
   spellcheckAvailable: true,
+  debugReport: () => ipcRenderer.invoke('office:debug-report'),
+  debugRecord: value => ipcRenderer.invoke('office:debug-record', value),
+  debugContext: value => ipcRenderer.invoke('office:debug-context', value),
+  debugClear: () => ipcRenderer.invoke('office:debug-clear'),
+  debugCopy: () => ipcRenderer.invoke('office:debug-copy'),
+  onDebug: callback => {
+    const handler = () => callback();
+    ipcRenderer.on('office:show-debug', handler);
+    return () => ipcRenderer.removeListener('office:show-debug', handler);
+  },
   italianDictionary: () => ipcRenderer.invoke('office:italian-dictionary'),
   openFile: () => ipcRenderer.invoke('office:open'),
   saveFile: (name, bytes) => ipcRenderer.invoke('office:save', { name, bytes }),

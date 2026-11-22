@@ -74,3 +74,9 @@ Primo giro del corpus: 9/13 PASS. DAT-008 era una perdita reale. I tre confronti
 - Eccezione storica autorizzata: grafici-categorie-v1.xlsx resta invariato. SDK: AperturaFallita, tipo di contenuto del disegno inatteso. Sono possibili rifiuto o recupero in Excel, non provati direttamente.
 
 Il difetto storico esatto resta: The document cannot be opened because there is an invalid part with an unexpected content type. Part Uri=/xl/drawings/cosmoDrawing1.xml; Content Type=application/vnd.openxmlformats-officedocument.drawingml.drawing+xml; Expected Content Type=application/vnd.openxmlformats-officedocument.drawing+xml. Il controllo si interrompe all’apertura: altri difetti non sono esclusi.
+
+## Diagnostica tester
+
+- Limite intenzionale: i messaggi liberi sono omessi, perché possono includere contenuti del documento; restano descrizioni controllate e posizioni anonimizzate. Questo riduce il dettaglio per la diagnosi.
+- Preparazione QA: alcune prime esecuzioni non mostravano stabilmente l’evento main simulato. Registrazione cambiata in append dopo normalizzazione e attese esplicite nel test; la causa originaria non è stata dimostrata. Gli esiti delle ripetizioni complete e del pacchetto sono nel report, senza nascondere le prove fallite.
+- Non provati arresti reali del sistema operativo/Chromium e guasti di disco durante un crash. Un registro non scrivibile conserva soltanto la memoria e lo segnala.

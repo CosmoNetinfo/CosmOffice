@@ -8,6 +8,11 @@ const { randomUUID } = require('node:crypto');
 
 app.setName('CosmOffice');
 if (process.env.COSMO_TEST_PROFILE) app.setPath('userData', process.env.COSMO_TEST_PROFILE);
+const debug = require('./debug.cjs');
+debug.initialize(app);
+process.on('uncaughtExceptionMonitor', error => debug.record('main', error));
+process.on('unhandledRejection', error => debug.record('main', error));
+let debugSnapshot = '';
 let window;
 let closeAllowed = false;
 const updater = Object.freeze({ phase: 'disabled', message: 'Modalità completamente offline. Per aggiornare installa un nuovo pacchetto locale.' });
@@ -23,7 +28,10 @@ ipcMain.handle('office:italian-dictionary', async event => {
 });
 function createWindow() {
   closeAllowed = false;
-  Menu.setApplicationMenu(null);
+  Menu.setApplicationMenu(Menu.buildFromTemplate([
+    { label: 'CosmOffice', submenu: [{ label: 'Segnala un problema', click: () => window?.webContents.send('office:show-debug') }, { type: 'separator' }, { role: 'quit', label: 'Esci' }] },
+    { label: 'Modifica', submenu: [{ role: 'undo', label: 'Annulla' }, { role: 'redo', label: 'Ripristina' }, { type: 'separator' }, { role: 'cut', label: 'Taglia' }, { role: 'copy', label: 'Copia' }, { role: 'paste', label: 'Incolla' }, { role: 'selectAll', label: 'Seleziona tutto' }] },
+  ]));
   window = new BrowserWindow({
     width: 1440, height: 940, minWidth: 800, minHeight: 620,
     title: 'CosmOffice', backgroundColor: '#f5f7fa',
@@ -33,7 +41,8 @@ function createWindow() {
   });
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   window.webContents.on('will-navigate', (event) => event.preventDefault());
-  window.webContents.on('render-process-gone', () => { closeAllowed = true; });
+  window.webContents.on('render-process-gone', () => { debug.record('crash'); closeAllowed = true; });
+  window.on('unresponsive', () => debug.record('hang'));
   configureSession(window.webContents.session);
   window.loadFile(path.join(__dirname, '../dist/index.html'));
   window.on('close', event => {
@@ -42,6 +51,26 @@ function createWindow() {
     window.webContents.send('office:before-close');
   });
 }
+ipcMain.handle('office:debug-record', (event, value) => {
+  trusted(event);
+  if (!value || !['renderer', 'rejection', 'react'].includes(value.kind)) return;
+  debug.record(value.kind, { name: value.name, trace: value.trace });
+});
+ipcMain.handle('office:debug-context', (event, value) => { trusted(event); debug.setContext(value); });
+ipcMain.handle('office:debug-report', event => {
+  trusted(event);
+  debugSnapshot = debug.report(app, require('./offline.cjs').getNetworkAttempts().length);
+  return debugSnapshot;
+});
+ipcMain.handle('office:debug-copy', event => {
+  trusted(event);
+  if (!debugSnapshot) throw new Error('Apri il rapporto prima di copiarlo.');
+  electron.clipboard.writeText(debugSnapshot); return true;
+});
+ipcMain.handle('office:debug-clear', event => {
+  trusted(event); debugSnapshot = '';
+  if (!debug.clear()) throw new Error('Registro in memoria svuotato, ma il file locale non è scrivibile.');
+});
 app.whenReady().then(() => {
   app.configureHostResolver({ enableBuiltInResolver: false, enableHappyEyeballs: false, secureDnsMode: 'off', secureDnsServers: [], enableAdditionalDnsQueryTypes: false });
   createWindow();

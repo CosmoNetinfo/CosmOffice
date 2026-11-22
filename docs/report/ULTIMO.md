@@ -1,24 +1,24 @@
-# Report — recupero del validatore Open XML
+# Report — rapporto locale per i tester
 
 ## 1. Obiettivo
 
-Recuperare lo stash, correggere i quattro difetti di schema e rendere Open XML SDK bloccante nella CI.
+Fornire una segnalazione manuale con gli ultimi 50 errori, senza inviare dati o includere documenti, nomi, percorsi personali o identificativi.
 
 ## 2. Cosa hai fatto
 
-- Stash 3548915d3183ea202e1b4eff398fceb3c459018b recuperato dopo pull --rebase, mantenuto come sicurezza. Conflitti README/BUG risolti preservando lo studio.
-- src/charts.mjs: MIME corretto dei disegni; src/xlsx-schema.mjs e src/workbooks.mjs: ordine dei font e rimozione di editAs da oneCellAnchor.
-- src/docx-preservation.mjs: evenAndOddHeaders originale conservato una sola volta.
-- scripts/openxml-validator/: SDK Microsoft 3.5.1 MIT, progetto .NET 10, lock dipendenze e licenze. Non incluso nell’app.
-- scripts/validate-openxml.mjs, scripts/smoke.mjs, scripts/charts-smoke.mjs, package.json, .github/workflows/build.yml: controllo bloccante su 13 esportati, hash invariati, due controlli negativi e audit storico separato.
-- scripts/notices.mjs, THIRD_PARTY_NOTICES.txt: attribuzioni SDK/framework/Packaging. .gitignore: bin/obj esclusi.
-- README, CHANGELOG, BUG, VALIDATION, ROADMAP, DECISIONI, report e ULTIMO aggiornati. Nessuna altra idea dello studio implementata; nessun motore scelto.
+- electron/debug-policy.mjs e electron/debug.cjs: lista chiusa di messaggi/classi, contesto controllato, tre posizioni della traccia anonimizzate, memoria e file locale limitati a 50 eventi. Lettura del registro nuovamente filtrata. Errore di scrittura segnalato, svuotamento senza falso successo.
+- electron/main.cjs e preload.cjs: intercettazione errori main, eventi blocco/crash finestra, IPC verificato, clipboard e voce menu.
+- src/debug.mjs, main.jsx e App.jsx: errori renderer/promise e React, contesto senza nomi o contenuti; tipo originale e dimensione approssimativa dei file.
+- src/DebugReport.jsx, SettingsPage.jsx, preferences.css: schermata leggibile prima della copia, segnaposto contatto, istruzione descrizione, promessa privacy, pulsanti copia/svuota.
+- tests/debug.test.mjs, scripts/debug-check.mjs e debug-smoke.mjs: privacy con dati riconoscibili, errori simulati/reali controllati, limite 50, persistenza, copia reale Windows, menu/impostazioni e registro non scrivibile.
+- .github/workflows/build.yml: prova Electron Linux e prova nel pacchetto Windows.
+- README, docs/TESTER.md, CHANGELOG, BUG, VALIDATION, ROADMAP, DECISIONI, report e ULTIMO aggiornati. Nessuna libreria aggiunta. scripts/notices.mjs eseguito nel packaging: attribuzioni invariate.
 
 ## 3. Esiti reali di build e test
 
-CI della base 3185603 verificata: [run 45007101728](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45007101728), tutti i cinque lavori success. La CI del nuovo commit si avvierà al push: non è ancora dichiarata verde.
+La precedente parte è pubblicata come 5a493a461f9514c0b954ce3319255509ae906f32. [CI 45011842835](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45011842835): tutti i cinque lavori success, incluso il validatore bloccante. La CI di questo nuovo commit sarà controllata dopo il push.
 
-Build, 41 test, browser, SDK e LibreOffice conclusi con codice 0. Packaging iniziale fallito per ENOTFOUND github.com nell’ambiente ristretto; ripetuto con accesso autorizzato e passato. Offline e desktop passati con codice 0. NU1900 resta anche nella ripetizione autorizzata del validatore: controllo vulnerabilità NuGet online non dimostrato, compilazione e validazione riuscite. Le righe FAIL sotto sono attese solo per i controlli negativi e la copia storica.
+Prima prova nativa fallita nel sandbox per ACL AppContainer di Windows; ripetuta fuori dal sandbox con autorizzazione. Alcune prime prove della simulazione main sono fallite con AssertionError SyntaxError: causa originaria non dimostrata. Normalizzazione prima dell’append al registro e attese esplicite nel test; esecuzioni successive complete passate sia in Electron sia nel pacchetto. I fallimenti iniziali sono riportati sotto. Una prima verifica completa è passata con 44 test; dopo aver corretto il caso registro non scrivibile è stata ripetuta tutta la sequenza con 45 test. Gli esiti finali seguenti hanno tutti codice 0.
 
 ### build
 
@@ -29,27 +29,29 @@ Build, 41 test, browser, SDK e LibreOffice conclusi con codice 0. Packaging iniz
 Font, mappe caratteri e decoder PDF disponibili offline.
 vite v8.3.8 building client environment for production...
 transforming...
-✓ 2406 modules transformed.
+✓ 2409 modules transformed.
 rendering chunks...
 computing gzip size...
-dist/index.html                               0.93 kB │ gzip:   0.50 kB
+dist/index.html                               1.01 kB │ gzip:   0.52 kB
 dist/assets/pdf.worker.min-CIqJB0yW.mjs   1,271.91 kB
-dist/assets/index-CXaGNzX4.css               44.59 kB │ gzip:  10.33 kB
+dist/assets/index-BD9ZjKmC.css               45.01 kB │ gzip:  10.43 kB
 dist/assets/rolldown-runtime-COiEfhsA.js      1.11 kB │ gzip:   0.62 kB
-dist/assets/PdfViewer-BoqpPM_z.js            10.91 kB │ gzip:   4.17 kB
-dist/assets/SettingsPage-CqtIzITe.js         19.96 kB │ gzip:   6.85 kB
-dist/assets/GridEditor-CPre9MRX.js          203.76 kB │ gzip:  70.73 kB
-dist/assets/import-docx-C6W_hlAB.js         301.70 kB │ gzip:  89.24 kB
+dist/assets/DebugReport-Dw4b32m3.js           1.80 kB │ gzip:   0.86 kB
+dist/assets/jsx-runtime-CldxteV5.js           8.24 kB │ gzip:   3.11 kB
+dist/assets/PdfViewer-BqSQLP56.js            10.95 kB │ gzip:   4.19 kB
+dist/assets/SettingsPage-DVcWxxE_.js         20.33 kB │ gzip:   6.96 kB
+dist/assets/GridEditor-DsENltAA.js          203.81 kB │ gzip:  70.75 kB
+dist/assets/import-docx-BJQ7gi0l.js         301.70 kB │ gzip:  89.24 kB
 dist/assets/pdf-editing-D-QQ0kUb.js         420.76 kB │ gzip: 175.99 kB
 dist/assets/pdf-engine-BF-5vh4s.js          443.65 kB │ gzip: 133.60 kB
-dist/assets/index-CSFc0hip.js             2,322.34 kB │ gzip: 696.24 kB
+dist/assets/index-Cra6_TEt.js             2,318.60 kB │ gzip: 695.38 kB
 
-[plugin builtin:vite-reporter] 
+[plugin builtin:vite-reporter]
 (!) Some chunks are larger than 1900 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1.44s
+✓ built in 1.14s
 ```
 
 ### unit
@@ -58,55 +60,59 @@ dist/assets/index-CSFc0hip.js             2,322.34 kB │ gzip: 696.24 kB
 > cosmoffice@0.2.2 test
 > node --test tests/*.test.mjs
 
-✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (70.797ms)
-✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (81.8565ms)
-✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (122.9251ms)
-✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (185.32ms)
-✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (41.7737ms)
-✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (40.2878ms)
-✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (39.3668ms)
-✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (32.1191ms)
-✔ DOCX exports real text, bold marks and tables readable by another parser (96.326ms)
-✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (71.4336ms)
-✔ unknown formulas retain their source without exporting a misleading cached number (11.8258ms)
-✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (3.2291ms)
-✔ cross-sheet formulas survive XLSX round trips and get calculated results (17.1663ms)
-✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (9.7723ms)
-✔ landscape DOCX uses a physically wider page with matching orientation (8.3705ms)
-✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (9.9238ms)
-✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (151.5516ms)
-✔ references, arithmetic, precedence and percentages (4.0848ms)
-✔ Italian aliases, absolute references, text and lazy IF (1.1005ms)
-✔ cycles, division by zero and unknown functions are visible and propagated (0.6543ms)
-✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (0.8668ms)
-✔ Excel address limits and column naming (1.1791ms)
-✔ conditional sums, lookups, text, dates and error handling (4.7746ms)
-✔ quoted sheet names, absolute references and cycles across sheets (0.5178ms)
-✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.5579ms)
-✔ literal text resembling errors stays text while actual formula errors propagate (0.7256ms)
-✔ empty strings, blank cells and boolean predicates retain their separate types (0.5285ms)
-✔ Il processo principale non contiene updater o caricamenti da server (5.6866ms)
-✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (232.8161ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (35.3096ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (7.2087ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (105.6502ms)
-✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (18.1783ms)
-✔ Excel exports do not mutate the open workbook, even when exported concurrently (137.4429ms)
-✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (43.9072ms)
-✔ damaged files and mismatched Office extensions are rejected before import (12.6851ms)
-✔ unsupported parts produce specific warnings without changing the original file (40.8892ms)
-✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (17.3816ms)
-✔ XLSX caches keep literal error-like strings separate from actual error cells (12.0737ms)
-✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (776.5486ms)
-✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (2038.1776ms)
-ℹ tests 41
+✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (72.3389ms)
+✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (71.8365ms)
+✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (123.4851ms)
+✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (184.8819ms)
+✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (34.164ms)
+✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (37.2978ms)
+✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (40.3056ms)
+✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (25.8477ms)
+✔ Diagnostica: messaggi, nomi e percorsi arbitrari non entrano negli eventi (7.0727ms)
+✔ Diagnostica: il contesto ammette solo valori controllati, nessun campo libero (0.6338ms)
+✔ Registro locale: ultimi 50, persistenza sicura, riapertura e svuotamento (43.0897ms)
+✔ Registro non scrivibile: memoria disponibile e svuotamento non dichiarato riuscito (6.1595ms)
+✔ DOCX exports real text, bold marks and tables readable by another parser (100.4811ms)
+✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (104.0613ms)
+✔ unknown formulas retain their source without exporting a misleading cached number (17.1281ms)
+✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (3.3699ms)
+✔ cross-sheet formulas survive XLSX round trips and get calculated results (14.5261ms)
+✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (10.0115ms)
+✔ landscape DOCX uses a physically wider page with matching orientation (9.9931ms)
+✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (11.8245ms)
+✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (179.5029ms)
+✔ references, arithmetic, precedence and percentages (4.5171ms)
+✔ Italian aliases, absolute references, text and lazy IF (0.8339ms)
+✔ cycles, division by zero and unknown functions are visible and propagated (0.7501ms)
+✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (0.6921ms)
+✔ Excel address limits and column naming (1.4291ms)
+✔ conditional sums, lookups, text, dates and error handling (3.9138ms)
+✔ quoted sheet names, absolute references and cycles across sheets (0.7567ms)
+✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.5588ms)
+✔ literal text resembling errors stays text while actual formula errors propagate (0.8461ms)
+✔ empty strings, blank cells and boolean predicates retain their separate types (0.5599ms)
+✔ Il processo principale non contiene updater o caricamenti da server (9.6437ms)
+✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (240.6606ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (40.6154ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (11.3048ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (70.2345ms)
+✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (16.9042ms)
+✔ Excel exports do not mutate the open workbook, even when exported concurrently (127.1139ms)
+✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (43.9955ms)
+✔ damaged files and mismatched Office extensions are rejected before import (14.4163ms)
+✔ unsupported parts produce specific warnings without changing the original file (48.0192ms)
+✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (23.2582ms)
+✔ XLSX caches keep literal error-like strings separate from actual error cells (16.0939ms)
+✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (842.3523ms)
+✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1907.5196ms)
+ℹ tests 45
 ℹ suites 0
-ℹ pass 41
+ℹ pass 45
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 3157.2607
+ℹ duration_ms 3084.7871
 ```
 
 ### browser
@@ -144,7 +150,7 @@ dist/assets/index-CSFc0hip.js             2,322.34 kB │ gzip: 696.24 kB
   ],
   "errors": []
 }
-10:38:26 [vite] (client) [console.warn] Warning: Indexing all PDF objects
+11:57:23 [vite] (client) [console.warn] Warning: Indexing all PDF objects
 {
   "result": "PASS",
   "scenarios": [
@@ -179,10 +185,9 @@ PASS grafici: categorie nelle celle, nuovi XLSX senza fogli nascosti, dati aggio
 > cosmoffice@0.2.2 test:openxml
 > node scripts/validate-openxml.mjs
 
-Server MSBuild non disponibile: non è stato possibile connettersi al server entro il timeout; il server potrebbe non essersi avviato. Si esegue il fallback a una compilazione in-process.
   Individuazione dei progetti da ripristinare...
 V:\CosmonetOffice\scripts\openxml-validator\OpenXmlCheck.csproj : warning NU1900: Si è verificato un errore durante il recupero dei dati sulla vulnerabilità del pacchetto: Non è possibile caricare l'indice del servizio per l'origine https://api.nuget.org/v3/index.json.
-  V:\CosmonetOffice\scripts\openxml-validator\OpenXmlCheck.csproj ripristinato (in 5,74 sec).
+  Tutti i progetti sono aggiornati per il ripristino.
 V:\CosmonetOffice\scripts\openxml-validator\OpenXmlCheck.csproj : warning NU1900: Si è verificato un errore durante il recupero dei dati sulla vulnerabilità del pacchetto: Non è possibile caricare l'indice del servizio per l'origine https://api.nuget.org/v3/index.json.
   OpenXmlCheck -> V:\CosmonetOffice\scripts\openxml-validator\bin\Release\net10.0\OpenXmlCheck.dll
 
@@ -193,7 +198,7 @@ V:\CosmonetOffice\scripts\openxml-validator\OpenXmlCheck.csproj : warning NU1900
     Avvisi: 2
     Errori: 0
 
-Tempo trascorso 00:00:29.01
+Tempo trascorso 00:00:00.34
 PASS V:\CosmonetOffice\test-results\corpus\01-testo-stili.docx: 0 errori Open XML SDK
 PASS V:\CosmonetOffice\test-results\corpus\02-tabella.docx: 0 errori Open XML SDK
 PASS V:\CosmonetOffice\test-results\corpus\03-immagine.docx: 0 errori Open XML SDK
@@ -212,73 +217,11 @@ FAIL V:\CosmonetOffice\test-results\openxml\negative\schema-errato.docx: 1 error
 FAIL V:\CosmonetOffice\test-results\openxml\negative\schema-errato.xlsx: 1 errori Open XML SDK
 {"id":"Sch_AttributeValueDataTypeDetailed","description":"The attribute \u0027orientation\u0027 has invalid value \u0027diagonale\u0027. The Enumeration constraint failed.","part":"/xl/worksheets/sheet1.xml","path":"/x:worksheet[1]/x:pageSetup[1]"}
 PASS Open XML SDK: 13 esportati validi e invariati; DOCX e XLSX volutamente errati respinti con codice 1.
-FAIL V:\CosmonetOffice\test-results\openxml\legacy-copy.xlsx: apertura non riuscita: The document cannot be opened because there is an invalid part with an unexpected content type. 
-[Part Uri=/xl/drawings/cosmoDrawing1.xml], 
-[Content Type=application/vnd.openxmlformats-officedocument.drawingml.drawing+xml], 
+FAIL V:\CosmonetOffice\test-results\openxml\legacy-copy.xlsx: apertura non riuscita: The document cannot be opened because there is an invalid part with an unexpected content type.
+[Part Uri=/xl/drawings/cosmoDrawing1.xml],
+[Content Type=application/vnd.openxmlformats-officedocument.drawingml.drawing+xml],
 [Expected Content Type=application/vnd.openxmlformats-officedocument.drawing+xml].
 ECCEZIONE STORICA VERIFICATA: copia v1 identica, errore MIME del disegno conservato e segnalato nel report separato. Nessuna eccezione per i nuovi esportati.
-```
-
-### interop
-
-```text
-convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795340444882\ods\grafici-ui.ods using filter : calc8
-convert V:\CosmonetOffice\test-results\charts-interop-1795340444882\ods\grafici-ui.ods as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795340444882\xlsx\grafici-ui.xlsx using filter : Calc Office Open XML
-convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795340444882\xlsx\grafici-ui.pdf using filter : calc_pdf_Export
-{
-  "result": "PASS",
-  "engine": "LibreOffice: XLSX → ODS → XLSX e PDF",
-  "charts": [
-    {
-      "type": "bar",
-      "values": [
-        [
-          37,
-          20
-        ]
-      ],
-      "labels": [
-        "Gennaio personalizzato",
-        "Febbraio"
-      ],
-      "result": "PASS"
-    },
-    {
-      "type": "line",
-      "values": [
-        [
-          37,
-          20
-        ]
-      ],
-      "labels": [
-        "Gennaio personalizzato",
-        "Febbraio"
-      ],
-      "result": "PASS"
-    },
-    {
-      "type": "pie",
-      "values": [
-        [
-          37,
-          20
-        ]
-      ],
-      "labels": [
-        "Gennaio personalizzato",
-        "Febbraio"
-      ],
-      "result": "PASS"
-    }
-  ],
-  "print": {
-    "pages": 1,
-    "landscape": true
-  },
-  "output": "V:\\CosmonetOffice\\test-results\\charts-interop-1795340444882",
-  "limits": "Microsoft Excel non eseguito. I file riscritti da LibreOffice vengono aperti in sola lettura da CosmOffice per conservarne i grafici. Adattamento a una pagina anche in altezza: i fogli grandi si riducono in stampa."
-}
 ```
 
 ### pack
@@ -294,91 +237,29 @@ convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\
 Font, mappe caratteri e decoder PDF disponibili offline.
 vite v8.3.8 building client environment for production...
 transforming...
-✓ 2406 modules transformed.
+✓ 2409 modules transformed.
 rendering chunks...
 computing gzip size...
-dist/index.html                               0.93 kB │ gzip:   0.50 kB
+dist/index.html                               1.01 kB │ gzip:   0.52 kB
 dist/assets/pdf.worker.min-CIqJB0yW.mjs   1,271.91 kB
-dist/assets/index-CXaGNzX4.css               44.59 kB │ gzip:  10.33 kB
+dist/assets/index-BD9ZjKmC.css               45.01 kB │ gzip:  10.43 kB
 dist/assets/rolldown-runtime-COiEfhsA.js      1.11 kB │ gzip:   0.62 kB
-dist/assets/PdfViewer-BoqpPM_z.js            10.91 kB │ gzip:   4.17 kB
-dist/assets/SettingsPage-CqtIzITe.js         19.96 kB │ gzip:   6.85 kB
-dist/assets/GridEditor-CPre9MRX.js          203.76 kB │ gzip:  70.73 kB
-dist/assets/import-docx-C6W_hlAB.js         301.70 kB │ gzip:  89.24 kB
+dist/assets/DebugReport-Dw4b32m3.js           1.80 kB │ gzip:   0.86 kB
+dist/assets/jsx-runtime-CldxteV5.js           8.24 kB │ gzip:   3.11 kB
+dist/assets/PdfViewer-BqSQLP56.js            10.95 kB │ gzip:   4.19 kB
+dist/assets/SettingsPage-DVcWxxE_.js         20.33 kB │ gzip:   6.96 kB
+dist/assets/GridEditor-DsENltAA.js          203.81 kB │ gzip:  70.75 kB
+dist/assets/import-docx-BJQ7gi0l.js         301.70 kB │ gzip:  89.24 kB
 dist/assets/pdf-editing-D-QQ0kUb.js         420.76 kB │ gzip: 175.99 kB
 dist/assets/pdf-engine-BF-5vh4s.js          443.65 kB │ gzip: 133.60 kB
-dist/assets/index-CSFc0hip.js             2,322.34 kB │ gzip: 696.24 kB
+dist/assets/index-Cra6_TEt.js             2,318.60 kB │ gzip: 695.38 kB
 
-[plugin builtin:vite-reporter] 
+[plugin builtin:vite-reporter]
 (!) Some chunks are larger than 1900 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1.43s
-
-> cosmoffice@0.2.2 icons
-> node scripts/icons.mjs
-
-Icone CosmOffice, CosmoWrite, CosmoGrid e CosmoView generate.
-Attribuzioni e licenze raccolte.
-  • electron-builder  version=26.18.0 os=10.0.26300
-  • loaded configuration  file=V:\CosmonetOffice\electron-builder.config.cjs
-  • skipped dependencies rebuild  reason=npmRebuild is set to false
-  • packaging       platform=win32 arch=x64 electron=45.4.1 appOutDir=release\win-unpacked
-  ⨯ getaddrinfo ENOTFOUND github.com  failedTask=build stackTrace=RequestError: getaddrinfo ENOTFOUND github.com
-    at ClientRequest.<anonymous> (V:\CosmonetOffice\node_modules\got\dist\source\core\index.js:970:111)
-    at ClientRequest.wrapper (node:events:639:12)
-    at ClientRequest.emit (node:events:526:24)
-    at ClientRequest.origin.emit (V:\CosmonetOffice\node_modules\@szmarczak\http-timer\dist\source\index.js:43:20)
-    at emitErrorEvent (node:_http_client:115:11)
-    at TLSSocket.socketErrorListener (node:_http_client:794:5)
-    at TLSSocket.emit (node:events:514:20)
-    at emitErrorNT (node:internal/streams/destroy:170:8)
-    at emitErrorCloseNT (node:internal/streams/destroy:129:3)
-    at processTicksAndRejections (node:internal/process/task_queues:90:21)
-    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)
-```
-
-### pack-autorizzato
-
-```text
-> cosmoffice@0.2.2 pack
-> npm run build && npm run icons && node scripts/notices.mjs && electron-builder --config electron-builder.config.cjs --dir --publish never
-
-
-> cosmoffice@0.2.2 build
-> node scripts/pdf-assets.mjs && vite build
-
-Font, mappe caratteri e decoder PDF disponibili offline.
-vite v8.3.8 building client environment for production...
-transforming...
-✓ 2406 modules transformed.
-rendering chunks...
-computing gzip size...
-dist/index.html                               0.93 kB │ gzip:   0.50 kB
-dist/assets/pdf.worker.min-CIqJB0yW.mjs   1,271.91 kB
-dist/assets/index-CXaGNzX4.css               44.59 kB │ gzip:  10.33 kB
-dist/assets/rolldown-runtime-COiEfhsA.js      1.11 kB │ gzip:   0.62 kB
-dist/assets/PdfViewer-BoqpPM_z.js            10.91 kB │ gzip:   4.17 kB
-dist/assets/SettingsPage-CqtIzITe.js         19.96 kB │ gzip:   6.85 kB
-dist/assets/GridEditor-CPre9MRX.js          203.76 kB │ gzip:  70.73 kB
-dist/assets/import-docx-C6W_hlAB.js         301.70 kB │ gzip:  89.24 kB
-dist/assets/pdf-editing-D-QQ0kUb.js         420.76 kB │ gzip: 175.99 kB
-dist/assets/pdf-engine-BF-5vh4s.js          443.65 kB │ gzip: 133.60 kB
-dist/assets/index-CSFc0hip.js             2,322.34 kB │ gzip: 696.24 kB
-
-[plugin builtin:vite-reporter] 
-(!) Some chunks are larger than 1900 kB after minification. Consider:
-- Using dynamic import() to code-split the application
-- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
-- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 3.11s
-[PLUGIN_TIMINGS] JavaScript callbacks ran for 2.2s of this 3.1s build (70%).
-The slowest callbacks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):
-  - plugin vite:prepare-out-dir renderStart (67%, 2.1s, 1 call)
-Additional callback time came from callbacks under 1s.
-See https://rolldown.rs/reference/InputOptions.checks#bundlertimings for more details.
-
+✓ built in 1.14s
 
 > cosmoffice@0.2.2 icons
 > node scripts/icons.mjs
@@ -442,35 +323,127 @@ Attribuzioni e licenze raccolte.
 }
 ```
 
+### native
+
+```text
+PASS rapporto tester: errori renderer/promise/main, privacy, menu e impostazioni, clipboard reale, persistenza e svuotamento.
+```
+
+### pacchetto
+
+```text
+PASS rapporto tester: errori renderer/promise/main, privacy, menu e impostazioni, clipboard reale, persistenza e svuotamento.
+```
+
+### Preparazione: debug-native.log
+
+```text
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+electron.launch: Process failed to launch!
+Call log:
+  - <launching> "V:\CosmonetOffice\node_modules\electron\dist\electron.exe" "--inspect=0" "--remote-debugging-port=0" "." "--no-sandbox"
+  - <launched> pid=14944
+  - [pid=14944][out]
+  - [pid=14944][err] Debugger listening on ws://127.0.0.1:57389/ee3d2402-8311-47bb-8127-734bee285c48
+  - [pid=14944][err] For help, see: https://nodejs.org/learn/getting-started/debugging
+  - <ws connecting> ws://127.0.0.1:57389/ee3d2402-8311-47bb-8127-734bee285c48
+  - <ws connected> ws://127.0.0.1:57389/ee3d2402-8311-47bb-8127-734bee285c48
+  - [pid=14944][err] Debugger attached.
+  - [pid=14944][err] [19968:1122/112426.577:FATAL:electron\shell\browser\win\install_dir_access.cc:52] Sandboxed processes cannot read V:\CosmonetOffice\node_modules\electron\dist: its ACL has an entry for an AppContainer package SID but none for ALL APPLICATION PACKAGES, so Windows denies the sandbox token access. Grant it with: icacls "V:\CosmonetOffice\node_modules\electron\dist" /grant *S-1-15-2-1:(OI)(CI)(RX)
+  - <ws disconnected> ws://127.0.0.1:57389/ee3d2402-8311-47bb-8127-734bee285c48 code=1006 reason=
+  - [pid=14944] <kill>
+  - [pid=14944] <will force kill>
+  - [pid=14944] <process did exit: exitCode=2147483651, signal=null>
+  - [pid=14944] starting temporary directories cleanup
+  - [pid=14944] finished temporary directories cleanup
+
+    at async file:///V:/CosmonetOffice/scripts/debug-smoke.mjs:5:21 {
+  log: [
+    '  - <launching> "V:\\CosmonetOffice\\node_modules\\electron\\dist\\electron.exe" "--inspect=0" "--remote-debugging-port=0" "." "--no-sandbox"',
+    '  - <launched> pid=14944',
+    '  - [pid=14944][out]',
+    '  - [pid=14944][err] Debugger listening on ws://127.0.0.1:57389/ee3d2402-8311-47bb-8127-734bee285c48',
+    '  - [pid=14944][err] For help, see: https://nodejs.org/learn/getting-started/debugging',
+    '  - <ws connecting> ws://127.0.0.1:57389/ee3d2402-8311-47bb-8127-734bee285c48',
+    '  - <ws connected> ws://127.0.0.1:57389/ee3d2402-8311-47bb-8127-734bee285c48',
+    '  - [pid=14944][err] Debugger attached.',
+    '  - [pid=14944][err] [19968:1122/112426.577:FATAL:electron\\shell\\browser\\win\\install_dir_access.cc:52] Sandboxed processes cannot read V:\\CosmonetOffice\\node_modules\\electron\\dist: its ACL has an entry for an AppContainer package SID but none for ALL APPLICATION PACKAGES, so Windows denies the sandbox token access. Grant it with: icacls "V:\\CosmonetOffice\\node_modules\\electron\\dist" /grant *S-1-15-2-1:(OI)(CI)(RX)',
+    '  - <ws disconnected> ws://127.0.0.1:57389/ee3d2402-8311-47bb-8127-734bee285c48 code=1006 reason=',
+    '  - [pid=14944] <kill>',
+    '  - [pid=14944] <will force kill>',
+    '  - [pid=14944] <process did exit: exitCode=2147483651, signal=null>',
+    '  - [pid=14944] starting temporary directories cleanup',
+    '  - [pid=14944] finished temporary directories cleanup'
+  ],
+  name: 'Error'
+}
+
+Node.js v26.13.1
+```
+
+### Preparazione: debug-native-autorizzato.log
+
+```text
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: SyntaxError
+    at checkDebug (file:///V:/CosmonetOffice/scripts/debug-check.mjs:27:189)
+    at async file:///V:/CosmonetOffice/scripts/debug-smoke.mjs:8:7 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v26.13.1
+```
+
+### Preparazione: debug-native-ripetuto.log
+
+```text
+node:internal/modules/run_main:111
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: SyntaxError
+    at checkDebug (file:///V:/CosmonetOffice/scripts/debug-check.mjs:30:189)
+    at async file:///V:/CosmonetOffice/scripts/debug-smoke.mjs:8:7 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v26.13.1
+```
+
 ## 4. Cosa funziona, provato
 
-13 nuovi DOCX/XLSX senza errori SDK, due pacchetti errati respinti; validazione in sola lettura. Corpus originale immutato, copia v1 e checksum verificati. Tre grafici riaperti con dati corrispondenti in LibreOffice, stampa PDF su una pagina orizzontale. Apertura/salvataggio nel pacchetto Windows, ortografia, bozze, protezione da errore di scrittura e assenza di connessioni provati dai test.
+Errori renderer e promise effettivamente non gestiti, evento di eccezione main simulato sul suo ascoltatore reale, notifiche simulate di finestra bloccata e arrestata. Il PDF sintetico contiene lo stesso marcatore nel testo, nel nome e nel percorso: nessuno compare nel rapporto o nel file del registro. Copia esattamente uguale alla textarea negli appunti Windows. Lettura dopo ricaricamento, cancellazione del file logico e limite 50 verificati; errore di scrittura esplicito. Prove native ripetute anche nel pacchetto Windows x64. Screenshot locale esaminato: testo e azioni visibili. Tutti i test precedenti e offline-smoke restano verdi.
 
 ## 5. Cosa NON funziona o non hai potuto provare
 
-Il vecchio XLSX non supera il validatore: copia identica per autorizzazione esplicita. Errore esatto:
+Non provati crash reali di Windows, Chromium o sistema operativo, spegnimento improvviso, computer puliti, hardware Mac/Linux. Per il main è simulato l’evento monitorato senza provocare un arresto reale. La schermata può richiedere riavvio/ricaricamento se il renderer è già morto; un errore prima dell’inizializzazione o un disco non scrivibile può impedire la persistenza. Nell’anteprima browser registro solo in memoria e informazioni runtime ridotte: il collaudo completo riguarda Electron.
 
-```text
-The document cannot be opened because there is an invalid part with an unexpected content type. 
-[Part Uri=/xl/drawings/cosmoDrawing1.xml], 
-[Content Type=application/vnd.openxmlformats-officedocument.drawingml.drawing+xml], 
-[Expected Content Type=application/vnd.openxmlformats-officedocument.drawing+xml].
-```
-
-Excel potrebbe rifiutare o recuperare il file: rischio dedotto dall’errore, non prova con Excel reale. La causa era anche nel nostro export attuale: ora corretta per i nuovi file. L’apertura fallita non esclude altri difetti storici.
-
-Non provato: Microsoft Word/Excel reali, sistemi puliti, Mac/Linux fisici, file arbitrari fuori corpus. Schema valido non garantisce fedeltà visiva o calcolo completo. Audit vulnerabilità NuGet online non concluso (NU1900).
+I messaggi liberi sono volutamente omessi; non basta rimuovere i percorsi per garantire che non contengano celle o paragrafi. Le tracce mostrano soltanto posizioni anonimizzate, quindi la diagnosi può essere meno precisa. Il canale di contatto è ancora il segnaposto richiesto. Lo svuotamento non cancella appunti o messaggi già copiati/inviati dall’utente. Non è una certificazione d’integrità del documento.
 
 ## 6. Bug e dubbi
 
-FMT-001/002/003 corretti per i nuovi esportati provati; eccezione storica mai estesa ai nuovi file. Restano i limiti dei grafici esterni, DOCX complessi e formule. Vite segnala un chunk grande. CI di questo commit da controllare dopo il push.
+Il problema intermittente nella preparazione del test main non è stato attribuito con certezza a una causa. Dopo le modifiche di registrazione e sincronizzazione sono passate più esecuzioni native e due sequenze complete con pacchetto; non si nascondono i fallimenti iniziali. Il caso negativo del registro non scrivibile è ora testato e non restituisce un falso successo. Restano l’avviso Vite sul chunk grande e NU1900 locale per l’audit NuGet; validazione OOXML riuscita. Nessuna nuova connessione. Nessuna proposta OPPORTUNITA diversa dal rapporto esplicitamente richiesto è implementata.
 
 ## 7. Hash del commit
 
-Base 3185603b3430757a5c31aeb930b7a4f2adbee2da. Il commit del report è ottenibile con: git log -1 --format=%H -- docs/report/2026-11-22_1118_validatore-openxml.md. Il proprio hash non può essere inserito nel medesimo commit senza cambiarlo; sarà comunicato dopo il commit.
+Base: 5a493a461f9514c0b954ce3319255509ae906f32. Il commit contenente codice e report è ottenibile con git log -1 --format=%H -- docs/report/2026-11-22_1203_rapporto-tester.md. Il proprio hash non è inseribile nel medesimo commit senza cambiarlo; viene comunicato dopo il commit.
 
 ## 8. Prossimo passo
 
-Controllare la CI, poi rapporto tester con messaggi sicuri invece dei messaggi arbitrari che possono includere documenti. Seguiranno release, aggiornamenti GitHub, DMG e bozze di licenza nell’ordine richiesto. Nessuna scelta del motore.
-
-Fonti: [SDK 3.5.1](https://github.com/dotnet/Open-XML-SDK/releases/tag/v3.5.1), [licenza MIT](https://github.com/dotnet/Open-XML-SDK/blob/v3.5.1/LICENSE), [ECMA-376](https://ecma-international.org/publications-and-standards/standards/ecma-376/). Consultazioni in docs/ricerca/CODICE-STUDIATO.md. Nessun codice copyleft consultato o copiato.
+Verificare la CI del rapporto, poi creare la Release ordinaria pubblica CosmOffice 0.2.2 (anteprima), con installer non firmati, checksum e limiti. Seguono aggiornamenti GitHub, DMG/guida Mac e bozze di licenza, senza modificare LICENSE né scegliere un motore.
