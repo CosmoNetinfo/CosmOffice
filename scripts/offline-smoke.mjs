@@ -21,11 +21,19 @@ try {
   assert.equal((await page.evaluate(() => window.cosmoffice.checkUpdates())).phase, 'disabled');
   assert.equal((await page.evaluate(() => window.cosmoffice.setUpdatePreferences(true))).phase, 'disabled');
   assert.equal((await page.evaluate(() => window.cosmoffice.installUpdate())).phase, 'disabled');
-  for (const file of ['05-intestazioni.docx', '03-formati.xlsx', '03-venti-pagine.pdf']) {
-    await application.evaluate(({ dialog }, filename) => { dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [filename] }); }, resolve(`tests/fixtures/${file}`));
+  for (const file of ['05-intestazioni.docx', '03-formati.xlsx', '03-venti-pagine.pdf', 'grafici-ui.xlsx']) {
+    const source = file === 'grafici-ui.xlsx' ? `test-results/${file}` : `tests/fixtures/${file}`;
+    await application.evaluate(({ dialog }, filename) => { dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [filename] }); }, resolve(source));
     await page.getByRole('button', { name: 'Apri un file', exact: true }).click();
     if (file.endsWith('.docx')) await page.locator('.document-page').waitFor();
-    else if (file.endsWith('.xlsx')) await page.getByRole('textbox', { name: 'Cella A1', exact: true }).waitFor();
+    else if (file.endsWith('.xlsx')) {
+      await page.getByRole('textbox', { name: 'Cella A1', exact: true }).waitFor();
+      if (file.includes('grafici-ui')) {
+        assert.equal(await page.locator('.grid-chart canvas').count(), 3);
+        await page.getByRole('textbox', { name: 'Cella B2', exact: true }).fill('73');
+        await page.getByRole('textbox', { name: 'Cella B3', exact: true }).focus();
+      }
+    }
     else await page.waitForFunction(() => document.querySelector('.pdf-paper canvas')?.width > 0 && !document.querySelector('.pdf-loading'));
     await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
   }

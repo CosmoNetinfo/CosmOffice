@@ -1,0 +1,65 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import JSZip from 'jszip';
+import { newWorkbook, exportWorkbook, openWorkbook, snapshotWorkbook } from '../src/workbooks.mjs';
+import { newChart, chartModels, chartData } from '../src/charts.mjs';
+test('Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte', async () => {
+  const book = newWorkbook(), sheet = book.worksheets[0];
+  sheet.addRows([['Mese', 'Ricavi', 'Costi'], ['Gennaio', 10, 4], ['Febbraio', 20, 7]]);
+  book.properties.cosmoCharts = ['bar', 'line', 'pie'].map(type => newChart(book, sheet.id, 'A1', 'C3', type));
+  const before = snapshotWorkbook(book);
+  const bytes = await exportWorkbook(book);
+  assert.deepEqual(snapshotWorkbook(book), before, 'export non modifica la cartella aperta');
+  const zip = await JSZip.loadAsync(bytes);
+  assert.equal(Object.keys(zip.files).filter(n => /^xl\/charts\/.*\.xml$/.test(n)).length, 3);
+  const reopened = await openWorkbook(bytes);
+  assert.equal(reopened.cosmoUnsupportedCharts, undefined);
+  assert.deepEqual(chartModels(reopened), chartModels(book));
+  reopened.worksheets[0].getCell('B2').value = 37;
+  for (const model of chartModels(reopened)) assert.equal(chartData(reopened, model).series[0].values[0], 37);
+  const roundtrip = await openWorkbook(await exportWorkbook(reopened));
+  assert.equal(chartModels(roundtrip).length, 3);
+  assert.equal(chartData(roundtrip, chartModels(roundtrip)[0]).series[0].values[0], 37);
+});
+test('Grafici esterni senza metadati verificabili: blocco export e originale conservato', async () => {
+  const book = newWorkbook(), sheet = book.worksheets[0]; sheet.addRows([['Voce', 'Valore'], ['A', 1]]);
+  book.properties.cosmoCharts = [newChart(book, sheet.id, 'A1', 'B2', 'bar')];
+  const zip = await JSZip.loadAsync(await exportWorkbook(book)); zip.remove('customXml/cosmoCharts.xml');
+  const original = await zip.generateAsync({ type: 'uint8array' });
+  const external = await openWorkbook(original);
+  assert.equal(external.cosmoUnsupportedCharts, true); assert.deepEqual(external.cosmoOriginalBytes, original);
+  await assert.rejects(exportWorkbook(external), /grafici importati/);
+});
+test('Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati', async () => {
+  const book = newWorkbook(), sheet = book.worksheets[0]; sheet.addRows([['Voce', 'Valore'], ['A & B', 1]]);
+  const id = book.addImage({ base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j2ioAAAAASUVORK5CYII=', extension: 'png' });
+  sheet.addImage(id, 'D1:E3');
+  const model = newChart(book, sheet.id, 'A1', 'B2', 'line'); model.title = 'Ricavi <2026> & "costi"'; model.labels = ['Uno & due']; model.seriesNames = ['Serie <1>'];
+  book.properties.cosmoCharts = [model];
+  const reopened = await openWorkbook(await exportWorkbook(book));
+  assert.equal(reopened.worksheets.length, 1, 'foglio tecnico interno non esposto nell’editor');
+  assert.equal(reopened.worksheets[0].getImages().length, 1);
+  assert.equal(chartModels(reopened)[0].title, model.title);
+  const undo = snapshotWorkbook(reopened); reopened.properties.cosmoCharts = []; reopened.model = undo;
+  assert.equal(chartModels(reopened).length, 1, 'modello annulla conserva metadati grafici');
+});
+test('Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici', async () => {
+  const book = newWorkbook(), sheet = book.worksheets[0]; sheet.addRows([['Categoria', 'Prima', 'Seconda'], ['A', 4, { formula: 'B2*2' }], ['B', null, 3]]);
+  const model = newChart(book, sheet.id, 'A1', 'C3', 'bar'); book.properties.cosmoCharts = [model];
+  assert.deepEqual(chartData(book, model).series.map(serie => serie.values), [[4, null], [8, 3]]);
+  sheet.name = "L'anno"; sheet.getCell('B2').value = 7;
+  const bytes = await exportWorkbook(book), zip = await JSZip.loadAsync(bytes);
+  assert.match(await zip.file(`xl/charts/cosmoChart-${model.id}.xml`).async('string'), /L&apos;&apos;anno/);
+  const reopened = await openWorkbook(bytes);
+  assert.deepEqual(chartData(reopened, chartModels(reopened)[0]).series[1].values, [14, 3]);
+});
+test('Disegno del grafico precede le tabelle secondo l’ordine OOXML', async () => {
+  const book = newWorkbook(), sheet = book.worksheets[0];
+  sheet.addTable({ name: 'DatiGrafico', ref: 'A1', headerRow: true, columns: [{ name: 'Voce' }, { name: 'Valore' }], rows: [['Uno', 10], ['Due', 20]] });
+  book.properties.cosmoCharts = [newChart(book, sheet.id, 'A1', 'B3', 'bar')];
+  const zip = await JSZip.loadAsync(await exportWorkbook(book));
+  const xml = await zip.file('xl/worksheets/sheet1.xml').async('string');
+  assert.ok(xml.indexOf('<drawing') < xml.indexOf('<tableParts'));
+  const reopened = await openWorkbook(await zip.generateAsync({ type: 'uint8array' }));
+  assert.equal(reopened.worksheets[0].getTables().length, 1); assert.equal(chartModels(reopened).length, 1);
+});

@@ -58,6 +58,7 @@ jobs:
       - run: npm run test:interop
         env:
           COSMO_BROWSER: chromium
+      - run: node scripts/charts-interop.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -6,6 +6,7 @@ import { openWorkbook } from '../src/workbooks.mjs';
 import { PDFDocument } from 'pdf-lib';
 import { spawnSync } from 'node:child_process';
 import { checkItalianSpelling } from './spelling-check.mjs';
+import { checkDesktopCharts } from './charts-desktop-check.mjs';
 
 await mkdir('test-results', { recursive: true });
 const errors = [];
@@ -94,6 +95,7 @@ try {
   await page.screenshot({ path: 'test-results/desktop-pdf.png' });
   await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
   await checkItalianSpelling(page);
+  await checkDesktopCharts(application, page);
   await page.getByRole('button', { name: 'Impostazioni', exact: true }).click();
   await page.getByRole('combobox', { name: 'Tema interfaccia' }).selectOption('dark');
   assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');

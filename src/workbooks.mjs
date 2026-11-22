@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs';
 import Papa from 'papaparse';
+import { readCharts, writeCharts, prepareCharts, unsupportedChartMessage } from './charts.mjs';
 import { createCalculator, columnName, parseAddress, invariantFormula } from './formulas.mjs';
 
 export function rawValue(cell) {
@@ -75,6 +76,7 @@ export async function openWorkbook(bytes) {
   const book = new ExcelJS.Workbook();
   await book.xlsx.load(bytes);
   if (!book.worksheets.length) book.addWorksheet('Foglio 1');
+  await readCharts(book, bytes);
   return book;
 }
 export function snapshotWorksheet(sheet) {
@@ -103,6 +105,7 @@ export function newWorkbook(template = 'blank') {
   return book;
 }
 export async function exportWorkbook(book) {
+  if (book.cosmoUnsupportedCharts) throw new Error(unsupportedChartMessage);
   const copy = new ExcelJS.Workbook();
   copy.model = snapshotWorkbook(book);
   // Excel will recalculate full formulas on open; this app only caches its supported subset.
@@ -117,5 +120,6 @@ export async function exportWorkbook(book) {
       }
     }));
   }
-  return new Uint8Array(await copy.xlsx.writeBuffer());
+  prepareCharts(copy);
+  return writeCharts(copy, new Uint8Array(await copy.xlsx.writeBuffer()));
 }

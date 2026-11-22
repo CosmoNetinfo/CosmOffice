@@ -1,0 +1,72 @@
+import { chromium } from 'playwright';
+import { createServer } from 'vite';
+import { mkdir, writeFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import JSZip from 'jszip';
+import { newWorkbook, openWorkbook, exportWorkbook } from '../src/workbooks.mjs';
+import { chartModels } from '../src/charts.mjs';
+await mkdir('test-results', { recursive: true });
+const book = newWorkbook(), sheet = book.worksheets[0];
+sheet.addRows([['Mese', 'Ricavi'], ['Gennaio', 10], ['Febbraio', 20]]);
+const original = await exportWorkbook(book);
+const server = await createServer(); await server.listen();
+let browser;
+try {
+  const channel = process.env.COSMO_BROWSER || 'chrome';
+  browser = await chromium.launch({ ...(channel === 'chromium' ? {} : { channel }), headless: true });
+  const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } });
+  const errors = [], external = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('request', request => { if (/^https?:/.test(request.url()) && !request.url().startsWith('http://127.0.0.1:5173/')) external.push(request.url()); });
+  await page.addInitScript(() => {
+    window.files = []; window.saved = [];
+    window.cosmoffice = { updateStatus: async () => ({ phase: 'disabled', message: 'Test offline' }), onUpdate: () => () => {}, openFile: async () => window.files.shift(), saveFile: async (name, bytes) => { window.saved.push(Array.from(bytes)); return { name }; } };
+  });
+  await page.goto('http://127.0.0.1:5173');
+  async function open(bytes, name) {
+    await page.evaluate(file => window.files.push(file), { name, bytes: Array.from(bytes) });
+    await page.getByRole('button', { name: 'Apri un file', exact: true }).click();
+    await page.getByRole('textbox', { name: 'Cella A1', exact: true }).waitFor();
+  }
+  const cell = address => page.getByRole('textbox', { name: `Cella ${address}`, exact: true });
+  await open(original, 'grafici.xlsx');
+  await cell('A1').click(); await cell('B3').click({ modifiers: ['Shift'] });
+  for (const type of ['barre', 'linee', 'torta']) await page.getByRole('button', { name: `Grafico a ${type}`, exact: true }).click();
+  assert.equal(await page.locator('.grid-chart').count(), 3);
+  await cell('B2').fill('37'); await cell('B3').focus();
+  const first = page.locator('.grid-chart').first();
+  await first.getByRole('button', { name: 'Modifica grafico', exact: true }).click();
+  await first.getByRole('textbox', { name: 'Titolo del grafico' }).fill('Ricavi verificati');
+  await first.getByRole('textbox', { name: 'Etichetta asse orizzontale' }).fill('Periodo');
+  await first.getByRole('textbox', { name: 'Etichetta asse verticale' }).fill('Euro');
+  await first.getByRole('textbox', { name: 'Etichette categorie' }).fill('Gennaio personalizzato\nFebbraio');
+  await first.getByRole('textbox', { name: 'Nomi delle serie' }).fill('Vendite');
+  await first.getByRole('combobox', { name: 'Posizione legenda' }).selectOption('bottom');
+  await first.getByRole('button', { name: 'Applica grafico', exact: true }).click();
+  for (const article of await page.locator('.grid-chart').all()) { await article.locator('summary').click(); assert.match(await article.locator('table').innerText(), /37/); }
+  await page.screenshot({ path: 'test-results/grafici-griglia.png' });
+  await page.getByRole('button', { name: 'Esporta XLSX', exact: true }).click();
+  await page.waitForFunction(() => window.saved.length === 1);
+  const bytes = new Uint8Array(await page.evaluate(() => window.saved[0]));
+  await writeFile('test-results/grafici-ui.xlsx', bytes);
+  const reopened = await openWorkbook(bytes); assert.equal(chartModels(reopened).length, 3);
+  await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
+  await page.reload(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
+  await page.getByRole('button', { name: 'grafici CosmoGrid', exact: true }).click();
+  await cell('A1').waitFor();
+  assert.equal(await page.locator('.grid-chart').count(), 3, 'grafici nella bozza dopo riavvio pagina');
+  await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
+  await open(bytes, 'grafici-riaperti.xlsx');
+  assert.equal(await page.locator('.grid-chart').count(), 3);
+  assert.match(await first.innerText(), /Ricavi verificati/);
+  await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
+  const zip = await JSZip.loadAsync(bytes); zip.remove('customXml/cosmoCharts.xml');
+  await open(await zip.generateAsync({ type: 'uint8array' }), 'grafico-esterno.xlsx');
+  await page.getByRole('alert').filter({ hasText: 'sola lettura' }).waitFor();
+  assert.equal(await cell('B2').getAttribute('readonly'), '');
+  await page.getByRole('button', { name: 'Esporta XLSX', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: 'esportazione XLSX è bloccata' }).waitFor();
+  assert.equal(await page.evaluate(() => window.saved.length), 0, 'nessun salvataggio dopo il ricaricamento e il tentativo bloccato');
+  assert.deepEqual(errors, []); assert.deepEqual(external, []);
+  console.log('PASS grafici: barre, linee, torta, aggiornamento dati, titolo/etichette/legenda, bozza e XLSX riaperti; grafici esterni in sola lettura con export bloccato; nessuna richiesta esterna.');
+} finally { await browser?.close(); await server.close(); }

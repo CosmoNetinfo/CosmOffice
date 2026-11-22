@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import { resolve } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { openWorkbook } from '../src/workbooks.mjs';
+import { chartModels, chartData } from '../src/charts.mjs';
+export async function checkDesktopCharts(application, page) {
+  const input = resolve('test-results/grafici-ui.xlsx'), output = resolve('test-results/grafici-desktop.xlsx');
+  await application.evaluate(({ dialog }, file) => { dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [file] }); }, input);
+  await page.getByRole('button', { name: 'Apri un file', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Cella B2', exact: true }).waitFor();
+  assert.equal(await page.locator('.grid-chart canvas').count(), 3);
+  await page.getByRole('textbox', { name: 'Cella B2', exact: true }).fill('91');
+  await page.getByRole('textbox', { name: 'Cella B3', exact: true }).focus();
+  await application.evaluate(({ dialog }, file) => { dialog.showSaveDialog = async () => ({ canceled: false, filePath: file }); }, output);
+  await page.getByRole('button', { name: 'Esporta XLSX', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: 'Copia esportata: grafici-desktop.xlsx' }).waitFor();
+  const saved = await openWorkbook(new Uint8Array(await readFile(output)));
+  assert.equal(chartModels(saved).length, 3);
+  for (const model of chartModels(saved)) assert.equal(chartData(saved, model).series[0].values[0], 91);
+  await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
+  await application.evaluate(({ dialog }, file) => { dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [file] }); }, output);
+  await page.getByRole('button', { name: 'Apri un file', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Cella B2', exact: true }).waitFor();
+  assert.equal(await page.locator('.grid-chart canvas').count(), 3);
+  await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
+}

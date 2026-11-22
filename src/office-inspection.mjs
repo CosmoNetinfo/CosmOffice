@@ -27,7 +27,7 @@ export async function inspectOfficeFile(bytes, kind) {
     if (names.some(name => /^xl\/pivot(?:Tables|Cache)\//.test(name))) warnings.push('Contiene tabelle pivot: non sono modificabili e potrebbero non essere conservate nella copia esportata.');
     if (names.some(name => /^xl\/externalLinks\//.test(name))) warnings.push('Contiene collegamenti a cartelle esterne: i relativi valori non vengono aggiornati.');
   }
-  if (names.some(name => /^(?:word|xl)\/charts\//.test(name))) warnings.push('Contiene grafici: non sono visualizzati e potrebbero non essere conservati nella copia esportata.');
+  if (names.some(name => /^(?:word|xl)\/charts\//.test(name))) warnings.push('Contiene grafici: quelli XLSX creati da CosmOffice sono supportati; i grafici esterni non riconosciuti bloccano l’esportazione per conservarne l’originale. Nei DOCX i grafici non sono supportati.');
   if (names.some(name => /^(?:word|xl)\/embeddings\//.test(name))) warnings.push('Contiene oggetti incorporati: potrebbero non essere conservati nella copia esportata.');
   return warnings;
 }

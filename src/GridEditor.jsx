@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Bold, Italic, Euro, Percent, Plus, Check, Undo2, Redo2, Download, Copy, Trash2, Pencil, LoaderCircle } from 'lucide-react';
 import Papa from 'papaparse';
+import GridCharts from './GridCharts.jsx';
+import { chartModels, newChart, unsupportedChartMessage } from './charts.mjs';
 import { usePreferences } from './preferences.jsx';
 import { useSpelling } from './Spelling.jsx';
 import { openWorkbook, exportWorkbook, rawValue, setCellInput, calculatorFor, exportDelimited, pasteRange, snapshotWorkbook, snapshotWorksheet } from './workbooks.mjs';
@@ -34,10 +36,11 @@ export default function GridEditor({ record, onEdit, api, onError }) {
     return () => { cancelled = true; };
   }, []);
   const sheet = book?.getWorksheet(sheetId);
+  const readOnly = !!book?.cosmoUnsupportedCharts;
   const calc = useMemo(() => sheet ? calculatorFor(sheet) : () => '', [sheet, revision]);
   const area = bounds(selected, rangeEnd);
   useEffect(() => { if (sheet) setFormula(String(rawValue(sheet.getCell(selected)))); }, [sheet, selected, revision]);
-  useEffect(() => { if (book) api.current = { export: () => exportWorkbook(book), snapshot: async () => new Uint8Array(await book.xlsx.writeBuffer()) }; }, [book, api]);
+  useEffect(() => { if (book) api.current = { export: () => exportWorkbook(book), snapshot: async () => book.cosmoUnsupportedCharts ? book.cosmoOriginalBytes.slice() : exportWorkbook(book) }; }, [book, api]);
   function activate(target) {
     setSheetId(target.id); setSelected('A1'); setRangeEnd('A1');
     setRows(Math.max(settings.gridRows, Math.min(target.rowCount + 5, 500))); setCols(Math.max(settings.gridCols, Math.min(target.columnCount + 2, 40)));
@@ -49,8 +52,9 @@ export default function GridEditor({ record, onEdit, api, onError }) {
     if (history.current.undo.length > 15) history.current.undo.shift();
     history.current.redo = [];
   }
-  function changed() { setRevision(n => n + 1); onEdit(async () => new Uint8Array(await book.xlsx.writeBuffer())); }
+  function changed() { setRevision(n => n + 1); onEdit(() => exportWorkbook(book)); }
   function restore(direction) {
+    if (readOnly) return;
     const stack = history.current[direction]; if (!stack.length) return;
     const entry = stack.pop(); history.current[direction === 'undo' ? 'redo' : 'undo'].push({ model: snapshotWorkbook(book), sheetId });
     book.model = structuredClone(entry.model); activate(book.getWorksheet(entry.sheetId) || book.worksheets[0]); changed();
@@ -60,10 +64,11 @@ export default function GridEditor({ record, onEdit, api, onError }) {
     for (let r = area.r0; r <= area.r1; r++) for (let c = area.c0; c <= area.c1; c++) fn(sheet.getCell(r, c));
   }
   function commit(address, value) {
-    if (!sheet || String(rawValue(sheet.getCell(address))) === value) return;
+    if (readOnly || !sheet || String(rawValue(sheet.getCell(address))) === value) return;
     checkpoint(); setCellInput(sheet.getCell(address), value); changed();
   }
   function format(type) {
+    if (readOnly) return;
     checkpoint(); const current = sheet.getCell(selected); const enabled = !current.font?.[type]; const decimals = settings.decimalPlaces ? '.' + '0'.repeat(settings.decimalPlaces) : '';
     forSelection(cell => {
       if (type === 'bold' || type === 'italic') cell.font = { ...cell.font, [type]: enabled };
@@ -71,6 +76,7 @@ export default function GridEditor({ record, onEdit, api, onError }) {
     }); changed();
   }
   function paste(event) {
+    if (readOnly) { event.preventDefault(); return; }
     const text = event.clipboardData.getData('text/plain'); if (!/[\t\r\n]/.test(text)) return;
     event.preventDefault(); event.target.blur();
     try {
@@ -87,6 +93,7 @@ export default function GridEditor({ record, onEdit, api, onError }) {
     event.clipboardData.setData('text/plain', Papa.unparse(data, { delimiter: '\t' }));
   }
   function onKey(event) {
+    if (readOnly) return;
     if ((event.ctrlKey || event.metaKey) && ['z', 'y'].includes(event.key.toLowerCase())) { event.preventDefault(); event.target.blur(); restore(event.key.toLowerCase() === 'y' || event.shiftKey ? 'redo' : 'undo'); }
     if (event.key === 'Delete' && selected !== rangeEnd) { event.preventDefault(); event.target.blur(); checkpoint(); forSelection(cell => { cell.value = null; }); changed(); }
   }
@@ -95,6 +102,7 @@ export default function GridEditor({ record, onEdit, api, onError }) {
     catch (error) { onError(`Esportazione CSV non riuscita: ${error.message}`); }
   }
   function rename() {
+    if (readOnly) return;
     try {
       const name = sheetName.trim();
       if (!name || name.length > 31 || /[\/*?:[\]\\]/.test(name) || name.startsWith("'") || name.endsWith("'")) throw new Error('Usa un nome da 1 a 31 caratteri senza / \\ * ? : [ ].');
@@ -105,23 +113,32 @@ export default function GridEditor({ record, onEdit, api, onError }) {
     } catch (error) { onError(error.message); }
   }
   function duplicate() {
+    if (readOnly) return;
     if (sheet.getTables().length) { onError('La duplicazione di fogli con tabelle Excel strutturate non è ancora supportata. Esporta una copia della cartella per conservarne la struttura.'); return; }
     checkpoint(); let n = 2, name = `${sheet.name.slice(0, 25)} (${n})`; while (book.getWorksheet(name)) name = `${sheet.name.slice(0, 25)} (${++n})`;
     const model = snapshotWorksheet(sheet);
-    const copy = book.addWorksheet(name), id = copy.id; copy.model = { ...model, id, name }; activate(copy); changed();
+    const copy = book.addWorksheet(name), id = copy.id; copy.model = { ...model, id, name }; book.properties.cosmoCharts = [...chartModels(book), ...chartModels(book).filter(model => model.sheetId === sheet.id).map(model => ({ ...structuredClone(model), id: crypto.randomUUID(), sheetId: id }))]; activate(copy); changed();
   }
+  function addChart(type) {
+    try { const model = newChart(book, sheet.id, `${columnName(area.c0)}${area.r0}`, `${columnName(area.c1)}${area.r1}`, type); checkpoint(); book.properties.cosmoCharts = [...chartModels(book), model]; changed(); }
+    catch (error) { onError(error.message); }
+  }
+  function updateChart(id, next) { checkpoint(); book.properties.cosmoCharts = chartModels(book).map(model => model.id === id ? next : model); changed(); }
+  function deleteChart(id) { checkpoint(); book.properties.cosmoCharts = chartModels(book).filter(model => model.id !== id); changed(); }
   if (!book || !sheet) return <div className="loading-editor"><LoaderCircle className="spin"/> Apertura del foglio…</div>;
   const current = sheet.getCell(selected), values = [];
   for (let r = area.r0; r <= Math.min(area.r1, area.r0 + 999); r++) for (let c = area.c0; c <= area.c1; c++) { const v = calc(`${columnName(c)}${r}`); if (typeof v === 'number') values.push(v); }
   return <div className={`editor-body grid-editor ${settings.gridLines ? '' : 'no-gridlines'}`} onPaste={paste} onCopy={copy} onKeyDown={onKey}>
-    <div className="toolbar" role="toolbar" aria-label="Strumenti foglio di calcolo">
+    {readOnly && <div className="import-notice" role="alert">{unsupportedChartMessage}</div>}
+    <div inert={readOnly || undefined} className="toolbar" role="toolbar" aria-label="Strumenti foglio di calcolo">
       <div className="tool-group"><Tool label="Annulla modifica foglio" disabled={!history.current.undo.length} onClick={() => restore('undo')}><Undo2 size={17}/></Tool><Tool label="Ripristina modifica foglio" disabled={!history.current.redo.length} onClick={() => restore('redo')}><Redo2 size={17}/></Tool></div>
       <div className="tool-group"><Tool label="Grassetto cella" active={!!current.font?.bold} onClick={() => format('bold')}><Bold size={17}/></Tool><Tool label="Corsivo cella" active={!!current.font?.italic} onClick={() => format('italic')}><Italic size={17}/></Tool></div>
       <div className="tool-group"><Tool label="Formato euro" onClick={() => format('euro')}><Euro size={17}/></Tool><Tool label="Formato percentuale" onClick={() => format('percent')}><Percent size={17}/></Tool><button className="text-tool" onClick={() => format('decimal')}>0,00</button><button className="text-tool" onClick={() => format('general')}>Generale</button></div>
       <div className="tool-group"><button className="text-tool" onClick={() => setRows(r => Math.min(r + 20, 1000))}><Plus size={15}/> 20 righe</button><button className="text-tool" onClick={() => setCols(c => Math.min(c + 4, 60))}><Plus size={15}/> 4 colonne</button></div>
+      <div className="tool-group">{[["bar", "barre"], ["line", "linee"], ["pie", "torta"]].map(([type, name]) => <button key={type} className="text-tool" onClick={() => addChart(type)}>Grafico a {name}</button>)}</div>
       <button className="text-tool" onClick={exportCsv}><Download size={16}/> Esporta CSV</button><span className="grid-scope">{SUPPORTED_FUNCTIONS.length} funzioni · Riferimenti tra fogli</span>
     </div>
-    <div className="formula-bar"><span className="cell-address">{selected === rangeEnd ? selected : `${selected}:${rangeEnd}`}</span><span className="fx">ƒx</span><input aria-label="Formula o valore della cella selezionata" value={formula} onChange={e => setFormula(e.target.value)} onBlur={() => commit(selected, formula)} onKeyDown={e => { if (e.key === 'Enter') { commit(selected, formula); e.currentTarget.blur(); } if (e.key === 'Escape') setFormula(String(rawValue(current))); }}/><button className="icon-button" aria-label="Applica valore" onClick={() => commit(selected, formula)}><Check size={17}/></button></div>
+    <div className="formula-bar"><span className="cell-address">{selected === rangeEnd ? selected : `${selected}:${rangeEnd}`}</span><span className="fx">ƒx</span><input readOnly={readOnly} spellCheck={false} aria-label="Formula o valore della cella selezionata" value={formula} onChange={e => setFormula(e.target.value)} onBlur={() => commit(selected, formula)} onKeyDown={e => { if (e.key === 'Enter') { commit(selected, formula); e.currentTarget.blur(); } if (e.key === 'Escape') setFormula(String(rawValue(current))); }}/><button className="icon-button" aria-label="Applica valore" onClick={() => commit(selected, formula)}><Check size={17}/></button></div>
     <div className="spreadsheet-scroll"><table className="spreadsheet" aria-label={`Foglio ${sheet.name}`}><colgroup><col style={{ width: 48 }}/>{Array.from({ length: cols }, (_, c) => <col key={c} style={{ width: Math.max(110, Math.min(300, (sheet.getColumn(c + 1).width || 16) * 8)) }}/>)}</colgroup><thead><tr><th aria-label="Angolo del foglio"/>{Array.from({ length: cols }, (_, c) => <th key={c}>{columnName(c + 1)}</th>)}</tr></thead><tbody>{Array.from({ length: rows }, (_, r) => <tr key={`${sheet.id}-${r}`}><th scope="row">{r + 1}</th>{Array.from({ length: cols }, (_, c) => {
       const address = `${columnName(c + 1)}${r + 1}`, cell = sheet.getCell(address), calculated = calc.result(address), value = calculated.value; let display = value;
       const digits = /0\.(0+)/.exec(cell.numFmt || '')?.[1].length;
@@ -129,14 +146,15 @@ export default function GridEditor({ record, onEdit, api, onError }) {
       else if (typeof value === 'number') display = cell.numFmt?.includes('%') ? `${(value * 100).toLocaleString(settings.gridLocale, { maximumFractionDigits: 2 })}%` : cell.numFmt?.includes('€') ? value.toLocaleString(settings.gridLocale, { style: 'currency', currency: 'EUR' }) : value.toLocaleString(settings.gridLocale, { minimumFractionDigits: digits ?? 0, maximumFractionDigits: digits ?? 8 });
       if (typeof value === 'boolean') display = value ? 'VERO' : 'FALSO';
       const bg = cell.fill?.fgColor?.argb, fg = cell.font?.color?.argb, within = r + 1 >= area.r0 && r + 1 <= area.r1 && c + 1 >= area.c0 && c + 1 <= area.c1;
-      return <GridCell key={`${sheet.id}-${address}`} address={address} raw={String(rawValue(cell))} display={String(display)} selected={selected === address} within={within && selected !== rangeEnd} numeric={typeof value === 'number'} error={calculated.error} style={{ fontWeight: cell.font?.bold ? 700 : undefined, fontStyle: cell.font?.italic ? 'italic' : undefined, backgroundColor: bg?.length === 8 ? `#${bg.slice(2)}` : undefined, color: fg?.length === 8 ? `#${fg.slice(2)}` : undefined }} onSelect={() => { setSelected(address); setRangeEnd(address); }} onExtend={() => setRangeEnd(address)} onCommit={value => commit(address, value)}/>;
+      return <GridCell key={`${sheet.id}-${address}`} readOnly={readOnly} address={address} raw={String(rawValue(cell))} display={String(display)} selected={selected === address} within={within && selected !== rangeEnd} numeric={typeof value === 'number'} error={calculated.error} style={{ fontWeight: cell.font?.bold ? 700 : undefined, fontStyle: cell.font?.italic ? 'italic' : undefined, backgroundColor: bg?.length === 8 ? `#${bg.slice(2)}` : undefined, color: fg?.length === 8 ? `#${fg.slice(2)}` : undefined }} onSelect={() => { setSelected(address); setRangeEnd(address); }} onExtend={() => setRangeEnd(address)} onCommit={value => commit(address, value)}/>;
     })}</tr>)}</tbody></table></div>
-    <div className="sheet-tabs"><button className="icon-button" aria-label="Aggiungi foglio" onClick={() => { checkpoint(); let n = book.worksheets.length + 1; while (book.getWorksheet(`Foglio ${n}`)) n++; activate(book.addWorksheet(`Foglio ${n}`)); changed(); }}><Plus size={18}/></button>{book.worksheets.map(s => <button key={s.id} className={s.id === sheetId ? 'sheet-tab active' : 'sheet-tab'} onClick={() => activate(s)} onDoubleClick={() => { setSheetName(s.name); setSheetDialog('rename'); }}>{s.name}</button>)}<div className="sheet-actions"><Tool label="Rinomina foglio" onClick={() => { setSheetName(sheet.name); setSheetDialog('rename'); }}><Pencil size={14}/></Tool><Tool label="Duplica foglio" onClick={duplicate}><Copy size={15}/></Tool><Tool label="Elimina foglio" disabled={book.worksheets.length < 2} onClick={() => setSheetDialog('delete')}><Trash2 size={15}/></Tool></div></div>
+    {!readOnly && <GridCharts book={book} sheetId={sheetId} revision={revision} onChange={updateChart} onDelete={deleteChart} onError={onError}/>}
+    <div className="sheet-tabs"><button className="icon-button" disabled={readOnly} aria-label="Aggiungi foglio" onClick={() => { checkpoint(); let n = book.worksheets.length + 1; while (book.getWorksheet(`Foglio ${n}`)) n++; activate(book.addWorksheet(`Foglio ${n}`)); changed(); }}><Plus size={18}/></button>{book.worksheets.map(s => <button key={s.id} className={s.id === sheetId ? 'sheet-tab active' : 'sheet-tab'} onClick={() => activate(s)} onDoubleClick={() => { if (readOnly) return; setSheetName(s.name); setSheetDialog('rename'); }}>{s.name}</button>)}<div className="sheet-actions"><Tool disabled={readOnly} label="Rinomina foglio" onClick={() => { setSheetName(sheet.name); setSheetDialog('rename'); }}><Pencil size={14}/></Tool><Tool disabled={readOnly} label="Duplica foglio" onClick={duplicate}><Copy size={15}/></Tool><Tool label="Elimina foglio" disabled={readOnly || book.worksheets.length < 2} onClick={() => setSheetDialog('delete')}><Trash2 size={15}/></Tool></div></div>
     <div className="editor-status"><span>{book.worksheets.length} {book.worksheets.length === 1 ? 'foglio' : 'fogli'}<i/>{selected === rangeEnd ? `Cella ${selected}` : `${selected}:${rangeEnd} · Somma: ${values.reduce((a, b) => a + b, 0).toLocaleString(settings.gridLocale)} · Numeri: ${values.length}`}</span><span>Shift + clic per selezionare · Incolla intervalli con Ctrl+V</span></div>
-    {sheetDialog && <div className="modal-backdrop"><form className="modal" role="dialog" aria-modal="true" aria-label={sheetDialog === 'delete' ? 'Elimina foglio' : 'Rinomina foglio'} onSubmit={event => { event.preventDefault(); if (sheetDialog === 'rename') rename(); else { checkpoint(); book.removeWorksheet(sheet.id); activate(book.worksheets[0]); setSheetDialog(null); changed(); } }}><h2>{sheetDialog === 'delete' ? 'Eliminare questo foglio?' : 'Rinomina il foglio'}</h2>{sheetDialog === 'delete' ? <p>Il foglio «{sheet.name}» verrà rimosso dalla bozza. I riferimenti al foglio eliminato mostreranno un errore. Puoi annullare l’operazione.</p> : <input className="dialog-input" autoFocus aria-label="Nuovo nome foglio" maxLength={31} value={sheetName} onChange={e => setSheetName(e.target.value)}/>}<div className="modal-actions"><button type="button" className="button secondary" onClick={() => setSheetDialog(null)}>Annulla</button><button className={`button ${sheetDialog === 'delete' ? 'danger' : 'primary'}`}>{sheetDialog === 'delete' ? 'Elimina foglio' : 'Salva nome'}</button></div></form></div>}
+    {sheetDialog && <div className="modal-backdrop"><form className="modal" role="dialog" aria-modal="true" aria-label={sheetDialog === 'delete' ? 'Elimina foglio' : 'Rinomina foglio'} onSubmit={event => { event.preventDefault(); if (sheetDialog === 'rename') rename(); else { checkpoint(); book.properties.cosmoCharts = chartModels(book).filter(model => model.sheetId !== sheet.id); book.removeWorksheet(sheet.id); activate(book.worksheets[0]); setSheetDialog(null); changed(); } }}><h2>{sheetDialog === 'delete' ? 'Eliminare questo foglio?' : 'Rinomina il foglio'}</h2>{sheetDialog === 'delete' ? <p>Il foglio «{sheet.name}» verrà rimosso dalla bozza. I riferimenti al foglio eliminato mostreranno un errore. Puoi annullare l’operazione.</p> : <input className="dialog-input" autoFocus aria-label="Nuovo nome foglio" maxLength={31} value={sheetName} onChange={e => setSheetName(e.target.value)}/>}<div className="modal-actions"><button type="button" className="button secondary" onClick={() => setSheetDialog(null)}>Annulla</button><button className={`button ${sheetDialog === 'delete' ? 'danger' : 'primary'}`}>{sheetDialog === 'delete' ? 'Elimina foglio' : 'Salva nome'}</button></div></form></div>}
   </div>;
 }
-function GridCell({ address, raw, display, selected, within, numeric, error, style, onSelect, onExtend, onCommit }) {
+function GridCell({ readOnly, address, raw, display, selected, within, numeric, error, style, onSelect, onExtend, onCommit }) {
   const spelling = useSpelling(), overlay = useRef(null);
   const [editing, setEditing] = useState(false), [value, setValue] = useState(raw); const cancel = useRef(false);
   useEffect(() => { if (!editing) setValue(raw); }, [raw, editing]);
@@ -145,5 +163,5 @@ function GridCell({ address, raw, display, selected, within, numeric, error, sty
   const pieces = []; let cursor = 0;
   for (const item of mistakes) { pieces.push(shown.slice(cursor, item.from)); pieces.push(<span key={item.from} className="spelling-error" data-spelling-word={item.word}>{shown.slice(item.from, item.to)}</span>); cursor = item.to; }
   pieces.push(shown.slice(cursor));
-  return <td className={`${selected ? 'selected-cell' : ''} ${within ? 'range-cell' : ''} ${error ? 'error-cell' : ''}`} style={style}><input spellCheck={false} className={mistakes.length ? "spelling-input" : undefined} onScroll={event => { if (overlay.current) overlay.current.scrollLeft = event.currentTarget.scrollLeft; }} data-address={address} aria-label={`Cella ${address}`} title={error ? `${raw} → ${display}` : undefined} style={{ textAlign: numeric && !editing ? 'right' : undefined }} value={editing ? value : display} onMouseDown={e => { if (e.shiftKey) { e.preventDefault(); onExtend(); } }} onFocus={() => { cancel.current = false; setEditing(true); setValue(raw); onSelect(); }} onChange={e => setValue(e.target.value)} onBlur={() => { if (editing && !cancel.current) onCommit(value); setEditing(false); }} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); onCommit(value); setEditing(false); e.currentTarget.blur(); const p = parseAddress(address); document.querySelector(`[data-address="${columnName(p.col)}${p.row + 1}"]`)?.focus(); } if (e.key === 'Escape') { cancel.current = true; setValue(raw); setEditing(false); e.currentTarget.blur(); } }}/>{mistakes.length > 0 && <div ref={overlay} className="grid-spelling-overlay" aria-hidden="true">{pieces}</div>}</td>;
+  return <td className={`${selected ? 'selected-cell' : ''} ${within ? 'range-cell' : ''} ${error ? 'error-cell' : ''}`} style={style}><input readOnly={readOnly} spellCheck={false} className={mistakes.length ? "spelling-input" : undefined} onScroll={event => { if (overlay.current) overlay.current.scrollLeft = event.currentTarget.scrollLeft; }} data-address={address} aria-label={`Cella ${address}`} title={error ? `${raw} → ${display}` : undefined} style={{ textAlign: numeric && !editing ? 'right' : undefined }} value={editing ? value : display} onMouseDown={e => { if (e.shiftKey) { e.preventDefault(); onExtend(); } }} onFocus={() => { cancel.current = false; setEditing(true); setValue(raw); onSelect(); }} onChange={e => setValue(e.target.value)} onBlur={() => { if (editing && !cancel.current) onCommit(value); setEditing(false); }} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); onCommit(value); setEditing(false); e.currentTarget.blur(); const p = parseAddress(address); document.querySelector(`[data-address="${columnName(p.col)}${p.row + 1}"]`)?.focus(); } if (e.key === 'Escape') { cancel.current = true; setValue(raw); setEditing(false); e.currentTarget.blur(); } }}/>{mistakes.length > 0 && <div ref={overlay} className="grid-spelling-overlay" aria-hidden="true">{pieces}</div>}</td>;
 }
