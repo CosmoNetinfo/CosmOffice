@@ -1,31 +1,15 @@
-name: Release firmata e aggiornamenti
+name: Release pubblica di anteprima
 on:
   push:
     tags: ['v*']
 permissions:
-  contents: write
+  contents: read
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
 jobs:
-  release:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            target: --win --x64
-          - os: ubuntu-latest
-            target: --linux --x64
-          - os: macos-latest
-            target: --mac --x64 --arm64
-    runs-on: ${{ matrix.os }}
-    env:
-      COSMO_PUBLISH_UPDATES: '1'
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      CSC_LINK: ${{ matrix.os == 'windows-latest' && secrets.WIN_CSC_LINK || matrix.os == 'macos-latest' && secrets.MAC_CSC_LINK || '' }}
-      CSC_KEY_PASSWORD: ${{ matrix.os == 'windows-latest' && secrets.WIN_CSC_KEY_PASSWORD || matrix.os == 'macos-latest' && secrets.MAC_CSC_KEY_PASSWORD || '' }}
-      WIN_PUBLISHER_NAME: ${{ secrets.WIN_PUBLISHER_NAME }}
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+  verifica:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,6 +21,91 @@ jobs:
       - run: npm test
       - run: npm audit --omit=dev --audit-level=moderate
       - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+        env:
+          COSMO_BROWSER: chromium
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: npm run test:openxml
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends poppler-utils libreoffice-writer libreoffice-calc
+      - run: xvfb-run -a node scripts/offline-smoke.mjs
+      - run: xvfb-run -a node scripts/debug-smoke.mjs
+      - run: xvfb-run -a node scripts/guided-smoke.mjs
+      - run: node scripts/fixtures-office.mjs
+        env:
+          COSMO_BROWSER: chromium
+      - run: npm run test:interop
+        env:
+          COSMO_BROWSER: chromium
+      - run: node scripts/charts-interop.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verifiche-release
+          path: test-results/
+  pacchetti:
+    needs: verifica
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: --win nsis --x64
+            name: Windows-x64
+          - os: ubuntu-latest
+            target: --linux AppImage --x64
+            name: Linux-x64
+    runs-on: ${{ matrix.os }}
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
       - run: npm run icons
       - run: node scripts/notices.mjs
-      - run: npx electron-builder --config electron-builder.config.cjs ${{ matrix.target }} --publish always
+      - run: npx electron-builder --config electron-builder.config.cjs ${{ matrix.target }} --publish never
+      - run: node scripts/debug-smoke.mjs
+        if: runner.os == 'Windows'
+        env:
+          COSMO_DEBUG_PACKAGE: '1'
+      - run: node scripts/guided-smoke.mjs
+        if: runner.os == 'Windows'
+        env:
+          COSMO_DEBUG_PACKAGE: '1'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.name }}
+          path: |
+            release/*-Setup.exe
+            release/*.AppImage
+          if-no-files-found: error
+  pubblica:
+    needs: [verifica, pacchetti]
+    if: always() && needs.verifica.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: release-public
+          merge-multiple: true
+      - run: node scripts/publish-preview.mjs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COSMO_RELEASE_DIR: release-public
+          COSMO_PACKAGE_RESULT: ${{ needs.pacchetti.result }}

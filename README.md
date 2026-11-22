@@ -82,16 +82,13 @@ La ricerca su WordCraft, GridCraft e craft-launcher è in [ARTCRAFT.md](docs/ric
 
 Ogni push su `main` avvia test, un controllo indipendente con LibreOffice e crea gli installer di anteprima per Windows x64, Linux x64 e macOS Intel/Apple Silicon. Gli artefatti sono nella scheda **Actions**, disponibili per 14 giorni. Le build di anteprima non sono firmate e non attivano l’aggiornamento automatico.
 
-Il workflow per tag `v*` controlla la versione, richiede le credenziali di firma per Windows/macOS e carica una **release in bozza**. Il download dei pacchetti avviene fuori dall’app: CosmOffice non contatta GitHub e non esegue aggiornamenti online, nemmeno nelle release firmate. Per aggiornare si installa un nuovo pacchetto locale. Firma e notarizzazione restano da collaudare con certificati reali.
+Il workflow per tag `v*` controlla versione, build, test browser, Open XML SDK, offline e interoperabilità. Costruisce installer Windows x64 e AppImage Linux x64 **senza firma**, carica gli asset in una bozza e la rende una **Release ordinaria pubblica** solo dopo gli upload. Le note derivano dalla sezione della versione nel CHANGELOG e dichiarano eventuali piattaforme fallite. Una build di piattaforma rossa non impedisce la pubblicazione dell’altra; controlli comuni rossi bloccano entrambe.
 
-Segreti necessari per le release:
+Non servono certificati o segreti di firma: basta il GITHUB_TOKEN automatico del workflow con permesso contents: write nel solo lavoro di pubblicazione. Ogni installer ha un file .sha256; SHA256SUMS.txt li raccoglie. La pubblicazione si ferma se non c’è alcun installer, se un upload fallisce o se la Release è già pubblica: non sovrascrive automaticamente gli asset. In caso di bozza incompleta, controllarla prima di ripetere.
 
-| Piattaforma | Segreti |
-| --- | --- |
-| Windows | `WIN_CSC_LINK`, `WIN_CSC_KEY_PASSWORD`, `WIN_PUBLISHER_NAME` |
-| macOS | `MAC_CSC_LINK`, `MAC_CSC_KEY_PASSWORD`, `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID` |
+Procedura: aggiornare package.json e la corrispondente sezione CHANGELOG, completare tutti i controlli, commit e push su main, poi creare il tag della stessa versione (per esempio git tag v0.2.2) e git push origin v0.2.2. Seguire Actions fino alla pubblicazione e verificare da una sessione senza account la pagina [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest), gli asset e i loro checksum. Il download dei pacchetti avviene fuori dall’app: gli aggiornamenti automatici non sono ancora implementati.
 
-Non aggiungere chiavi o certificati al repository. Il progetto non contiene credenziali.
+Windows può mostrare SmartScreen per l’autore non verificato: controllare origine e checksum; se disponibile scegliere “Ulteriori informazioni” e “Esegui comunque”. I criteri dei computer gestiti possono vietarlo: non disattivare la protezione del sistema. Su Linux rendere eseguibile l’AppImage; il supporto delle singole distribuzioni non è garantito dai soli test CI. Le installazioni su computer puliti non sono ancora collaudate.
 
 ## Schermate
 

@@ -91,6 +91,8 @@ Consolidamento Facebook: il rapporto usa una riga per ogni evento e solo l’ult
 
 ## Stato dopo lo studio ArtCraft
 
+Distribuzione: il vecchio workflow richiedeva segreti di firma e creava soltanto bozze, impedendo la pubblicazione pubblica senza certificati. Il nuovo percorso di anteprima elimina questa dipendenza; la prova effettiva di Release e download va riportata dopo il tag. Non è una correzione della fedeltà documentale.
+
 Lo studio statico non riproduce nuovi bug applicativi e non chiude alcun bug di fedeltà. I limiti dichiarati dagli altri progetti non sono bug dimostrati di CosmOffice. Le sole letture e i blocchi di export restano in vigore. [Distinzioni e fonti](ricerca/ARTCRAFT.md).
 
 Blocco noto del precedente prototipo aggiornamenti, non incluso in main: NetLog con controllo attivo rilevava UDP verso [2001:4860:4860::8888]:443, non autorizzato. La nuova soluzione TLS Node è autorizzata ma non implementata o provata; il test del prototipo resta rosso, non un successo della versione corrente. Il main attuale deve continuare a superare offline-smoke senza alcuna connessione.

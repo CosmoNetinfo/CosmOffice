@@ -106,3 +106,7 @@ Otto prove, 24 radio, nessun campo editabile libero; scelte persistenti dopo ric
 Ricerca su 80 file bloccati a commit e verifica dei quattro documenti legali a ogni revisione. [Analisi](ricerca/ARTCRAFT.md) e [registro completo](ricerca/CODICE-STUDIATO.md#studio-artcraft-del-22-novembre-2026). Non sono stati eseguiti i test Rust o gli installer dei progetti studiati; nessuna loro dichiarazione di fedeltà è assunta come prova nostra. I test di CosmOffice e i loro output effettivi sono nel report del passo. Nessuna modifica a src/, electron/, scripts/, workflow o LICENSE.
 
 Il trasporto TLS Node per aggiornamenti resta futuro: nessuna verifica del suo download, SHA-256 o installazione viene dichiarata passata. L’ultimo prototipo Chromium attivo aveva NetLog rosso per UDP non autorizzato; l’app attuale usa il blocco rete. Offline-smoke qui prova il comportamento attuale, non quello di un updater non implementato.
+
+## Pubblicazione di anteprima senza firma
+
+Test del publisher con API simulate: note estratte dalla versione nel CHANGELOG, piattaforma mancante dichiarata, hash SHA-256 calcolato sui byte, asset caricati prima di rendere pubblica la bozza, flag prerelease falso e make_latest vero. Non sono prove di upload su GitHub o di esecuzione degli installer: la run del tag e il download anonimo saranno verificati separatamente. Nessuna firma richiesta nel percorso normale di anteprima; il controllo esplicito del vecchio percorso firmato rimane separato.

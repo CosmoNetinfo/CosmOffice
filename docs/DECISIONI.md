@@ -1,5 +1,11 @@
 # Decisioni e alternative tecniche
 
+## Release ordinaria senza firma — ordine del 22 novembre 2026
+
+L’utente richiede prima la Release pubblica 0.2.2 Windows/Linux, poi i DMG Mac e infine il trasporto TLS Node in un commit successivo. Il workflow di anteprima non usa COSMO_PUBLISH_UPDATES=1 né certificati: costruisce con --publish never, carica installer e checksum in una bozza con GITHUB_TOKEN e la pubblica come release ordinaria/latest solo dopo gli upload. Restano bloccanti i controlli comuni; le build delle piattaforme sono indipendenti e le assenze vengono dichiarate nelle note. Nessun rilascio del prototipo updater.
+
+Alternativa scartata per questa anteprima: attendere certificati di firma non necessari alla richiesta. La precedente configurazione firmata resta un percorso esplicito diverso; non si introduce un fallback silenzioso da firmato a non firmato. Nessuna nuova dipendenza. Le note sono generate dal CHANGELOG e non dai messaggi dei commit. Gli asset di una Release già pubblica non vengono sovrascritti dal publisher automaticamente.
+
 ## Studio ArtCraft: nessuna integrazione scelta
 
 Il 22 novembre 2026 sono stati studiati WordCraft, GridCraft, craft-launcher e tre revisioni delle loro librerie condivise. [Risultati e fonti](ricerca/ARTCRAFT.md), [registro degli 80 file](ricerca/CODICE-STUDIATO.md#studio-artcraft-del-22-novembre-2026). Il codice proprio studiato è MIT OR Apache-2.0, ma marchi e materiali con altre licenze sono esclusi. Nessun sorgente è stato copiato, nessun motore o nuova libreria è stato adottato.

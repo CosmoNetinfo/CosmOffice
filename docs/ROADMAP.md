@@ -62,7 +62,7 @@ Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro
 2. Prova guidata: implementata; verifiche nel report del passo. Otto prove e soli esiti Ok/Problema/Non provato; nessun campo libero.
 3. Aggiornamenti da GitHub Releases: trasporto TLS Node autorizzato con otto condizioni in DECISIONI, ancora da implementare e collaudare. Vecchio prototipo Chromium non pubblicato per NetLog rosso. Installazione solo dopo hash valido e conferma dell’utente; Mac solo avviso.
 4. Mac DMG non firmato e guida con titolo esatto: da consolidare per la distribuzione pubblica.
-5. Release ordinaria CosmOffice 0.2.2 (anteprima): da pubblicare con installer, checksum, limiti e domande ai tester.
+5. Release ordinaria CosmOffice 0.2.2 (anteprima): workflow Windows/Linux senza firma preparato; pubblicazione e download anonimo da verificare dopo il tag. Checksum, limiti e domande ai tester inclusi nelle note dal CHANGELOG. In questo ordine operativo precede il prossimo lavoro Mac e updater, come richiesto nell’ultimo prompt.
 6. Bozze di licenza utenti: da preparare; LICENSE resta invariato.
 
 Le altre proposte rimangono sospese; nessun motore scelto.

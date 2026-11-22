@@ -4,8 +4,14 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ## [Non rilasciato]
 
+Nessuna modifica applicativa successiva alla preparazione della 0.2.2.
+
+## [0.2.2] - 2026-11-22
+
 ### Aggiunto
 
+- Pubblicazione ordinaria dell’anteprima tramite tag v*: installer Windows x64 e AppImage Linux x64 senza certificati, checksum SHA-256 individuali e riepilogo. Le piattaforme mancanti vengono dichiarate nelle note.
+- Apertura e modifica essenziale DOCX/XLSX e lettura PDF offline; grafici a barre, linee e torta, ortografia italiana locale e impostazioni personalizzabili.
 - Studio statico ArtCraft con 80 file tracciati a commit immutabili: licenze ed esclusioni, conservazione DOCX/XLSX, limiti di --strict, aggiornamenti e privacy dei log. Idee ordinate per valore, senza integrazioni o scelta del motore.
 - Documentazione dell’autorizzazione al futuro trasporto TLS Node per gli aggiornamenti, con conferma prima dell’installazione e verifiche di rete richieste; nessun trasporto implementato in questo passo.
 
@@ -37,10 +43,33 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Limiti noti
 
+- Pacchetti senza firma: Windows può mostrare SmartScreen. Aggiornamenti online ancora assenti; si scarica e installa una nuova versione manualmente. DMG Mac preparato in un passo separato.
+- La gratuità non equivale a compatibilità completa con Microsoft Office. PDF senza OCR, annotazioni o modifica del testo; grafici esterni e altri contenuti complessi restano bloccati quando rilevati.
 - Fedeltà Word/Excel completa non dimostrata; alcune funzionalità restano in sola lettura o con export bloccato.
 - Il vecchio XLSX v1 resta una copia identica con il difetto MIME originale, come eccezione storica esplicita; Excel reale non collaudato.
 - Nessun confronto completo delle suite installate sugli stessi documenti, nessun benchmark comparativo, Microsoft Office reale e installazioni pulite non collaudati.
 - Nessun nuovo motore scelto e nessuna proposta dello studio implementata.
+
+### Prove mancanti
+
+- Installazione su computer puliti; utilizzo reale su hardware macOS e Linux; documenti Office complessi e Microsoft Word/Excel reali. I test coprono un corpus ristretto, non una certificazione Office.
+- Firma, notarizzazione e aggiornamenti automatici non collaudati né inclusi in questa versione pubblicata.
+
+### Prossimi passi
+
+- DMG Mac non firmato e guida al primo avvio; poi aggiornamenti con trasporto TLS Node, SHA-256, conferma prima dell’installazione e soli host autorizzati.
+- Raccogliere prove dei tester e riprodurre i problemi con documenti autorizzati, dando priorità a integrità e compatibilità.
+
+### Cosa ti aspetti da CosmOffice?
+
+Rispondi nei commenti del post Facebook di CosmOffice:
+
+1. Che documenti apri di solito?
+2. Cosa ti aspetti da CosmOffice?
+3. Quale funzione ti manca?
+4. Cosa ti ha bloccato durante la prova?
+
+Puoi copiare il rapporto da “Segnala un problema” dopo averlo letto. L’app non invia niente automaticamente. Non pubblicare documenti o dati personali nei commenti.
 
 ## Nota sulla cronologia precedente
 
