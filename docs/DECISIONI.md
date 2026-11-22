@@ -91,3 +91,7 @@ La gratuità per l'utente non implica che qualunque SDK o redistribuzione sia gr
 ## Decisioni rinviate
 
 L'utente deve scegliere quale alternativa approfondire e quali file rappresentano il lavoro reale. Le idee in [OPPORTUNITA](ricerca/OPPORTUNITA.md) e l'ordine della [ROADMAP](ROADMAP.md) sono proposte. Il codice dell'app non cambia in questo studio. Il precedente lavoro sul validatore, pur provato localmente, è conservato separatamente e non è incluso nel main di riferimento.
+
+## Recupero del validatore — 22 novembre 2026
+
+Autorizzato dall’utente dopo lo studio. Si usa Microsoft Open XML SDK 3.5.1 (MIT) solo nello sviluppo/CI, con dipendenze bloccate e telemetria .NET disattivata; nessun runtime .NET aggiunto all’app. Il controllo funzionale da solo non intercettava i quattro difetti di schema: il validatore è quindi bloccante sui nuovi esportati del corpus. Due campioni volutamente errati impediscono un falso positivo del controllo. Il vecchio XLSX resta esclusivamente una copia identica, con audit separato del suo errore noto e checksum fisso: non viene sanato in silenzio. Nessun motore alternativo scelto.

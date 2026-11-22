@@ -182,7 +182,7 @@ export async function writeCharts(book, bytes) {
       append(drawing, `<xdr:twoCellAnchor xmlns:xdr="${XDR}" xmlns:a="${A}" xmlns:r="${R}"><xdr:from>${marker(0, row)}</xdr:from><xdr:to>${marker(9, row + 16)}</xdr:to><xdr:graphicFrame macro=""><xdr:nvGraphicFramePr><xdr:cNvPr id="${++shapeId}" name="${escape(model.title || 'Grafico')}"/><xdr:cNvGraphicFramePr/></xdr:nvGraphicFramePr><xdr:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></xdr:xfrm><a:graphic><a:graphicData uri="${C}"><c:chart xmlns:c="${C}" r:id="${id}"/></a:graphicData></a:graphic></xdr:graphicFrame><xdr:clientData/></xdr:twoCellAnchor>`);
     }
     zip.file(drawingPath, serialize(drawing)); zip.file(drawingRelPath, serialize(drawingRels));
-    override(drawingPath, 'application/vnd.openxmlformats-officedocument.drawingml.drawing+xml');
+    override(drawingPath, 'application/vnd.openxmlformats-officedocument.drawing+xml');
     zip.file(sheetPath, serialize(doc)); zip.file(relPath, serialize(rels));
   }
   const metadataPath = 'customXml/cosmoCharts.xml';

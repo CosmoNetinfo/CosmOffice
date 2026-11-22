@@ -81,6 +81,8 @@ try {
   assert.match(await page.locator('.grid-chart').first().locator('table').innerText(), /Gennaio personalizzato/);
   await page.getByRole('button', { name: 'Esporta XLSX', exact: true }).click(); await page.waitForFunction(() => window.saved.length === 1);
   assert.deepEqual(new Uint8Array(await page.evaluate(() => window.saved[0])), legacy, 'copia identica senza riscrivere il foglio tecnico');
+  await mkdir('test-results/openxml', { recursive: true });
+  await writeFile('test-results/openxml/legacy-copy.xlsx', new Uint8Array(await page.evaluate(() => window.saved[0])));
   assert.deepEqual(errors, []); assert.deepEqual(external, []);
   console.log('PASS grafici: categorie nelle celle, nuovi XLSX senza fogli nascosti, dati aggiornati e file riaperti; vecchia anteprima in sola lettura con copia identica; grafici esterni con export bloccato; nessuna richiesta esterna.');
 } finally { await browser?.close(); await server.close(); }

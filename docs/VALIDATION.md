@@ -1,12 +1,12 @@
 # Stato delle verifiche e limiti
 
-Aggiornamento documentale del 22 novembre 2026. Base applicativa: 0.2.2, commit fa1619564d91ef39757d82f0e16675d371835529. Lo studio comparativo usa fonti pubbliche; non è una prova manuale di tutte le suite concorrenti.
+Aggiornato il 22 novembre 2026 con il recupero del validatore dopo lo studio (base 3185603). Versione applicativa 0.2.2. Lo studio comparativo resta documentale, non una prova manuale delle suite concorrenti.
 
 ## Distinzioni necessarie
 
 - Test funzionali CosmOffice: corpus sintetico di 13 file, più campione storico dei grafici; unit test del main attuale: 41. Il report di questo passo contiene la nuova esecuzione completa e gli output reali.
 - Interoperabilità: LibreOffice apre e risalva i campioni; non equivale a Microsoft Office né a fedeltà visiva universale.
-- Conformità: l’audit Microsoft SDK preparatorio ha trovato FMT-001/002/003. Il prototipo locale di validazione e correzione è stato provato su 13 nuovi esportati ma non è nel main di questo studio. I difetti del main restano aperti in BUG.md.
+- Conformità: recuperate le correzioni FMT-001/002/003 e il validatore Microsoft Open XML SDK 3.5.1, schema Microsoft365. Controllo bloccante in CI su 13 nuovi esportati, hash invariati dopo la lettura e due controlli negativi. Gli esiti reali della ripresa sono nel report corrente. La validità dello schema non equivale alla fedeltà dei documenti.
 - Eccezione storica autorizzata: copia v1 identica, con diagnostica SDK di apertura fallita conservata; nessuna certificazione di apertura in Excel. Non si estende l’eccezione ai nuovi file.
 - Ricerca: licenze, funzioni e note di rilascio documentate, non benchmark. Nessun codice copyleft di implementazione consultato; nessuna nuova libreria incorporata.
 

@@ -108,7 +108,14 @@ export async function preserveDocxParts(exported, original) {
   const settingsFile = source.file('word/settings.xml');
   if (settingsFile && target.file('word/settings.xml')) {
     const settings = parse(await settingsFile.async('string')), out = parse(await target.file('word/settings.xml').async('string'));
-    for (const node of nodes(settings, W, 'evenAndOddHeaders')) out.documentElement.appendChild(out.importNode(node, true));
+    const sourceFlag = nodes(settings, W, 'evenAndOddHeaders')[0];
+    if (sourceFlag) {
+      const existing = nodes(out, W, 'evenAndOddHeaders');
+      const flag = out.importNode(sourceFlag, true);
+      if (existing[0]) existing[0].parentNode.replaceChild(flag, existing[0]);
+      else out.documentElement.insertBefore(flag, nodes(out, W, 'compat')[0] || null);
+      for (const duplicate of existing.slice(1)) duplicate.parentNode.removeChild(duplicate);
+    }
     target.file('word/settings.xml', xml(out));
   }
   target.file('word/document.xml', xml(body)); target.file('word/_rels/document.xml.rels', xml(outRels)); target.file('[Content_Types].xml', xml(types));

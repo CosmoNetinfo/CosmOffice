@@ -2,7 +2,7 @@
 
 Aggiornata al 22 novembre 2026. Priorità: affidabilità, compatibilità DOCX/XLSX/PDF, qualità, poi novità. **Le voci pianificate sono proposte: nessuna implementazione è autorizzata da questo studio.**
 
-Stati: **Fatto e provato** = evidenza nei test/report; **Parziale** = sottoinsieme con limiti; **In corso** = attività effettivamente aperta; **Pianificato** = da scegliere/autorizzare; **Non provato** = nessuna verifica sufficiente. Riferimento applicativo: 0.2.2, commit `fa16195`.
+Stati: **Fatto e provato** = evidenza nei test/report; **Parziale** = sottoinsieme con limiti; **In corso** = attività effettivamente aperta; **Pianificato** = da scegliere/autorizzare; **Non provato** = nessuna verifica sufficiente. Riferimento applicativo: 0.2.2; il recupero del validatore segue lo studio sul commit 3185603. Le nuove priorità autorizzate sono: validatore, rapporto tester, release, aggiornamenti GitHub, DMG e bozze di licenza. Le altre proposte restano sospese.
 
 ## Stato esistente
 
@@ -17,13 +17,13 @@ Stati: **Fatto e provato** = evidenza nei test/report; **Parziale** = sottoinsie
 | Rotazione PDF persistente | Fatto e provato | Solo pagine, niente OCR/modifica testo/moduli |
 | CI e pacchetti multipiattaforma | Fatto per le build registrate | Windows provato localmente; Mac/Linux fisici non collaudati |
 | Studio comparativo e alternative del motore | Fatto, solo documentazione | Confronto, opportunità, fonti e alternative consegnati; nessun motore scelto |
-| Validatore Microsoft e correzioni di schema | Prototipo locale separato, non nel main | Audit e prove locali disponibili; lavoro sospeso al cambio di perimetro, non dichiarato distribuito |
+| Validatore Microsoft e correzioni di schema | Recuperato su main; verifiche nel report | SDK bloccante sul corpus dei nuovi esportati, non garanzia universale |
 
 ## Priorità P0 — Integrità e prove, prima di nuove funzioni
 
 | Ordine | Voce | Stato | Condizione di completamento |
 | --- | --- | --- | --- |
-| 1 | Correggere FMT-001/002/003 e portare in CI la validazione degli esportati | Pianificato, correzioni non nel main | Nuovi file senza errori; test negativi; eccezione storica esplicita, mai generalizzata |
+| 1 | Correggere FMT-001/002/003 e portare in CI la validazione degli esportati | Implementato; esiti nel report | 13 nuovi file senza errori, test negativi ed eccezione storica esplicita |
 | 2 | Corpus reale autorizzato e anonimizzato | Pianificato | Confronto riproducibile con Word/Excel e lettore PDF indipendente |
 | 3 | Scelta dell'approccio DOCX/XLSX | In attesa dell'utente | Decisione esplicita fra le alternative di DECISIONI, con criteri di accettazione |
 | 4 | Conservazione selettiva degli XLSX complessi | Pianificato, sola lettura attuale | Nessuna parte non modificata alterata e tutto il corpus pertinente passato |

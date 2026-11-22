@@ -10,3 +10,5 @@ test-results/
 *.pfx
 .DS_Store
 public/pdfjs/
+scripts/openxml-validator/bin/
+scripts/openxml-validator/obj/

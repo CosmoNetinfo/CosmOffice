@@ -1,0 +1,15 @@
+Validatore di sviluppo e CI, non incluso nell'app desktop:
+
+DocumentFormat.OpenXml 3.5.1 e DocumentFormat.OpenXml.Framework 3.5.1
+Open XML SDK by Microsoft — .NET Foundation and Contributors
+Licenza MIT: LICENSE-OpenXML.txt
+https://github.com/dotnet/Open-XML-SDK/tree/v3.5.1
+
+System.IO.Packaging 10.0.2 (dipendenza transitiva)
+Microsoft Corporation — .NET Foundation and Contributors
+Licenza MIT: LICENSE-Packaging.txt
+https://github.com/dotnet/runtime/tree/v10.0.2
+
+Versioni e hash dei pacchetti sono in packages.lock.json.
+Le espressioni di licenza nei tre pacchetti NuGet sono MIT.
+La telemetria .NET è disattivata negli script e nella CI.

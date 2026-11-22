@@ -7,6 +7,7 @@ import { openWorkbook } from '../src/workbooks.mjs';
 import mammoth from 'mammoth';
 
 await mkdir('test-results', { recursive: true });
+await mkdir('test-results/openxml', { recursive: true });
 const server = await createServer(); await server.listen();
 let browser;
 const errors = []; const external = [];
@@ -40,6 +41,7 @@ try {
   await page.getByRole('button', { name: 'Esporta DOCX' }).click();
   await page.waitForFunction(() => window.testSaved.length === 1);
   const exportedDoc = await page.evaluate(() => window.testSaved[0]);
+  await writeFile('test-results/openxml/smoke.docx', new Uint8Array(exportedDoc.bytes));
   const text = await mammoth.extractRawText({ buffer: Buffer.from(exportedDoc.bytes) });
   assert.match(text.value, /Modifica offline persistente/);
   await page.getByRole('button', { name: 'Torna alle bozze' }).click();
@@ -73,6 +75,7 @@ try {
   await page.getByRole('button', { name: 'Esporta XLSX' }).click();
   await page.waitForFunction(() => window.testSaved.length === 1);
   const exportedSheet = await page.evaluate(() => window.testSaved[0]);
+  await writeFile('test-results/openxml/smoke.xlsx', new Uint8Array(exportedSheet.bytes));
   const restored = await openWorkbook(new Uint8Array(exportedSheet.bytes));
   assert.equal(restored.worksheets[0].getCell('B2').value, 1400);
   assert.equal(restored.worksheets[0].getCell('G5').value, '00123');

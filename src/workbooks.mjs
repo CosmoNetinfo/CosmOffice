@@ -1,6 +1,7 @@
 import ExcelJS from 'exceljs';
 import Papa from 'papaparse';
 import { readCharts, writeCharts, prepareCharts, unsupportedChartMessage } from './charts.mjs';
+import { normalizeXlsxSchema } from './xlsx-schema.mjs';
 import { createCalculator, columnName, parseAddress, invariantFormula } from './formulas.mjs';
 
 export function rawValue(cell) {
@@ -122,5 +123,5 @@ export async function exportWorkbook(book) {
     }));
   }
   prepareCharts(copy);
-  return writeCharts(copy, new Uint8Array(await copy.xlsx.writeBuffer()));
+  return normalizeXlsxSchema(await writeCharts(copy, new Uint8Array(await copy.xlsx.writeBuffer())));
 }

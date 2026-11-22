@@ -16,7 +16,8 @@
     "pack": "npm run build && npm run icons && node scripts/notices.mjs && electron-builder --config electron-builder.config.cjs --dir --publish never",
     "dist": "npm run build && npm run icons && node scripts/notices.mjs && electron-builder --config electron-builder.config.cjs --publish never",
     "preview:images": "node scripts/pdf-assets.mjs && node scripts/preview.mjs",
-    "test:interop": "node scripts/interop.mjs"
+    "test:interop": "node scripts/interop.mjs",
+    "test:openxml": "node scripts/validate-openxml.mjs"
   },
   "overrides": {
     "uuid": "11.1.1",
