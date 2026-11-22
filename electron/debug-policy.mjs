@@ -8,6 +8,10 @@ const messages = Object.freeze({
   crash: 'Il processo della finestra si è arrestato',
 });
 const names = new Set(['Error', 'TypeError', 'RangeError', 'SyntaxError', 'ReferenceError', 'URIError', 'EvalError', 'QuotaExceededError', 'AbortError']);
+const shortLabels = Object.freeze({ renderer: 'Interfaccia', rejection: 'Promise non gestita', react: 'Schermata', main: 'Eccezione main', hang: 'Finestra bloccata', crash: 'Arresto finestra' });
+export function compactEvent(event) {
+  return `${event.date.slice(0, 19)}Z | ${event.app} | ${shortLabels[event.kind]} | ${event.name}`;
+}
 export function safeEvent(value = {}) {
   if (!value || typeof value !== 'object') value = {};
   const kind = Object.hasOwn(messages, value.kind) ? value.kind : 'renderer';

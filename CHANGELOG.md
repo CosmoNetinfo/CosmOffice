@@ -15,6 +15,8 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Modificato
 
+- Rapporto tester compatto per i commenti Facebook: una riga per evento, fino a 50, dimensione verificata entro 6 KB; invio sempre manuale.
+
 - Documentazione di validazione e bug aggiornata distinguendo funzionalità provate, difetti di formato e lavoro locale non pubblicato.
 - Collegamenti di lettura della ricerca nel README; recupero successivo del validatore sospeso, senza implementare le altre proposte dello studio.
 

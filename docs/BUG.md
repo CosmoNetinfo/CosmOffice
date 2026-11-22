@@ -80,3 +80,5 @@ Il difetto storico esatto resta: The document cannot be opened because there is 
 - Limite intenzionale: i messaggi liberi sono omessi, perché possono includere contenuti del documento; restano descrizioni controllate e posizioni anonimizzate. Questo riduce il dettaglio per la diagnosi.
 - Preparazione QA: alcune prime esecuzioni non mostravano stabilmente l’evento main simulato. Registrazione cambiata in append dopo normalizzazione e attese esplicite nel test; la causa originaria non è stata dimostrata. Gli esiti delle ripetizioni complete e del pacchetto sono nel report, senza nascondere le prove fallite.
 - Non provati arresti reali del sistema operativo/Chromium e guasti di disco durante un crash. Un registro non scrivibile conserva soltanto la memoria e lo segnala.
+
+Consolidamento Facebook: il rapporto usa una riga per ogni evento e solo l’ultima traccia; il test con 50 eventi misura 4.733 byte, sotto 6.144. Le ripetizioni richieste (10 Electron e 10 pacchetto) sono registrate singolarmente nel report corrente, senza presumere risolto un problema solo dalla CI verde.

@@ -129,8 +129,12 @@ Eccezione storica autorizzata: il vecchio campione v1 in sola copia contiene un 
 
 ## Segnalare un problema
 
-Apri **Impostazioni → Segnala un problema**, oppure il menu **CosmOffice → Segnala un problema**. Leggi il rapporto prima di premere **Copia rapporto**. Incollalo nel canale indicato e aggiungi una breve descrizione di ciò che stavi facendo. Il segnaposto `[CANALE DI CONTATTO]` sarà compilato dal titolare. Nessun invio automatico.
+Apri **Impostazioni → Segnala un problema**, oppure il menu **CosmOffice → Segnala un problema**. Leggi il rapporto prima di premere **Copia rapporto**. Incollalo nei commenti del post Facebook di CosmOffice e aggiungi una breve descrizione di ciò che stavi facendo. Nessun invio automatico.
 
 Questo rapporto non contiene i tuoi documenti: non registra testo, nomi o percorsi dei file, né identificativi. Per evitare che un errore contenga dati di una cella o di un paragrafo, i messaggi liberi sono omessi e sostituiti con descrizioni controllate. Delle tracce restano al massimo tre posizioni numeriche anonimizzate dei moduli applicativi. Il registro conserva gli ultimi 50 eventi in memoria e in un piccolo file nel profilo locale. **Svuota registro** elimina gli eventi del registro; le copie eventualmente già incollate negli appunti o inviate da te vanno gestite separatamente.
 
 Guida breve: [Tester](docs/TESTER.md). Il rapporto non certifica la compatibilità o l’integrità del documento e non allega file. Nell’anteprima browser il registro è solo in memoria e alcune informazioni del sistema non sono disponibili.
+
+Il rapporto copiato è compatto: massimo 6 KB UTF-8 nelle prove automatiche anche con 50 eventi. Include una riga per evento e soltanto la traccia anonimizzata più recente. Nessun invio a Facebook o ad altri servizi viene eseguito dall’app.
+
+Per ripetere il controllo del rapporto su Windows: ricostruisci con `npm run pack`, poi esegui `node scripts/debug-repeat.mjs`. Esegue 10 prove Electron e 10 nel pacchetto, in sequenza, e si ferma al primo fallimento. Esiti e output di ogni esecuzione restano in `test-results/debug-repeat-*/`.

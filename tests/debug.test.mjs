@@ -25,10 +25,13 @@ test('Registro locale: ultimi 50, persistenza sicura, riapertura e svuotamento',
   const app = { getPath: () => root, getVersion: () => '0.2.2', getLocale: () => 'it' };
   const debug = createRequire(import.meta.url)('../electron/debug.cjs');
   debug.initialize(app); debug.clear(); debug.setContext({ kind: 'write', type: 'DOCX', size: 4096 });
-  for (let n = 0; n < 55; n++) debug.record('main', new TypeError(`${secret} C:/Users/${secret}/atto.docx`));
+  for (let n = 0; n < 55; n++) debug.record('rejection', { name: 'QuotaExceededError', message: secret,
+    stack: `Error: ${secret}\n at C:/Users/${secret}/assets/prova.js:999999:999999\n at C:/Users/${secret}/assets/prova.js:999999:999999\n at C:/Users/${secret}/assets/prova.js:999999:999999` });
   const bytes = await readFile(resolve(root, 'registro-errori.json'), 'utf8');
   assert.equal(JSON.parse(bytes).length, 50); assert.doesNotMatch(bytes, new RegExp(secret));
   let report = debug.report(app, 0); assert.match(report, /50\/50/); assert.doesNotMatch(report, new RegExp(secret));
+  assert.ok(Buffer.byteLength(report, 'utf8') <= 6144, '50 eventi stanno in pochi KB');
+  console.log(`Rapporto con 50 eventi e ultima traccia: ${Buffer.byteLength(report, 'utf8')} byte UTF-8 (limite 6144).`);
   debug.initialize(app); report = debug.report(app, 0); assert.match(report, /50\/50/);
   debug.clear(); assert.deepEqual(JSON.parse(await readFile(resolve(root, 'registro-errori.json'), 'utf8')), []);
   assert.match(debug.report(app, 0), /Nessun evento registrato/);

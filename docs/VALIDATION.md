@@ -90,3 +90,9 @@ Dopo i test browser, `node scripts/fixtures-office.mjs` apre originali e copie D
 Test di privacy con marcatore riconoscibile nel nome, percorso e contenuto di un PDF; eventi reali renderer/promise non gestiti ed evento main simulato; notifiche simulate di blocco/crash della finestra. Sono verificati anteprima, app e formato, clipboard Windows reale, file locale senza marcatore, riapertura della schermata e svuotamento. Unit test: limite 50, persistenza e controllo dei campi. Le prove del pacchetto e la ripetizione completa sono riportate nel report. Non provati crash reali di Chromium/OS, spegnimento improvviso o cattura di ogni errore prima dell’inizializzazione.
 
 Caso negativo aggiuntivo: una directory al posto del file del registro simula un percorso non scrivibile. Gli eventi restano in memoria, il rapporto segnala il problema e lo svuotamento non restituisce un falso successo.
+
+## Rapporto compatto per Facebook
+
+La prova con 50 eventi usa la classe più lunga ammessa, il testo di categoria più lungo e tre posizioni di traccia. Il rapporto mantiene tutte le 50 righe e soltanto l’ultima traccia, entro 6.144 byte UTF-8. Nessuna garanzia sul limite del servizio Facebook, che può cambiare; l’app non lo contatta. CI 5a493a4: [run 45011842835](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45011842835), tutti e cinque i lavori verdi verificati.
+
+CI del rapporto tester 9e3173e321ce5ac60b224fb1344821a5e29ca8f4: [run 45015464220](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45015464220), tutti i cinque lavori success verificati, incluse le prove del rapporto in Linux e nel pacchetto Windows.

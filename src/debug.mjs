@@ -1,4 +1,4 @@
-import { safeEvent, safeContext } from '../electron/debug-policy.mjs';
+import { safeEvent, safeContext, compactEvent } from '../electron/debug-policy.mjs';
 let context = safeContext(), events = [];
 export function recordError(kind, error) {
   try {
@@ -24,7 +24,7 @@ export async function readDebug() {
     `App in uso: ${context.app}`, `Tipo file: ${context.type}`, `Dimensione approssimativa: ${context.size ?? 'non disponibile'} KB`,
     `Ortografia: ${context.spelling}`, `Aggiornamenti: assenti`, `Tema: ${context.theme}`, `Scala: ${context.scale}%`,
     `Bozza: ${context.draft}`, `Dizionario: ${context.dictionary}`, 'Registro: solo memoria; il file locale è disponibile nell’app desktop.',
-    `Ultimi errori (${events.length}/50):`, ...events.flatMap(event => [`${event.date} · ${event.app} · ${event.message}`, ...event.trace]),
+    `Ultimi errori (${events.length}/50):`, ...events.map(compactEvent),
     'Nessun documento, nome file, percorso personale o identificativo incluso.'].join('\n');
 }
 export async function clearDebug() { events = []; await window.cosmoffice?.debugClear?.(); }

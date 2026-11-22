@@ -2,7 +2,7 @@
 
 Aggiornata al 22 novembre 2026. Priorità: affidabilità, compatibilità DOCX/XLSX/PDF, qualità, poi novità. **Le voci pianificate sono proposte: nessuna implementazione è autorizzata da questo studio.**
 
-Stati: **Fatto e provato** = evidenza nei test/report; **Parziale** = sottoinsieme con limiti; **In corso** = attività effettivamente aperta; **Pianificato** = da scegliere/autorizzare; **Non provato** = nessuna verifica sufficiente. Riferimento applicativo: 0.2.2; il recupero del validatore segue lo studio sul commit 3185603. Le nuove priorità autorizzate sono: validatore, rapporto tester, release, aggiornamenti GitHub, DMG e bozze di licenza. Le altre proposte restano sospese.
+Stati: **Fatto e provato** = evidenza nei test/report; **Parziale** = sottoinsieme con limiti; **In corso** = attività effettivamente aperta; **Pianificato** = da scegliere/autorizzare; **Non provato** = nessuna verifica sufficiente. Riferimento applicativo: 0.2.2; il recupero del validatore segue lo studio sul commit 3185603. Le priorità aggiornate autorizzate sono: verifica CI 5a493a4/9e3173e e rapporto breve per Facebook, prova guidata a otto esiti, aggiornamenti GitHub, DMG/guida Mac, Release ordinaria 0.2.2 e bozze di licenza. Le altre proposte restano sospese.
 
 ## Stato esistente
 
@@ -53,3 +53,14 @@ Scheda di compatibilità prima dell'export; confronto locale prima/dopo; control
 ## Fuori dal lavoro corrente
 
 Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro e app mobili non vengono implementati in questa ricerca. L'app rimane gratuita e proprietaria, con componenti soggetti alle proprie licenze. Non viene cambiata la licenza del progetto.
+
+## Ordine operativo richiesto dopo lo studio
+
+1. CI 5a493a4 e 9e3173e: verificata verde; link nel report. Rapporto locale pubblicato, consolidamento breve e 10+10 ripetizioni superate; verifiche finali nel report.
+2. Prova guidata: richiesta dall’utente, non ancora implementata. Otto prove e soli esiti Ok/Problema/Non provato; nessun campo libero.
+3. Aggiornamenti da GitHub Releases: da implementare e collaudare.
+4. Mac DMG non firmato e guida con titolo esatto: da consolidare per la distribuzione pubblica.
+5. Release ordinaria CosmOffice 0.2.2 (anteprima): da pubblicare con installer, checksum, limiti e domande ai tester.
+6. Bozze di licenza utenti: da preparare; LICENSE resta invariato.
+
+Le altre proposte rimangono sospese; nessun motore scelto.

@@ -37,7 +37,8 @@ export async function checkDebug(application, page) {
   await page.waitForFunction(() => document.querySelector('textarea[aria-label="Rapporto di debug"]')?.value.includes('Ultimi errori'));
   const text = await report.inputValue();
   await writeFile(resolve(dir, 'debug-test-report.txt'), text);
-  for (const expected of ['TypeError', 'RangeError', 'SyntaxError', 'Eccezione non gestita', 'La finestra non risponde', 'Il processo della finestra si è arrestato', 'CosmoView', 'Tipo file: PDF', 'Electron:', 'Chromium:', 'Dimensione approssimativa:']) assert.ok(text.includes(expected), expected);
+  for (const expected of ['TypeError', 'RangeError', 'SyntaxError', 'Eccezione main', 'Finestra bloccata', 'Arresto finestra', 'CosmoView', 'Tipo file: PDF', 'Electron:', 'Chromium:', 'Dimensione approssimativa:']) assert.ok(text.includes(expected), expected);
+  assert.ok(Buffer.byteLength(text, 'utf8') <= 6144, 'rapporto breve per un commento');
   for (const forbidden of [marker, filename, 'C:/Users/', '/home/', 'atto.pdf']) assert.equal(text.includes(forbidden), false, forbidden);
   await page.getByRole('button', { name: 'Copia rapporto', exact: true }).click();
   await page.getByText('Rapporto copiato negli appunti.', { exact: true }).waitFor();

@@ -10,7 +10,7 @@ export default function DebugReport({ onClose }) {
   useEffect(() => { refresh(); }, []);
   return <div className="modal-backdrop"><section className="modal debug-report" role="dialog" aria-modal="true" aria-labelledby="debug-title">
     <h2 id="debug-title">Segnala un problema</h2>
-    <p>Incolla il rapporto qui: [CANALE DI CONTATTO]</p>
+    <p>Per inviare il rapporto, usa i commenti del post Facebook di CosmOffice.</p>
     <p>Descrivi nel tuo messaggio cosa stavi facendo, senza incollare dati riservati.</p>
     <p><strong>Questo rapporto non contiene i tuoi documenti</strong>. Nessun invio automatico. I dettagli liberi degli errori vengono omessi per privacy.</p>
     <textarea aria-label="Rapporto di debug" readOnly value={text}/>

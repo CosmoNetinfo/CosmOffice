@@ -99,3 +99,7 @@ Autorizzato dall’utente dopo lo studio. Si usa Microsoft Open XML SDK 3.5.1 (M
 ## Rapporto tester: messaggi sicuri
 
 Autorizzato esplicitamente dopo lo studio. Si conservano soltanto categoria, classe dell’errore da una lista, data, app e tre posizioni anonimizzate della traccia. I messaggi liberi non sono conservati né inviati via IPC: rimuovere solo i percorsi non impedirebbe a una libreria di includere il testo di una cella. Non si aggiunge alcuna libreria o connessione. Il processo principale controlla anche i dati del renderer e quelli riletti dal registro. Il testo copiato è l’istantanea già mostrata, così un evento successivo non aggiunge dettagli non letti. I dettagli tecnici ridotti possono rendere la diagnosi meno precisa: scelta di riservatezza, non promessa di individuare ogni difetto.
+
+## Rapporto breve nei commenti
+
+Richiesta successiva dell’utente: testo copiabile nei commenti Facebook, senza invio automatico. Si rende ogni evento una riga con data, app, categoria e classe da liste chiuse; solo l’ultima traccia è inclusa. Il buffer rimane di 50 eventi. Il test impone 6.144 byte sul caso più lungo del corpus diagnostico; non si presume un limite stabile di Facebook. La prova guidata sarà aggiunta nel passo successivo, senza campi liberi.
