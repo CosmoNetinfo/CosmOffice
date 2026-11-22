@@ -88,3 +88,9 @@ Consolidamento Facebook: il rapporto usa una riga per ogni evento e solo l’ult
 - Gli esiti sono dichiarati dal tester, non certificazioni automatiche. Nessuna prova su macchine pulite è dedotta dal selezionare Ok.
 - Prima cattura della finestra Electron nascosta: timeout dopo le verifiche degli appunti. Cattura spostata nel browser; prove funzionali restano native e nel pacchetto.
 - Prima prova browser: conteggio radio eseguito prima del caricamento lazy (0 anziché 24). Aggiunta attesa esplicita della schermata. Esiti finali nel report.
+
+## Stato dopo lo studio ArtCraft
+
+Lo studio statico non riproduce nuovi bug applicativi e non chiude alcun bug di fedeltà. I limiti dichiarati dagli altri progetti non sono bug dimostrati di CosmOffice. Le sole letture e i blocchi di export restano in vigore. [Distinzioni e fonti](ricerca/ARTCRAFT.md).
+
+Blocco noto del precedente prototipo aggiornamenti, non incluso in main: NetLog con controllo attivo rilevava UDP verso [2001:4860:4860::8888]:443, non autorizzato. La nuova soluzione TLS Node è autorizzata ma non implementata o provata; il test del prototipo resta rosso, non un successo della versione corrente. Il main attuale deve continuare a superare offline-smoke senza alcuna connessione.

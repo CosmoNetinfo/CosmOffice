@@ -1,5 +1,32 @@
 # Decisioni e alternative tecniche
 
+## Studio ArtCraft: nessuna integrazione scelta
+
+Il 22 novembre 2026 sono stati studiati WordCraft, GridCraft, craft-launcher e tre revisioni delle loro librerie condivise. [Risultati e fonti](ricerca/ARTCRAFT.md), [registro degli 80 file](ricerca/CODICE-STUDIATO.md#studio-artcraft-del-22-novembre-2026). Il codice proprio studiato è MIT OR Apache-2.0, ma marchi e materiali con altre licenze sono esclusi. Nessun sorgente è stato copiato, nessun motore o nuova libreria è stato adottato.
+
+I metodi da valutare sono inventario delle parti e delle relazioni, prove indipendenti del round trip, analisi preventiva con esiti incompleti espliciti e conservazione selettiva. Le alternative restano implementazione JavaScript originale, eventuale integrazione Rust da valutare separatamente o nessun cambiamento. Il pass-through dei progetti studiati può rimappare parti e non equivale alla modifica chirurgica byte-identica richiesta per i nostri XLSX esterni. La scelta resta dell’utente.
+
+Non viene adottato il feed remoto ArtCraft: il launcher consulta anche un servizio terzo. Non vengono adottati i log liberi: i filtri di credenziali o di testo citato non garantiscono l’assenza di nomi, percorsi e contenuti. La politica diagnostica CosmOffice a elenco chiuso resta vincolante.
+
+## Trasporto TLS Node autorizzato, non implementato
+
+Risposta esplicita dell’utente alla proposta precedente: autorizzato un trasporto TLS Node separato da Chromium. Registriamo la scelta ora, durante il passo di sola documentazione; il codice main attuale continua a bloccare la rete. Nessun nuovo host è consentito nell’app distribuita da questo commit.
+
+Il prototipo precedente, conservato nello stash 86e37f838c61d64941049db099ca04a4af79a6d5, non è pubblicato: la prova di controllo attivo rilevava nel NetLog una sonda UDP Chromium a [2001:4860:4860::8888]:443, fuori politica, anche con l’override IPv6. Non viene presentato come test verde e non viene ripristinato in questo studio.
+
+Condizioni obbligatorie per il prossimo eventuale passo di implementazione:
+
+1. Solo HTTPS, verifica del certificato abilitata, nessun fallback in chiaro.
+2. Solo Release di CosmoNetinfo/CosmOffice. Elenco esatto degli host di metadati e download nel report; controllo anche di ogni reindirizzamento, rifiuto di qualsiasi altra destinazione. Nessun elenco operativo viene attivato qui: andrà verificato e fissato prima di usare il trasporto.
+3. Interruttore disattivato: nessuna richiesta; prova con offline-smoke, audit Node e NetLog. Interruttore attivo: controllo e download soltanto autorizzati.
+4. Nessun dato su utente, computer o documenti, nessun identificativo/telemetria, intestazioni minime. I metadati inevitabili della connessione HTTPS non diventano un’autorizzazione ad aggiungere dati applicativi.
+5. SHA-256 obbligatorio prima di installare e **conferma esplicita dell’utente**. Questa condizione sostituisce l’eventuale installazione automatica alla chiusura prevista nel vecchio prototipo.
+6. Test automatico negativo per ogni contatto con host fuori elenco, inclusi redirect.
+7. Audit Node aggiuntivo e NetLog Chromium senza connessioni. Riportare gli esiti reali, anche rossi; non modificare le aspettative per nascondere una connessione.
+8. README e report devono spiegare cosa si connette, quando e dove. Windows/Linux AppImage restano l’obiettivo di aggiornamento; Mac non firmato solo avviso e download manuale.
+
+La scelta del trasporto non decide né il motore documentale né un riuso di ArtCraft. Il trasporto Rust studiato impone HTTPS remoto ma ammette loopback e non dimostra il nostro elenco chiuso a ogni redirect: non è stato adottato come soluzione pronta.
+
 Aggiornato il 22 novembre 2026. Codice originale proprietario secondo [LICENSE](../LICENSE); gratuità permanente richiesta dall'utente. Le licenze dei componenti restano separate. **Questo studio non sceglie un nuovo motore e non autorizza implementazioni.**
 
 ## Decisioni già adottate prima dello studio

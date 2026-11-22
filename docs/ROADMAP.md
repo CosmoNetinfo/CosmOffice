@@ -21,6 +21,8 @@ Stati: **Fatto e provato** = evidenza nei test/report; **Parziale** = sottoinsie
 
 ## Priorità P0 — Integrità e prove, prima di nuove funzioni
 
+Aggiornamento di ricerca ArtCraft: [studio completato](ricerca/ARTCRAFT.md), con licenze ed 80 file tracciati. Nessuna funzione integrata. Metodi proposti in ordine di valore: inventario parti/relazioni prima e dopo l’export; confronto indipendente di dati e resa; scheda locale con esiti non verificati espliciti; conservazione selettiva. Restano proposte subordinate alla scelta dell’utente, senza cambiare i blocchi attuali o scegliere il motore.
+
 | Ordine | Voce | Stato | Condizione di completamento |
 | --- | --- | --- | --- |
 | 1 | Correggere FMT-001/002/003 e portare in CI la validazione degli esportati | Implementato; esiti nel report | 13 nuovi file senza errori, test negativi ed eccezione storica esplicita |
@@ -58,7 +60,7 @@ Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro
 
 1. CI 5a493a4 e 9e3173e: verificata verde; link nel report. Rapporto locale pubblicato, consolidamento breve e 10+10 ripetizioni superate; verifiche finali nel report.
 2. Prova guidata: implementata; verifiche nel report del passo. Otto prove e soli esiti Ok/Problema/Non provato; nessun campo libero.
-3. Aggiornamenti da GitHub Releases: da implementare e collaudare.
+3. Aggiornamenti da GitHub Releases: trasporto TLS Node autorizzato con otto condizioni in DECISIONI, ancora da implementare e collaudare. Vecchio prototipo Chromium non pubblicato per NetLog rosso. Installazione solo dopo hash valido e conferma dell’utente; Mac solo avviso.
 4. Mac DMG non firmato e guida con titolo esatto: da consolidare per la distribuzione pubblica.
 5. Release ordinaria CosmOffice 0.2.2 (anteprima): da pubblicare con installer, checksum, limiti e domande ai tester.
 6. Bozze di licenza utenti: da preparare; LICENSE resta invariato.

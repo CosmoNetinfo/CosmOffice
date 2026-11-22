@@ -100,3 +100,9 @@ CI del rapporto tester 9e3173e321ce5ac60b224fb1344821a5e29ca8f4: [run 4501546422
 ## Prova guidata
 
 Otto prove, 24 radio, nessun campo editabile libero; scelte persistenti dopo ricaricamento e accesso da Impostazioni/menu. Il test confronta le prime otto righe degli appunti reali con gli esiti scelti e scarta campi/valori arbitrari. Report con 50 eventi più guida: 4.964 byte UTF-8, sotto 6.144. La cattura grafica è eseguita nel browser; la prima acquisizione della finestra Electron nascosta è andata in timeout dopo la verifica degli appunti. Non è dichiarata una prova di installazione reale dall’esito manuale Installazione.
+
+## Studio statico ArtCraft
+
+Ricerca su 80 file bloccati a commit e verifica dei quattro documenti legali a ogni revisione. [Analisi](ricerca/ARTCRAFT.md) e [registro completo](ricerca/CODICE-STUDIATO.md#studio-artcraft-del-22-novembre-2026). Non sono stati eseguiti i test Rust o gli installer dei progetti studiati; nessuna loro dichiarazione di fedeltà è assunta come prova nostra. I test di CosmOffice e i loro output effettivi sono nel report del passo. Nessuna modifica a src/, electron/, scripts/, workflow o LICENSE.
+
+Il trasporto TLS Node per aggiornamenti resta futuro: nessuna verifica del suo download, SHA-256 o installazione viene dichiarata passata. L’ultimo prototipo Chromium attivo aveva NetLog rosso per UDP non autorizzato; l’app attuale usa il blocco rete. Offline-smoke qui prova il comportamento attuale, non quello di un updater non implementato.

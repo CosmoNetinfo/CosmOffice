@@ -66,6 +66,18 @@ I test browser usano Chrome installato. In CI si usa Chromium di Playwright (`CO
 
 Per il controllo indipendente: `npm run test:interop`, con LibreOffice installato. Su Windows viene usato `C:/Program Files/LibreOffice/program/soffice.com`; puoi indicare un altro eseguibile con `COSMO_OFFICE_ENGINE`. Il programma viene avviato senza finestre con un profilo isolato dentro `test-results/`.
 
+## Ricerca e lavoro autorizzato
+
+### Aggiornamenti: autorizzazione per un passo futuro
+
+Nel codice attuale gli aggiornamenti online restano assenti e le connessioni del processo principale sono bloccate. L’utente ha autorizzato un futuro trasporto TLS Node separato da Chromium: si connetterà soltanto quando il controllo aggiornamenti è attivo, alle Release di `CosmoNetinfo/CosmOffice` e ai relativi host di download esplicitamente ammessi. Ogni reindirizzamento dovrà rispettare l’elenco chiuso; l’elenco esatto sarà documentato e verificato prima dell’attivazione. Nessun feed ArtCraft o altro servizio è autorizzato.
+
+Sono richiesti HTTPS con verifica del certificato, intestazioni minime, nessun identificativo o invio di dati personali/documentali, verifica SHA-256 e **conferma esplicita prima di installare**. Con il controllo spento non dovrà partire alcuna richiesta. Audit Node, test degli host vietati e NetLog Chromium senza connessioni dovranno provarlo. Su Mac non firmato resterà soltanto l’avviso con download manuale. Questa è una condizione per lavoro futuro, non una funzione disponibile. Dettagli e limite del prototipo precedente: [DECISIONI](docs/DECISIONI.md#trasporto-tls-node-autorizzato-non-implementato).
+
+### Studio ArtCraft
+
+La ricerca su WordCraft, GridCraft e craft-launcher è in [ARTCRAFT.md](docs/ricerca/ARTCRAFT.md), con [registro dei file e delle licenze](docs/ricerca/CODICE-STUDIATO.md#studio-artcraft-del-22-novembre-2026). È solo documentazione: nessun codice, marchio o risorsa ArtCraft è incluso nell’app; nessun motore è stato scelto.
+
 ## GitHub Actions
 
 Ogni push su `main` avvia test, un controllo indipendente con LibreOffice e crea gli installer di anteprima per Windows x64, Linux x64 e macOS Intel/Apple Silicon. Gli artefatti sono nella scheda **Actions**, disponibili per 14 giorni. Le build di anteprima non sono firmate e non attivano l’aggiornamento automatico.

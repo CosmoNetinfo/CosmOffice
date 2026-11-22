@@ -6,6 +6,9 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Aggiunto
 
+- Studio statico ArtCraft con 80 file tracciati a commit immutabili: licenze ed esclusioni, conservazione DOCX/XLSX, limiti di --strict, aggiornamenti e privacy dei log. Idee ordinate per valore, senza integrazioni o scelta del motore.
+- Documentazione dell’autorizzazione al futuro trasporto TLS Node per gli aggiornamenti, con conferma prima dell’installazione e verifiche di rete richieste; nessun trasporto implementato in questo passo.
+
 - Prova guidata con otto prove e soli esiti Ok/Problema/Non provato, salvati localmente e inclusi nelle prime otto righe del rapporto copiato. Nessun campo libero o invio automatico.
 
 - Rapporto tester locale da Impostazioni e menu: ultimi 50 eventi, descrizioni sicure, anteprima, copia negli appunti e svuotamento. Nessun invio automatico.
