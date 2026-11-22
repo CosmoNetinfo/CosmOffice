@@ -4,6 +4,10 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ## [Non rilasciato]
 
+### Aggiunto
+
+- Nove screenshot reali e ottimizzati dell’interfaccia nella sezione “Com’è fatto” del README; generazione ripetibile con scripts/screenshots.mjs, esempi originali, profilo isolato e controlli su dati privati, dimensioni e risorse esterne. Nessuna modifica all’app.
+
 ### Corretto
 
 - Distribuzione Linux: riconosciuto il nome AppImage reale linux-x86_64 prodotto da electron-builder. Le AppImage inattese ora causano errore, invece di essere ignorate. Completamento della Release pubblica con preservazione dell’installer Windows e riepilogo checksum aggiornato.

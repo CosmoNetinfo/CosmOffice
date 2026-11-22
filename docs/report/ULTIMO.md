@@ -1,23 +1,96 @@
-# Correzione DIST-001 e verifica della Release pubblica
+# Screenshot reali dell’app nel README
 
 ## 1. Obiettivo
 
-Completare la Release ordinaria CosmOffice 0.2.2 (anteprima) con l’AppImage Linux mancante, preservando l’installer Windows già pubblico. Nessuna nuova idea dello studio, nessun motore scelto o updater attivato.
+Aggiungere la sezione “Com'è fatto” al README con nove PNG reali dell’interfaccia, rigenerabili automaticamente, esempi originali e nessun dato del computer. Un solo commit per questo passo. Il completamento Linux della Release è stato verificato prima di pubblicare le immagini.
 
 ## 2. Cosa hai fatto
 
-- scripts/publish-preview.mjs: usa linux-x86_64.AppImage, il nome realmente prodotto da electron-builder, e rifiuta altre AppImage inattese invece di ignorarle.
-- scripts/complete-preview.mjs: aggiunge solo gli installer mancanti alla Release pubblica; rifiuta sostituzioni degli installer esistenti, conserva i loro hash GitHub, rigenera SHA256SUMS.txt e aggiorna le note dal CHANGELOG.
-- .github/workflows/release-linux.yml: al push di questo workflow verifica che src/electron/public/package siano identici al tag v0.2.2, costruisce l’AppImage e completa la Release senza certificati di firma.
-- tests/release-preview.test.mjs: regressione sul nome reale, completamento Linux con hash Windows invariato, sola sostituzione del riepilogo e rifiuto di nomi inattesi.
-- CHANGELOG.md, docs/BUG.md, docs/DECISIONI.md, docs/VALIDATION.md: causa, correzione e limiti documentati.
-- docs/report/2026-11-22_1801_correggi-pubblicazione-linux.md e docs/report/ULTIMO.md: report e copia.
+- scripts/screenshots.mjs: genera DOCX con testo/tabella/illustrazione originale, XLSX con formule e grafico a barre e PDF originale; avvia la vera app browser con Playwright e contesto temporaneo; apre gli esempi con il normale file chooser; cattura nove pagine.
+- docs/images/home.png: Home con i tre documenti di esempio; viewport più alta per mostrarli tutti.
+- docs/images/write.png: CosmoWrite con il progetto della biblioteca, testo, tabella e illustrazione geometrica originale.
+- docs/images/grid.png: CosmoGrid con dati, formula SOMMA e grafico nativo a barre.
+- docs/images/view.png: CosmoView con PDF originale Una biblioteca per tutti.
+- docs/images/impostazioni-chiaro.png e impostazioni-scuro.png: le vere impostazioni nei due temi.
+- docs/images/prova-guidata.png: tutte le otto prove, esiti Non provato.
+- docs/images/segnala-problema.png: rapporto browser reale con un evento tecnico simulato; nessun messaggio arbitrario.
+- docs/images/layout-stretto.png: Home a 390 px.
+- README.md: immagini incorporate con percorsi relativi e testi alternativi italiani, didascalia “anteprima di sviluppo, versione 0.2.2” per ciascuna.
+- docs/SCREENSHOTS.md: comandi, contenuto, privacy e limiti della generazione.
+- CHANGELOG.md, docs/DECISIONI.md, docs/ROADMAP.md, docs/VALIDATION.md: richiesta, metodo e verifiche.
+- docs/BUG.md: DIST-001 chiuso soltanto dopo il download pubblico Linux verificato.
+- docs/report/2026-11-22_1813_screenshot-readme.md e docs/report/ULTIMO.md: report e copia identica.
 
-Gli screenshot richiesti nel nuovo prompt sono già generati in locale con uno script separato e rimangono esclusi da questo commit di correzione; seguiranno nel proprio commit. Nessun codice dell’app o dipendenza modificati.
+**Nessuna modifica a src/, electron/, stili, workflow o LICENSE per le immagini.** Nessuna nuova libreria. Sharp e Playwright erano già dipendenze. node scripts/notices.mjs eseguito, exit 0, “Attribuzioni e licenze raccolte.”; avvisi distribuiti invariati. Nessun marchio o logo di altre suite. I loghi visibili sono quelli già presenti di CosmOffice.
 
 ## 3. Esiti reali di build e test
 
-Comandi completi eseguiti, tutti exit 0: npm run build, npm test, npm run test:browser, npm run test:openxml, node scripts/offline-smoke.mjs, node scripts/desktop-smoke.mjs. Output reali, soli spazi finali rimossi:
+Rigenerazione finale e tutti i controlli obbligatori eseguiti, tutti exit 0. Output reali, soli spazi a fine riga rimossi:
+
+### catture — exit 0
+
+```text
+{
+  "result": "PASS",
+  "captured": [
+    {
+      "name": "write",
+      "width": 1440,
+      "height": 1000,
+      "bytes": 31883
+    },
+    {
+      "name": "grid",
+      "width": 1440,
+      "height": 1000,
+      "bytes": 29585
+    },
+    {
+      "name": "view",
+      "width": 1440,
+      "height": 1000,
+      "bytes": 25009
+    },
+    {
+      "name": "home",
+      "width": 1440,
+      "height": 1160,
+      "bytes": 39927
+    },
+    {
+      "name": "layout-stretto",
+      "width": 390,
+      "height": 844,
+      "bytes": 18518
+    },
+    {
+      "name": "impostazioni-chiaro",
+      "width": 1440,
+      "height": 1000,
+      "bytes": 31392
+    },
+    {
+      "name": "impostazioni-scuro",
+      "width": 1440,
+      "height": 1000,
+      "bytes": 30451
+    },
+    {
+      "name": "prova-guidata",
+      "width": 1440,
+      "height": 1440,
+      "bytes": 92403
+    },
+    {
+      "name": "segnala-problema",
+      "width": 1440,
+      "height": 1000,
+      "bytes": 57218
+    }
+  ],
+  "external": []
+}
+```
 
 ### build — exit 0
 
@@ -51,7 +124,7 @@ dist/assets/index-Vzw8i3fV.js             2,320.77 kB │ gzip: 696.13 kB
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 3.56s
+✓ built in 1.13s
 ```
 
 ### unit — exit 0
@@ -60,56 +133,56 @@ dist/assets/index-Vzw8i3fV.js             2,320.77 kB │ gzip: 696.13 kB
 > cosmoffice@0.2.2 test
 > node --test tests/*.test.mjs
 
-✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (85.1543ms)
-✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (78.5435ms)
-✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (135.7346ms)
-✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (202.2559ms)
-✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (33.534ms)
-✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (42.0411ms)
-✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (41.3596ms)
-✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (30.1087ms)
-✔ Diagnostica: messaggi, nomi e percorsi arbitrari non entrano negli eventi (9.5531ms)
-✔ Diagnostica: il contesto ammette solo valori controllati, nessun campo libero (0.819ms)
+✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (75.2523ms)
+✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (73.792ms)
+✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (125.2207ms)
+✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (185.3762ms)
+✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (27.7434ms)
+✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (40.2417ms)
+✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (33.6059ms)
+✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (29.4715ms)
+✔ Diagnostica: messaggi, nomi e percorsi arbitrari non entrano negli eventi (6.7212ms)
+✔ Diagnostica: il contesto ammette solo valori controllati, nessun campo libero (1.1246ms)
 Rapporto con 50 eventi e ultima traccia: 4964 byte UTF-8 (limite 6144).
-✔ Registro locale: ultimi 50, persistenza sicura, riapertura e svuotamento (52.061ms)
-✔ Registro non scrivibile: memoria disponibile e svuotamento non dichiarato riuscito (6.6603ms)
-✔ DOCX exports real text, bold marks and tables readable by another parser (110.0719ms)
-✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (91.7209ms)
-✔ unknown formulas retain their source without exporting a misleading cached number (16.0167ms)
-✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (3.6809ms)
-✔ cross-sheet formulas survive XLSX round trips and get calculated results (19.5591ms)
-✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (16.4554ms)
-✔ landscape DOCX uses a physically wider page with matching orientation (12.3016ms)
-✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (12.6455ms)
-✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (190.5077ms)
-✔ references, arithmetic, precedence and percentages (5.476ms)
-✔ Italian aliases, absolute references, text and lazy IF (1.6162ms)
-✔ cycles, division by zero and unknown functions are visible and propagated (0.7934ms)
-✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (0.7844ms)
-✔ Excel address limits and column naming (1.7734ms)
-✔ conditional sums, lookups, text, dates and error handling (6.9405ms)
-✔ quoted sheet names, absolute references and cycles across sheets (0.6984ms)
-✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (1.9516ms)
-✔ literal text resembling errors stays text while actual formula errors propagate (1.1226ms)
-✔ empty strings, blank cells and boolean predicates retain their separate types (0.752ms)
-✔ Prova guidata: otto sole scelte controllate, nessun campo o valore libero (2.6669ms)
-✔ Il processo principale non contiene updater o caricamenti da server (8.146ms)
-✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (245.6781ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (41.5973ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (11.5915ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (86.6133ms)
-✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (20.8678ms)
-✔ Release: completa Linux preservando Windows e rifiuta AppImage con nome inatteso (64.495ms)
-✔ Release: note dal CHANGELOG e piattaforma mancante dichiarata, senza prerelease (1.0744ms)
-✔ Release: hash reali e pubblicazione soltanto dopo upload, nessun certificato necessario (33.6814ms)
-✔ Excel exports do not mutate the open workbook, even when exported concurrently (130.3643ms)
-✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (41.4621ms)
-✔ damaged files and mismatched Office extensions are rejected before import (10.0498ms)
-✔ unsupported parts produce specific warnings without changing the original file (36.2645ms)
-✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (16.1041ms)
-✔ XLSX caches keep literal error-like strings separate from actual error cells (16.0539ms)
-✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (937.3677ms)
-✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1901.3166ms)
+✔ Registro locale: ultimi 50, persistenza sicura, riapertura e svuotamento (50.4003ms)
+✔ Registro non scrivibile: memoria disponibile e svuotamento non dichiarato riuscito (5.6886ms)
+✔ DOCX exports real text, bold marks and tables readable by another parser (99.6812ms)
+✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (85.1834ms)
+✔ unknown formulas retain their source without exporting a misleading cached number (14.4195ms)
+✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (4.0754ms)
+✔ cross-sheet formulas survive XLSX round trips and get calculated results (18.0813ms)
+✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (9.6333ms)
+✔ landscape DOCX uses a physically wider page with matching orientation (10.9984ms)
+✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (9.4841ms)
+✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (155.2505ms)
+✔ references, arithmetic, precedence and percentages (4.0832ms)
+✔ Italian aliases, absolute references, text and lazy IF (0.7931ms)
+✔ cycles, division by zero and unknown functions are visible and propagated (1.291ms)
+✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (0.9748ms)
+✔ Excel address limits and column naming (1.6939ms)
+✔ conditional sums, lookups, text, dates and error handling (4.2417ms)
+✔ quoted sheet names, absolute references and cycles across sheets (0.7761ms)
+✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.4686ms)
+✔ literal text resembling errors stays text while actual formula errors propagate (0.8265ms)
+✔ empty strings, blank cells and boolean predicates retain their separate types (0.5954ms)
+✔ Prova guidata: otto sole scelte controllate, nessun campo o valore libero (2.777ms)
+✔ Il processo principale non contiene updater o caricamenti da server (7.4079ms)
+✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (235.1533ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (40.9219ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (9.9404ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (79.611ms)
+✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (21.0133ms)
+✔ Release: completa Linux preservando Windows e rifiuta AppImage con nome inatteso (61.1613ms)
+✔ Release: note dal CHANGELOG e piattaforma mancante dichiarata, senza prerelease (0.9182ms)
+✔ Release: hash reali e pubblicazione soltanto dopo upload, nessun certificato necessario (37.8121ms)
+✔ Excel exports do not mutate the open workbook, even when exported concurrently (116.3487ms)
+✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (39.9083ms)
+✔ damaged files and mismatched Office extensions are rejected before import (11.5486ms)
+✔ unsupported parts produce specific warnings without changing the original file (38.1535ms)
+✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (12.8818ms)
+✔ XLSX caches keep literal error-like strings separate from actual error cells (13.5429ms)
+✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (819.5148ms)
+✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1858.6279ms)
 ℹ tests 49
 ℹ suites 0
 ℹ pass 49
@@ -117,7 +190,7 @@ Rapporto con 50 eventi e ultima traccia: 4964 byte UTF-8 (limite 6144).
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 3283.0934
+ℹ duration_ms 3131.0348
 ```
 
 ### browser — exit 0
@@ -155,7 +228,7 @@ Rapporto con 50 eventi e ultima traccia: 4964 byte UTF-8 (limite 6144).
   ],
   "errors": []
 }
-17:55:09 [vite] (client) [console.warn] Warning: Indexing all PDF objects
+18:07:48 [vite] (client) [console.warn] Warning: Indexing all PDF objects
 {
   "result": "PASS",
   "scenarios": [
@@ -204,7 +277,7 @@ V:\CosmonetOffice\scripts\openxml-validator\OpenXmlCheck.csproj : warning NU1900
     Avvisi: 2
     Errori: 0
 
-Tempo trascorso 00:00:04.82
+Tempo trascorso 00:00:02.05
 PASS V:\CosmonetOffice\test-results\corpus\01-testo-stili.docx: 0 errori Open XML SDK
 PASS V:\CosmonetOffice\test-results\corpus\02-tabella.docx: 0 errori Open XML SDK
 PASS V:\CosmonetOffice\test-results\corpus\03-immagine.docx: 0 errori Open XML SDK
@@ -271,46 +344,57 @@ ECCEZIONE STORICA VERIFICATA: copia v1 identica, errore MIME del disegno conserv
 }
 ```
 
-Controllo YAML:
+Controllo aggiuntivo locale, exit 0:
 
 ```text
-PASS YAML completamento Linux
+PASS README locale: nove link relativi, testi alternativi italiani, PNG presenti e ottimizzate senza metadati personali.
 ```
 
-git diff --check: exit 0, output vuoto. La prova di completamento usa API simulate: non è presentata come upload effettivo. Le righe FAIL SDK riguardano i controlli negativi intenzionali e la copia storica, mentre i 13 nuovi esportati passano.
+git diff --check: exit 0, output vuoto. Le PNG e i collegamenti del README esistono nel tree da pubblicare. La verifica HTTP dalla pagina GitHub richiede il push delle immagini nuove e verrà eseguita subito dopo: non è falsamente presentata come prova già effettuata prima della pubblicazione.
+
+Le righe FAIL del validatore sono i negativi intenzionali e la copia XLSX storica autorizzata. I 13 nuovi esportati passano. Avvisi reali rimasti: chunk Vite grande, indicizzazione PDF nel campione di errore e NU1900 dell’audit NuGet.
 
 ## 4. Cosa funziona, provato
 
-- 49 test superati; tutti i browser/corpus, SDK, offline e pacchetto Windows locali verdi.
-- Release ordinaria realmente creata: [v0.2.2](https://github.com/CosmoNetinfo/CosmOffice/releases/tag/v0.2.2), titolo CosmOffice 0.2.2 (anteprima), draft=false, prerelease=false.
-- Verificata senza autenticazione la destinazione /releases/latest e l’API pubblica, con nome/tag corrispondenti. Il tool web non riusciva ad aprire la pagina per cache miss: la verifica effettiva è stata fatta con GET HTTPS anonime e scaricamento del file, senza account o token.
-- Installer Windows scaricato realmente, 128.031.094 byte; hash SHA-256 ce37586a69151fbe56dc555acf2f49f4fc031dfc62cc6e20a3e03c8052c1f69a, uguale a SHA256SUMS.txt, checksum individuale e digest GitHub.
-- Il codice di completamento non cancella né sovrascrive l’installer Windows.
+Nove catture dell’interfaccia reale, generate più volte dallo script e ispezionate visivamente (contatto completo, rapporto e Home anche a piena dimensione). Nessuna modifica manuale alle PNG, nessun ritocco o mockup. Le avvertenze reali dell’app non sono state nascoste.
+
+Tutte larghe 1440 px, salvo il layout 390 px; Home alta 1160 px, guida 1440 px, le altre 1000 px (telefono 844 px). Peso per file circa 18–92 KB, totale inferiore a 400 KB. EXIF, XMP e ICC assenti. Controllati testo e campi prima della cattura: nessun nome utente, lettera di unità o percorso personale. Nessun errore pagina o richiesta esterna. Il rapporto usa il filtro vero dell’app con un solo evento simulato.
+
+49 unit test e tutti i test browser, SDK, offline e pacchetto Windows passati. Il codice dell’app resta invariato rispetto alla Release.
+
+### Release ordinaria e CI, esiti effettivi
+
+[Release v0.2.2](https://github.com/CosmoNetinfo/CosmOffice/releases/tag/v0.2.2) e /releases/latest verificati senza autenticazione con GET HTTPS. Installer Windows scaricato nella prima verifica; Linux scaricato nella seconda. Nella seconda Windows è stato nuovamente confrontato dal file già scaricato e i checksum pubblici ricontrollati. Entrambi coincidono con file .sha256, SHA256SUMS.txt e digest GitHub:
+
+- Windows, 128.031.094 byte: ce37586a69151fbe56dc555acf2f49f4fc031dfc62cc6e20a3e03c8052c1f69a.
+- Linux, 134.019.591 byte: 6eb41f36df41d6bcfc1876430ae21abd0bbd59dc9cd7e26d8d4f476e17253792.
+
+Host della verifica esterna di sviluppo: github.com, api.github.com, release-assets.githubusercontent.com. Nessuna rete aggiunta all’app. Il mancato accesso del tool web per cache miss è stato superato con richieste HTTPS anonime, non con account o token.
+
+CI base b769647 [45047079340](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45047079340): cinque lavori completed/success verificati. Completamento Linux [45047079344](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45047079344): success. Base Release 2128469 [45035934913](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45035934913): success; tag [45035965421](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45035965421): success, con difetto iniziale DIST-001 poi corretto.
+
+Precedenti, tutti 5/5 success verificati: 94d93db [45034728552](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45034728552), e0fe801 [45022833708](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45022833708), e8faf0b [45020926005](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45020926005), 9e3173e [45015464220](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45015464220), 5a493a4 [45011842835](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45011842835), 3185603 [45007101728](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45007101728).
 
 ## 5. Cosa NON funziona o non hai potuto provare
 
-La prima pubblicazione manca di Linux, nonostante la build fosse verde. **Al momento di questo commit l’AppImage pubblica non è ancora verificata**: il workflow di completamento si attiva con il push e il risultato sarà controllato prima di dichiarare conclusa la Release.
+Le immagini sono della versione browser di sviluppo: nessun finto collaudo dell’installer o della finestra nativa. Il rapporto indica realmente che i dati Electron/OS non sono disponibili nel browser. Evento tecnico simulato, non crash reale. Le prove guidate restano Non provato. Il layout 390 px non equivale a un’app mobile installata.
 
-Non provate installazioni su computer puliti, avvio AppImage su hardware Linux, hardware Mac o SmartScreen su una nuova installazione. Il download Windows non è un’installazione. Nessun DMG pubblico o updater incluso in questo passo. Gli screenshot browser non certificano le installazioni desktop.
+Il controllo su testi/campi e la revisione visiva non sono un OCR universale o una garanzia su immagini future. I documenti sono originali proprio per non introdurre dati reali. Non sono stati aperti archivi o profili personali.
+
+La risoluzione dei link relativa su GitHub sarà verificata dopo il push, perché i nuovi file prima non esistono sul server. Non provate installazioni su sistemi puliti, hardware Mac/Linux o ogni funzione Office. DMG e updater appartengono ai passi successivi.
 
 ## 6. Bug e dubbi
 
-DIST-001: atteso linux-x64, prodotto linux-x86_64. Il publisher saltava il file e le note dichiaravano Linux non disponibile; il workflow rimaneva verde. Ora il nome è corretto e nomi inattesi sono un errore. La prova reale degli asset è necessaria anche con CI verde.
+Nessun errore applicativo trovato dalle catture. Il primo inquadramento Home mostrava solo parte dell’elenco: aumentata l’altezza della cattura, senza alterare l’interfaccia. Segnalazione e guida sono catturate attraverso i comandi reali delle impostazioni, non ricostruite in una pagina finta.
 
-Solo SHA256SUMS.txt viene sostituito per includere entrambi i pacchetti; l’API non offre una sostituzione atomica del riepilogo. Il vecchio riepilogo è rimosso dopo gli upload dei nuovi asset, poi caricato nuovamente: un breve intervallo senza riepilogo è possibile. Nessun installer viene rimosso. In caso di errore il report dovrà indicarlo, senza tentativi che sovrascrivano gli installer.
-
-La verifica HTTPS anonima ha contattato github.com, api.github.com e release-assets.githubusercontent.com; il CDN usa il percorso del repository 1466711071. Questa è una verifica di sviluppo esterna all’app, non un’attivazione della rete di CosmOffice. I limiti del futuro updater restano da provare nel suo passo.
-
-Avvisi preesistenti: chunk Vite grande, PDF indicizzato nel campione difettoso e audit NuGet non raggiungibile. La copia storica XLSX conserva il difetto MIME autorizzato, non provata con Excel reale.
+I limiti di compatibilità visibili restano reali e non sono rimossi per le foto. DIST-001 Linux è ora verificato anche sul server; la prima CI verde non aveva garantito presenza dell’asset. Windows non è stato sostituito.
 
 ## 7. Hash del commit
 
-Base e tag v0.2.2: 2128469f6682b377135503973fc910c98bc941e2. Commit di questo report individuabile con git log -1 --format=%H -- docs/report/2026-11-22_1801_correggi-pubblicazione-linux.md; hash finale comunicato dopo il push.
-
-CI della base 2128469: [45035934913](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45035934913), completed/success. Release del tag: [45035965421](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45035965421), tutti quattro i lavori success, ma asset Linux mancante per DIST-001. Non è chiamata “Release completa” solo per questo colore verde.
-
-CI precedenti verificate 5/5 success: 94d93db [45034728552](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45034728552), e0fe801 [45022833708](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45022833708), e8faf0b [45020926005](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45020926005), 9e3173e [45015464220](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45015464220), 5a493a4 [45011842835](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45011842835), 3185603 [45007101728](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45007101728).
+Base: b769647, correzione della pubblicazione Linux. Questo passo si identifica con git log -1 --format=%H -- docs/report/2026-11-22_1813_screenshot-readme.md; il proprio hash viene comunicato dopo il push, perché inserirlo nel medesimo commit lo cambierebbe. Nessun secondo commit artificiale delle sole immagini.
 
 ## 8. Prossimo passo
 
-Push del completamento, seguire la run Linux e verificare anonimamente entrambi gli asset e tutti i checksum, preservando l’hash Windows sopra. Poi commit separato degli screenshot richiesti (già generati, nessuna modifica all’app), DMG Mac e guida, report CI aggiornato. Updater TLS Node soltanto nel commit successivo dedicato, con tutte le condizioni autorizzate.
+Rigenerazione: npm run build, poi node scripts/screenshots.mjs; dettagli Windows e Chromium CI in docs/SCREENSHOTS.md. Alla prossima versione aggiornare didascalie dopo aver controllato le nuove catture.
+
+Dopo il push verificare la pagina GitHub senza autenticazione, tutti i nove URL PNG e confronto byte per byte con i file locali. Poi proseguire con DMG Mac non firmati e guida “Aprire CosmOffice su Mac”, riportando anche questa verifica nel report successivo. L’updater TLS Node seguirà nel proprio commit e con tutte le condizioni autorizzate, senza altre idee o scelta del motore.

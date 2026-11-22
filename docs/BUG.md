@@ -91,7 +91,7 @@ Consolidamento Facebook: il rapporto usa una riga per ogni evento e solo l’ult
 
 ## Stato dopo lo studio ArtCraft
 
-DIST-001: il primo publisher riconosceva linux-x64.AppImage, mentre electron-builder produce linux-x86_64.AppImage. La run del tag era verde ma pubblicava soltanto Windows, dichiarando Linux mancante nelle note. Nome corretto e test di regressione; AppImage inattese ora bloccano il publisher. Un workflow separato completa il file Linux senza sostituire l’installer Windows, aggiornando soltanto riepilogo checksum e note. Non dichiarato risolto sul server prima del controllo degli asset.
+DIST-001 — risolto e verificato sul server: il primo publisher riconosceva linux-x64.AppImage, mentre electron-builder produce linux-x86_64.AppImage. La run del tag era verde ma pubblicava soltanto Windows, dichiarando Linux mancante nelle note. Nome corretto e test di regressione; AppImage inattese ora bloccano il publisher. La run 45047079344 ha completato Linux; download HTTPS anonimo e SHA-256 riusciti per entrambi, hash Windows invariato. Aggiornati soltanto riepilogo e note; nessun installer sostituito.
 
 Distribuzione: il vecchio workflow richiedeva segreti di firma e creava soltanto bozze, impedendo la pubblicazione pubblica senza certificati. Il nuovo percorso di anteprima elimina questa dipendenza; la prova effettiva di Release e download va riportata dopo il tag. Non è una correzione della fedeltà documentale.
 

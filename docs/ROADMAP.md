@@ -54,6 +54,8 @@ Scheda di compatibilità prima dell'export; confronto locale prima/dopo; control
 
 ## Fuori dal lavoro corrente
 
+Richiesta aggiuntiva eseguita dopo la preparazione Release: screenshot reali riproducibili e README illustrato, senza modifiche al codice dell’app. Esiti e verifica pubblica nel report del passo. Il completamento Linux precede la pubblicazione delle immagini; poi restano DMG Mac e updater TLS Node, come richiesto.
+
 Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro e app mobili non vengono implementati in questa ricerca. L'app rimane gratuita e proprietaria, con componenti soggetti alle proprie licenze. Non viene cambiata la licenza del progetto.
 
 ## Ordine operativo richiesto dopo lo studio
@@ -62,7 +64,7 @@ Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro
 2. Prova guidata: implementata; verifiche nel report del passo. Otto prove e soli esiti Ok/Problema/Non provato; nessun campo libero.
 3. Aggiornamenti da GitHub Releases: trasporto TLS Node autorizzato con otto condizioni in DECISIONI, ancora da implementare e collaudare. Vecchio prototipo Chromium non pubblicato per NetLog rosso. Installazione solo dopo hash valido e conferma dell’utente; Mac solo avviso.
 4. Mac DMG non firmato e guida con titolo esatto: da consolidare per la distribuzione pubblica.
-5. Release ordinaria CosmOffice 0.2.2 (anteprima): workflow Windows/Linux senza firma preparato; pubblicazione e download anonimo da verificare dopo il tag. Checksum, limiti e domande ai tester inclusi nelle note dal CHANGELOG. In questo ordine operativo precede il prossimo lavoro Mac e updater, come richiesto nell’ultimo prompt.
+5. Release ordinaria CosmOffice 0.2.2 (anteprima): pubblicata e verificata con download anonimo Windows/Linux e SHA-256, dopo la correzione DIST-001. Checksum, limiti e domande ai tester inclusi nelle note dal CHANGELOG. Screenshot riproducibili aggiunti su richiesta; seguono Mac e updater secondo l’ultimo ordine dell’utente.
 6. Bozze di licenza utenti: da preparare; LICENSE resta invariato.
 
 Le altre proposte rimangono sospese; nessun motore scelto.

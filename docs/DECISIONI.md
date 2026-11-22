@@ -1,5 +1,9 @@
 # Decisioni e alternative tecniche
 
+## Screenshot reali riproducibili — richiesta del 22 novembre 2026
+
+Si cattura l’interfaccia browser reale con Playwright e profilo temporaneo, senza modificare DOM, stili o codice dell’app per abbellirla. Esempi DOCX/XLSX/PDF e illustrazione generati appositamente nello script; nessun archivio o file personale aperto. Prima di ogni cattura si cercano percorsi e nome utente nel testo e nei campi; Sharp ottimizza PNG e rimuove metadati. Il rapporto contiene un solo evento simulato attraverso il filtro effettivo dell’app; esiti guidati Non provato. La didascalia dichiara anteprima di sviluppo: non si finge una prova dell’installer desktop. Nessuna dipendenza o marchio esterno aggiunto.
+
 ## Release ordinaria senza firma — ordine del 22 novembre 2026
 
 Correzione dopo la prima pubblicazione: Linux usa il nome reale linux-x86_64.AppImage. Per completare una Release già pubblica si aggiungono soltanto installer assenti; quelli presenti vengono preservati e il checksum noto da GitHub deve essere disponibile. Solo SHA256SUMS.txt è rigenerato e sostituito dopo gli upload, oltre alle note. La sostituzione del riepilogo non è atomica (API GitHub), ma non cancella o sostituisce installer. Un nome AppImage inatteso ora fallisce invece di essere ignorato.

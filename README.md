@@ -90,15 +90,47 @@ Procedura: aggiornare package.json e la corrispondente sezione CHANGELOG, comple
 
 Windows può mostrare SmartScreen per l’autore non verificato: controllare origine e checksum; se disponibile scegliere “Ulteriori informazioni” e “Esegui comunque”. I criteri dei computer gestiti possono vietarlo: non disattivare la protezione del sistema. Su Linux rendere eseguibile l’AppImage; il supporto delle singole distribuzioni non è garantito dai soli test CI. Le installazioni su computer puliti non sono ancora collaudate.
 
-## Schermate
+## Com'è fatto
 
-- [Pagina iniziale](docs/preview/01-cosmoffice.png)
-- [CosmoWrite](docs/preview/02-cosmowrite.png)
-- [CosmoGrid](docs/preview/03-cosmogrid.png)
-- [CosmoView PDF](docs/preview/05-cosmoview.png)
-- [Impostazioni](docs/preview/06-impostazioni.png)
-- [Impostazioni in tema scuro](docs/preview/07-impostazioni-scuro.png)
-- [Backup e archivio](docs/preview/08-backup.png)
+Schermate reali dell’interfaccia browser di sviluppo, generate automaticamente con esempi originali. Non sono immagini di un’installazione su computer pulito. Il rapporto contiene un solo evento simulato; la prova guidata conserva gli esiti “Non provato”. Nessun documento o dato personale è stato usato.
+
+**Home ed elenco documenti** — anteprima di sviluppo, versione 0.2.2.
+
+![Home di CosmOffice con l’elenco dei tre documenti di esempio](docs/images/home.png)
+
+**CosmoWrite: testo, tabella e illustrazione originale** — anteprima di sviluppo, versione 0.2.2.
+
+![CosmoWrite con il progetto di una biblioteca, una tabella e un’illustrazione originale](docs/images/write.png)
+
+**CosmoGrid: formule e grafico a barre** — anteprima di sviluppo, versione 0.2.2.
+
+![CosmoGrid con dati di esempio, formula SOMMA e grafico a barre delle attività](docs/images/grid.png)
+
+**CosmoView: PDF di esempio** — anteprima di sviluppo, versione 0.2.2.
+
+![CosmoView aperto sul PDF originale Una biblioteca per tutti](docs/images/view.png)
+
+**Impostazioni, tema chiaro** — anteprima di sviluppo, versione 0.2.2.
+
+![Pagina delle impostazioni di CosmOffice nel tema chiaro](docs/images/impostazioni-chiaro.png)
+
+**Impostazioni, tema scuro** — anteprima di sviluppo, versione 0.2.2.
+
+![Pagina delle impostazioni di CosmOffice nel tema scuro](docs/images/impostazioni-scuro.png)
+
+**Prova guidata** — anteprima di sviluppo, versione 0.2.2.
+
+![Prova guidata con otto prove e le scelte Ok, Problema e Non provato](docs/images/prova-guidata.png)
+
+**Segnala un problema, rapporto di esempio** — anteprima di sviluppo, versione 0.2.2.
+
+![Schermata Segnala un problema con un errore simulato e un rapporto senza dati personali](docs/images/segnala-problema.png)
+
+**Layout stretto, 390 px** — anteprima di sviluppo, versione 0.2.2.
+
+![Home di CosmOffice nel layout stretto a 390 pixel](docs/images/layout-stretto.png)
+
+Per rigenerarle: npm run build, poi node scripts/screenshots.mjs. Richiede Node.js 24, dipendenze npm e Chrome installato; in CI si può usare Chromium con COSMO_BROWSER=chromium. [Procedura e limiti delle catture](docs/SCREENSHOTS.md).
 
 ## Componenti e marchio
 
