@@ -117,8 +117,18 @@ Test del publisher con API simulate: note estratte dalla versione nel CHANGELOG,
 
 scripts/screenshots.mjs esercita l’interfaccia browser reale con tre nuovi esempi originali e nove catture. Controlli: tabella e immagine Word, formula e grafico nel foglio, PDF renderizzato, tema scuro applicato, 24 radio guidati, un evento simulato nel rapporto, layout 390 px senza overflow, nessun errore pagina o richiesta esterna, nessun nome utente/percorso nei testi e campi visibili. PNG massimo 1600 px e 600 KB; EXIF/XMP/ICC assenti. Revisione visiva separata. Non è una prova di installazione né un OCR automatico delle immagini. Rigenerazione in SCREENSHOTS.md; esiti reali nel report.
 
-## Verifica pubblica delle immagini e preparazione Mac
+## Verifica pubblica delle immagini
 
-Dopo il push 5ee891b: GET anonima della pagina GitHub renderizzata, presenza dei nove riferimenti nel README, nove PNG HTTP 200 con Content-Type image/png e confronto byte per byte con i file locali, tutti passati. Esito in test-results/screenshots/github-esiti.json. Le immagini non dipendono da un percorso V: o da file del computer del tester.
+Dopo il push 5ee891b: GET anonima della pagina GitHub renderizzata, nove riferimenti nel README, nove PNG HTTP 200 con Content-Type image/png e confronto byte per byte con i file locali, tutti passati. Esito in test-results/screenshots/github-esiti.json. Nessun percorso del computer necessario per vedere le immagini.
 
-Mac: test della configurazione senza identità/firma forzata/notarizzazione e nomi DMG verificati anche nei log della CI precedente. I nuovi controlli hdiutil/lipo devono ancora essere eseguiti dai runner Mac dopo il push; non sono prove locali Windows. Il report del passo riporta lo stato reale, senza trasformare la preparazione del workflow in un collaudo del pacchetto.
+## Mac 0.2.2 pubblicato
+
+Entrambe le architetture e pubblicazione verdi nella run 45050553680; build principale 45050553763 5/5 success. hdiutil, lipo e assenza Developer ID controllati in CI. Download anonimi dei quattro installer e confronti SHA-256 riusciti; Windows/Linux invariati. Nessuna prova su Mac fisico o installazione pulita.
+
+## Updater TLS Node nel main
+
+Unit test di URL/redirect/certificato/intestazioni/byte/cancellazione/consenso e AppImage confinata alla propria APPDIR. Prime prove reali in Electron e pacchetto Windows: download di 128.031.094 byte con hash uguale alla Release, audit Node soltanto github.com/release-assets.githubusercontent.com, zero TCP/UDP/QUIC/DNS e richieste HTTP nel NetLog Chromium. Spento: audit iniziale vuoto e nessuna nuova richiesta dopo lo spegnimento. Host estraneo bloccato prima del contatto.
+
+Consenso nel pacchetto: Annulla e chiusura normale non avviano nulla; conferma per versione, bozze chiuse e nuovo controllo SHA prima dello spy interattivo. Nessun installer realmente eseguito. La prima attesa QA prematura è documentata nel report; i controlli finali e la CI del nuovo commit vengono riportati con esiti effettivi. I pacchetti pubblici 0.2.2 non contengono l’updater.
+
+Non provati installazione Windows completa su computer pulito, sostituzione di una vera AppImage in esecuzione, hardware Mac o arresti improvvisi. Il report per tester conserva messaggi a elenco chiuso: le tracce di rete dettagliate del QA non vengono inviate o incluse automaticamente nel rapporto copiato.

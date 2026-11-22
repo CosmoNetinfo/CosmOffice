@@ -2,6 +2,7 @@
 const attempts = [];
 let installed = false;
 const configured = new WeakSet();
+let updateTransport;
 function record(api) { attempts.push({ api }); if (attempts.length > 200) attempts.shift(); }
 function deny(api) { return function() { record(api); throw Object.assign(new Error('CosmOffice è offline: connessione di rete bloccata.'), { code: 'ERR_COSMO_OFFLINE' }); }; }
 function replace(object, names, label) { for (const name of names) if (typeof object?.[name] === 'function') object[name] = deny(`${label}.${name}`); }
@@ -43,4 +44,6 @@ function installOffline(electron) {
   electron.app.commandLine.appendSwitch('disable-features', 'OptimizationHints,MediaRouter,NetworkTimeServiceQuerying,SpellcheckService');
   electron.app.on('session-created', configureSession);
 }
-module.exports = { installOffline, configureSession, getNetworkAttempts: () => attempts.map(item => ({ ...item })), isInstalled: () => installed };
+module.exports = { installOffline, configureSession, getNetworkAttempts: () => attempts.map(item => ({ ...item })), isInstalled: () => installed,
+  createUpdateTransport: () => updateTransport ||= require('./update-transport.cjs').createTransport(),
+  getUpdateAudit: () => updateTransport?.getAudit() || [] };

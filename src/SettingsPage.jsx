@@ -83,9 +83,11 @@ export default function SettingsPage({ documents, refresh, onBack, onReport, onG
     </>}
     {tab === 'updates' && <>
       <div className="settings-about"><img src="./brand/suite.svg" alt=""/><div><h2>CosmOffice</h2><p>Versione {version} · Anteprima desktop</p></div></div>
-      <Group title="Aggiornamenti offline">
-        <Row title="Nessun controllo online" description="CosmOffice non cerca né scarica aggiornamenti. Installa un nuovo pacchetto locale per aggiornare l’app."><span>Solo installazione locale</span></Row>
-      </Group><div className="settings-explanation"><SlidersHorizontal size={18}/><p>Documenti e preferenze restano sul dispositivo. Non servono account o connessioni a server.</p></div>
+      <Group title="Aggiornamenti da GitHub Releases">
+        <Row title="Controllo automatico" description="Controlla e scarica le versioni di CosmoNetinfo/CosmOffice. Disattivato: nessuna connessione. Documenti ed esiti non vengono inviati.">{toggle('automaticUpdates', 'Aggiornamenti automatici')}</Row>
+        <Row title="Stato aggiornamenti" description={update.message}><button className="button secondary" disabled={!window.cosmoffice?.checkUpdates || !settings.automaticUpdates || busy || ['checking', 'downloading'].includes(update.phase)} onClick={() => run(async () => { const result = await window.cosmoffice.checkUpdates(); setMessage(result.message); })}>Controlla ora</button></Row>
+        {['ready', 'available'].includes(update.phase) && <Row title="Nuova versione" description="Windows e AppImage: installazione soltanto dopo conferma esplicita e salvataggio. Mac non firmato: soltanto avviso e download manuale."><button className="button primary" disabled={!settings.automaticUpdates || busy} onClick={() => run(onInstallUpdate)}>{update.phase === 'ready' ? 'Installa e chiudi' : 'Apri pagina download'}</button></Row>}
+      </Group><div className="settings-explanation"><SlidersHorizontal size={18}/><p>Questa è l’unica rete consentita: le Release GitHub del progetto e i loro file. Nessun account o telemetria. L’app continua a funzionare senza Internet.</p></div>
     </>}
     <Group title="Assistenza per l’anteprima"><Row title="Prova guidata" description="Otto prove con esiti locali, senza campi liberi o invio automatico."><button className="button secondary" onClick={onGuided}>Prova guidata</button></Row><Row title="Segnala un problema" description="Leggi e copia un rapporto locale senza contenuti o nomi dei documenti. Nessun invio automatico."><button className="button secondary" onClick={onReport}>Segnala un problema</button></Row></Group>
     <footer className="settings-footer"><span><Check size={13}/> {busy ? 'Operazione in corso…' : 'Le modifiche si applicano subito'}</span><span>Cosmonet · CosmOffice {version}</span></footer>

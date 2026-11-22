@@ -1,3 +1,4 @@
+import { testProfile } from './test-profile.mjs';
 import { _electron as electron } from 'playwright';
 import executablePath from 'electron';
 import assert from 'node:assert/strict';
@@ -7,7 +8,7 @@ import { checkItalianSpelling } from './spelling-check.mjs';
 
 await mkdir('test-results', { recursive: true });
 const log = resolve(`test-results/offline-net-${Date.now()}.json`);
-const application = await electron.launch({ executablePath, args: ['.', '--no-sandbox', `--log-net-log=${log}`, '--net-log-capture-mode=everything'], env: { ...process.env, COSMO_TEST: '1', COSMO_TEST_PROFILE: resolve(`test-results/offline-profile-${Date.now()}`) } });
+const application = await electron.launch({ executablePath, args: ['.', '--no-sandbox', `--log-net-log=${log}`, '--net-log-capture-mode=everything'], env: { ...process.env, COSMO_TEST: '1', COSMO_TEST_PROFILE: await testProfile('offline-profile') } });
 let closed = false;
 const errors = [];
 try {
@@ -18,8 +19,10 @@ try {
     return application.evaluate(({ app }) => process.getBuiltinModule('node:module').createRequire(process.getBuiltinModule('node:path').join(app.getAppPath(), 'electron/main.cjs'))('./offline.cjs').getNetworkAttempts());
   }
   assert.deepEqual(await attempts(), [], 'nessun tentativo di rete all’avvio');
+  const nodeAudit = () => application.evaluate(({ app }) => process.getBuiltinModule('node:module').createRequire(process.getBuiltinModule('node:path').join(app.getAppPath(), 'electron/main.cjs'))('./offline.cjs').getUpdateAudit());
+  assert.deepEqual(await nodeAudit(), [], 'controllo spento: nessuna richiesta Node');
   assert.equal((await page.evaluate(() => window.cosmoffice.checkUpdates())).phase, 'disabled');
-  assert.equal((await page.evaluate(() => window.cosmoffice.setUpdatePreferences(true))).phase, 'disabled');
+  assert.equal((await page.evaluate(() => window.cosmoffice.setUpdatePreferences(false))).phase, 'disabled');
   assert.equal((await page.evaluate(() => window.cosmoffice.installUpdate())).phase, 'disabled');
   for (const file of ['05-intestazioni.docx', '03-formati.xlsx', '03-venti-pagine.pdf', 'grafici-ui.xlsx', 'grafici-categorie-v1.xlsx']) {
     const source = file === 'grafici-ui.xlsx' ? `test-results/${file}` : file === 'grafici-categorie-v1.xlsx' ? `tests/fixtures/legacy/${file}` : `tests/fixtures/${file}`;
@@ -40,9 +43,10 @@ try {
   await checkItalianSpelling(page);
   await page.getByRole('button', { name: 'Impostazioni', exact: true }).click();
   await page.getByRole('button', { name: 'Aggiornamenti', exact: true }).click();
-  await page.getByText('Nessun controllo online', { exact: true }).waitFor();
+  assert.equal(await page.getByRole('checkbox', { name: 'Aggiornamenti automatici', exact: true }).isChecked(), false);
   assert.deepEqual(await attempts(), [], 'il processo principale ha provato ad aprire una connessione');
   assert.deepEqual(errors, []);
+  assert.deepEqual(await nodeAudit(), [], 'controllo spento: nessuna richiesta Node durante l’uso');
   const canary = await application.evaluate(({ net, app }) => {
     const policy = process.getBuiltinModule('node:module').createRequire(process.getBuiltinModule('node:path').join(app.getAppPath(), 'electron/main.cjs'))('./offline.cjs');
     if (!policy.isInstalled()) throw new Error('Protezione offline non installata');
@@ -58,7 +62,7 @@ try {
   assert.deepEqual(connections, [], 'NetLog Chromium contiene connessioni di rete');
   const externalRequests = netLog.events.filter(event => /^(?:https?|wss?|ftp):/i.test(event.params?.url || ''));
   assert.deepEqual(externalRequests, [], 'NetLog Chromium contiene tentativi di richiesta a server');
-  const report = { result: 'PASS', checks: ['Avvio Electron da file locale', 'Nessun tentativo spontaneo di rete dal processo principale', 'IPC aggiornamenti disabilitati anche con vecchie preferenze abilitate', 'DOCX, XLSX e PDF aperti senza connessioni', 'Richiesta intenzionale dal main rilevata e bloccata prima della connessione', 'NetLog Chromium: nessuna connessione TCP, UDP, QUIC o transazione DNS'], errors };
+  const report = { result: 'PASS', checks: ['Avvio Electron da file locale', 'Nessun tentativo spontaneo di rete dal processo principale', 'Controllo aggiornamenti spento: zero richieste nell’audit Node', 'DOCX, XLSX e PDF aperti senza connessioni', 'Richiesta intenzionale dal main rilevata e bloccata prima della connessione', 'NetLog Chromium: nessuna connessione TCP, UDP, QUIC o transazione DNS'], errors };
   await writeFile('test-results/offline-report.json', JSON.stringify(report, null, 2)); console.log(JSON.stringify(report, null, 2));
 } finally {
   if (!closed) {

@@ -1,5 +1,14 @@
 # Registro delle consultazioni
 
+## API Node per il trasporto autorizzato — 22 novembre 2026
+
+| Fonte | Natura | Metodo compreso e lavoro originale |
+| --- | --- | --- |
+| [Node worker_threads](https://nodejs.org/api/worker_threads.html), documentazione v26.13.1 consultata | Documentazione API pubblica del progetto Node; nessun sorgente copiato | Worker con ambiente e opzioni di avvio separati, messaggi e terminazione; broker/controlli CosmOffice scritti in JavaScript originale |
+| [Node HTTPS](https://nodejs.org/api/https.html), documentazione v26.13.1 consultata | Documentazione API pubblica del progetto Node; nessun sorgente copiato | Richiesta GET e opzioni TLS, certificato verificato e gestione degli stream; nessun esempio incollato o fallback in chiaro |
+
+Si usano soltanto moduli nativi già inclusi in Electron, senza nuove librerie o risorse. Nessuna consultazione di codice GPL/AGPL, nessuna scelta del motore e nessuna copia di ArtCraft. La licenza dei componenti già distribuiti rimane negli avvisi esistenti.
+
 ## Configurazione Mac — consultazioni del 22 novembre 2026
 
 Per disattivare la firma nell’anteprima sono stati letti i file già installati di app-builder-lib 26.18.0 (MIT, dipendenza di build già presente nel lockfile), senza copiare implementazioni. Non è una scelta del motore documentale. Riferimento di versione: [pacchetto npm](https://www.npmjs.com/package/app-builder-lib/v/26.18.0); le righe seguenti identificano i file della distribuzione locale, non un commit GitHub inventato.
@@ -184,3 +193,7 @@ Non è stato copiato codice, né riscritto da vicino un algoritmo altrui. Le des
 Nessuna nuova libreria, risorsa grafica, corpus esterno o porzione di codice viene riutilizzata in questo studio. `scripts/notices.mjs` viene eseguito con i controlli: `THIRD_PARTY_NOTICES.txt` resta riferito ai componenti già presenti, senza introdurre le suite studiate come dipendenze. Non vengono copiate le loro schermate o icone.
 
 Il codice proprietario originale resta separato dalle licenze delle librerie e dei dati. Consultare una specifica o una funzione visibile non autorizza copiare un'implementazione. Qualsiasi futura integrazione richiederà una scelta dell'utente e la verifica della versione e delle condizioni effettivamente distribuite.
+
+## Verifica NSIS per gli aggiornamenti (2026-11-22)
+
+Consultati nel pacchetto app-builder-lib 26.18.0 installato, MIT: templates/nsis/common.nsh, templates/nsis/include/installer.nsh e templates/nsis/uninstaller.nsh. Materiale: codice/template, solo per verificare il nome dell'uninstaller Windows (Uninstall CosmOffice.exe), senza copiare implementazioni. Versione e integrità identificate dal package-lock.json; stessa licenza electron-builder già registrata. Il riconoscimento e l'aggiornamento sono codice JavaScript originale. Rischio: una diversa convenzione NSIS richiederà un adattamento, altrimenti si offre il download manuale. Nessuna nuova dipendenza o attribuzione aggiuntiva necessaria.

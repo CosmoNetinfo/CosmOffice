@@ -1,3 +1,4 @@
+import { testProfile } from './test-profile.mjs';
 import { _electron as electron } from 'playwright';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
@@ -13,7 +14,7 @@ const errors = [];
 let closed = false;
 const application = await electron.launch({
   executablePath: resolve('release/win-unpacked/CosmOffice.exe'),
-  env: { ...process.env, COSMO_TEST: '1', COSMO_TEST_PROFILE: resolve(`test-results/desktop-profile-${Date.now()}`) },
+  env: { ...process.env, COSMO_TEST: '1', COSMO_TEST_PROFILE: await testProfile('desktop-profile') },
 });
 try {
   const page = await application.firstWindow();

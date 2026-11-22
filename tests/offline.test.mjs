@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 
-test('Il processo principale non contiene updater o caricamenti da server', async () => {
+test('Il processo principale carica l’interfaccia locale e non usa API di rete dirette', async () => {
   const source = await readFile(new URL('../electron/main.cjs', import.meta.url), 'utf8');
   assert.doesNotMatch(source, /electron-updater|checkForUpdates|loadURL\s*\(|https?:\/\//);
   assert.ok(source.indexOf('installOffline(electron)') < source.indexOf("require('node:fs/promises')"));

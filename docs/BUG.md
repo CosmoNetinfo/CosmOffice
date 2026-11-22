@@ -91,6 +91,12 @@ Consolidamento Facebook: il rapporto usa una riga per ogni evento e solo l’ult
 
 ## Stato dopo lo studio ArtCraft
 
+Aggiornamenti: il prototipo Chromium con sonda UDP Google è stato sostituito da TLS Node isolato. Prime prove reali Electron e pacchetto: audit limitato ai due host e NetLog Chromium privo di connessioni. Il vecchio test rosso resta documentato come origine della scelta, senza riabilitare eccezioni nelle sessioni Chromium.
+
+Preparazione QA consenso: la prima attesa asincrona del test usciva con stato checking; sostituita con attesa della fase ricevuta dall’IPC e chiusura garantita anche se il setup fallisce. Prova ripetuta riuscita: Annulla/chiusura normale senza avvio, consenso esplicito con solo spy. Non è prova dell’installer effettivo.
+
+Protezione Linux: APPIMAGE ereditata da un altro programma non autorizza una sostituzione; serve l’eseguibile CosmOffice dentro la propria APPDIR. Test con target da preservare e caso valido, SHA/consenso verificati. Disattivazione durante la verifica dell’hash revoca l’applicazione e non avvia l’installer.
+
 DIST-001 — risolto e verificato sul server: il primo publisher riconosceva linux-x64.AppImage, mentre electron-builder produce linux-x86_64.AppImage. La run del tag era verde ma pubblicava soltanto Windows, dichiarando Linux mancante nelle note. Nome corretto e test di regressione; AppImage inattese ora bloccano il publisher. La run 45047079344 ha completato Linux; download HTTPS anonimo e SHA-256 riusciti per entrambi, hash Windows invariato. Aggiornati soltanto riepilogo e note; nessun installer sostituito.
 
 Distribuzione: il vecchio workflow richiedeva segreti di firma e creava soltanto bozze, impedendo la pubblicazione pubblica senza certificati. Il nuovo percorso di anteprima elimina questa dipendenza; la prova effettiva di Release e download va riportata dopo il tag. Non è una correzione della fedeltà documentale.

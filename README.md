@@ -4,6 +4,8 @@ Suite desktop gratuita, offline e in italiano di Cosmonet: **CosmoWrite**, **Cos
 
 **Stato: anteprima 0.2.2.** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Android e iOS sono pianificati, non implementati.
 
+Gli installer pubblici **0.2.2** restano quelli del tag originale, con aggiornamento manuale. Il ramo main aggiunge il nuovo updater per una versione successiva: non viene inserito retroattivamente negli installer già scaricati. Le funzioni documentali continuano a lavorare senza Internet.
+
 ![Loghi della suite](docs/preview/00-loghi.png)
 
 ## Priorità attuale: compatibilità e affidabilità
@@ -28,7 +30,7 @@ Un controllo indipendente opzionale apre e risalva i campioni con LibreOffice (`
 - Impostazioni complete: tema chiaro/scuro/sistema, accento anche HEX personalizzato, scala 80–150%, densità, barra laterale, preferenze degli editor, aggiornamenti, backup/ripristino dell’archivio, esportazione/importazione delle preferenze JSON e svuotamento con conferma. Nessuna voce è un controllo dimostrativo.
 - Bozze e file PDF conservati localmente in IndexedDB, riapertura dall’archivio, ricerca, rinomina ed eliminazione delle copie locali.
 - File originali conservati: l’esportazione chiede dove salvare la copia.
-- Nessun account, nessun CDN, nessuna telemetria; font, decoder PDF e lessico italiano Morph-it! sono inclusi nel pacchetto. Connessioni Node/Electron bloccate anche nel processo principale, nessun controllo aggiornamenti online. Il controllo ortografico italiano di CosmoWrite e CosmoGrid usa dati locali: sottolinea le parole non riconosciute e permette di aggiungerle al dizionario personale nelle impostazioni Documenti. Il controllo può essere disattivato per entrambi gli editor. Hunspell nativo di Electron rimane disabilitato per impedirne i download automatici.
+- Nessun account o telemetria; font, decoder PDF e lessico italiano Morph-it! inclusi nel pacchetto. Nel main l’unica rete è il controllo aggiornamenti attivabile nelle impostazioni: solo Release del progetto e relativi file, tramite TLS Node. Disattivandolo nessuna richiesta; renderer e API generali Node/Electron restano bloccati. Il controllo ortografico italiano di CosmoWrite e CosmoGrid usa dati locali e parole personali; Hunspell nativo rimane disabilitato per impedirne i download automatici.
 
 Il dizionario italiano comprende 400.680 forme distinte derivate da Morph-it! 0.4.8 di Marco Baroni ed Eros Zanchetta, distribuite separatamente sotto CC BY-SA 2.0. Attribuzione, licenza completa, sorgente compresso e parole sono in `public/dictionaries/` e nel pacchetto. `node scripts/italian-dictionary.mjs` rigenera le parole dal sorgente incluso senza rete. Non offre grammatica, suggerimenti o altre lingue; termini validi assenti dal lessico possono essere sottolineati. Le parole personali restano in localStorage su questo dispositivo, separate dai documenti; non sono incluse nei backup dei documenti o nell'esportazione delle preferenze.
 
@@ -68,11 +70,15 @@ Per il controllo indipendente: `npm run test:interop`, con LibreOffice installat
 
 ## Ricerca e lavoro autorizzato
 
-### Aggiornamenti: autorizzazione per un passo futuro
+### Aggiornamenti nel ramo main
 
-Nel codice attuale gli aggiornamenti online restano assenti e le connessioni del processo principale sono bloccate. L’utente ha autorizzato un futuro trasporto TLS Node separato da Chromium: si connetterà soltanto quando il controllo aggiornamenti è attivo, alle Release di `CosmoNetinfo/CosmOffice` e ai relativi host di download esplicitamente ammessi. Ogni reindirizzamento dovrà rispettare l’elenco chiuso; l’elenco esatto sarà documentato e verificato prima dell’attivazione. Nessun feed ArtCraft o altro servizio è autorizzato.
+Nelle impostazioni, sezione Aggiornamenti, l’interruttore **Aggiornamenti automatici** permette di spegnere il controllo. In una nuova installazione del main è attivo: controlla all’avvio e ogni sei ore. La preferenza spenta viene rispettata anche all’avvio successivo, senza richieste.
 
-Sono richiesti HTTPS con verifica del certificato, intestazioni minime, nessun identificativo o invio di dati personali/documentali, verifica SHA-256 e **conferma esplicita prima di installare**. Con il controllo spento non dovrà partire alcuna richiesta. Audit Node, test degli host vietati e NetLog Chromium senza connessioni dovranno provarlo. Su Mac non firmato resterà soltanto l’avviso con download manuale. Questa è una condizione per lavoro futuro, non una funzione disponibile. Dettagli e limite del prototipo precedente: [DECISIONI](docs/DECISIONI.md#trasporto-tls-node-autorizzato-non-implementato).
+Un worker Node effettua solo GET HTTPS verso **github.com**, limitato a `CosmoNetinfo/CosmOffice/releases`, e **release-assets.githubusercontent.com**, solo per i download del repository con identificativo `1466711071`. Ogni redirect è ricontrollato; altri host, HTTP, credenziali e repository vengono rifiutati. Chromium rimane senza connessioni. Si inviano soltanto le richieste dei file pubblici, con intestazioni minime: niente documenti, preferenze, diagnosi, identificativi o telemetria.
+
+Windows con installer NSIS e Linux con la propria AppImage scaricano automaticamente la nuova versione. SHA-256 viene verificato sul download e di nuovo prima dell’installazione. **Si installa soltanto dopo il pulsante e la conferma esplicita**, salvando prima le bozze. Chiudere normalmente l’app non installa nulla; l’installer Windows rimane interattivo. Mac non firmato: soltanto avviso e pagina di download aperta su richiesta. Senza rete compare un messaggio breve e si può continuare a lavorare.
+
+La prima versione dotata di updater dovrà essere installata manualmente: i pacchetti pubblici 0.2.2 non lo includono. [Comportamento, host e prove](docs/AGGIORNAMENTI.md), [decisione tecnica](docs/DECISIONI.md#implementazione-del-trasporto-tls-node). Installazione su sistemi puliti e sostituzione di una vera AppImage in uso restano da collaudare.
 
 ### Studio ArtCraft
 
@@ -86,7 +92,7 @@ Il workflow per tag `v*` controlla versione, build, test browser, Open XML SDK, 
 
 Non servono certificati o segreti di firma: basta il GITHUB_TOKEN automatico del workflow con permesso contents: write nel solo lavoro di pubblicazione. Ogni installer ha un file .sha256; SHA256SUMS.txt li raccoglie. La pubblicazione si ferma se non c’è alcun installer, se un upload fallisce o se la Release è già pubblica: non sovrascrive automaticamente gli asset. In caso di bozza incompleta, controllarla prima di ripetere.
 
-Procedura: aggiornare package.json e la corrispondente sezione CHANGELOG, completare tutti i controlli, commit e push su main, poi creare il tag della stessa versione (per esempio git tag v0.2.2) e git push origin v0.2.2. Seguire Actions fino alla pubblicazione e verificare da una sessione senza account la pagina [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest), gli asset e i loro checksum. Il download dei pacchetti avviene fuori dall’app: gli aggiornamenti automatici non sono ancora implementati.
+Procedura: aggiornare package.json e la corrispondente sezione CHANGELOG, completare tutti i controlli, commit e push su main, poi creare e pubblicare il tag della stessa versione. Non spostare il tag v0.2.2 già pubblico. Seguire Actions e verificare senza account la pagina [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest), gli asset e i checksum. Gli installer 0.2.2 si aggiornano manualmente; il main prepara l’updater della versione successiva.
 
 Windows può mostrare SmartScreen per l’autore non verificato: controllare origine e checksum; se disponibile scegliere “Ulteriori informazioni” e “Esegui comunque”. I criteri dei computer gestiti possono vietarlo: non disattivare la protezione del sistema. Su Linux rendere eseguibile l’AppImage; il supporto delle singole distribuzioni non è garantito dai soli test CI. Le installazioni su computer puliti non sono ancora collaudate.
 

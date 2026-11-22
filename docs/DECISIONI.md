@@ -1,5 +1,15 @@
 # Decisioni e alternative tecniche
 
+## Implementazione del trasporto TLS Node
+
+Si recupera il prototipo conservato nello stash, sostituendo integralmente il broker Chromium che aveva NetLog rosso. Un worker Node isolato usa HTTPS con certificato verificato; il main conserva tutti i blocchi generali e Chromium conserva MAP * ~NOTFOUND, senza eccezioni per le sessioni. Il worker non eredita ambiente o execArgv e invia solo GET con intestazioni statiche minime. Nessuna nuova libreria o codice altrui copiato. Fonti API: https://nodejs.org/api/worker_threads.html e https://nodejs.org/api/https.html.
+
+Host ammessi: github.com e release-assets.githubusercontent.com, quest’ultimo soltanto per redirect delle Release e percorso del repository 1466711071. Nessun api.github.com nell’app. Ogni redirect verificato prima del contatto. Audit Node separato dal NetLog Chromium, che deve restare privo di connessioni anche con controllo attivo.
+
+Interruttore locale di spegnimento aggiunto, default attivo nelle nuove installazioni del main. Le API generali del main e del renderer restano bloccate. SHA-256 al download e prima dell’applicazione; conferma per versione e revoca ricontrollate dopo l’hash. Nessuna installazione per chiusura normale; Windows interattivo, AppImage confinata alla propria APPDIR, Mac solo notifica. Non si aggiorna un’AppImage ereditata da un altro programma. Conservata la scelta dell’utente di poter togliere l’interruttore in futuro.
+
+Questa funzione è per una versione successiva: gli installer 0.2.2 e il loro tag non vengono sostituiti. I test di installazione usano uno spy e campioni AppImage; installazioni effettive su sistemi puliti restano non provate. Le otto condizioni dell’autorizzazione precedente restano vincolanti. Nessun nuovo motore o idea dello studio adottati.
+
 ## DMG Mac senza firma e completamento della Release
 
 Il percorso anteprima imposta esplicitamente identity:null, hardenedRuntime:false e notarize:false; non usa certificati, firma ad hoc aggiunta o notarizzazione. Restano possibili caratteristiche dei binari upstream Electron, distinte dalla firma dell’app CosmOffice. I due lavori Mac separati verificano DMG e architettura, poi aggiungono soltanto gli asset assenti alla Release ordinaria, conservando Windows/Linux e relativi hash. I futuri tag includono entrambe le architetture; una build Mac fallita è dichiarata senza cancellare gli altri pacchetti.
@@ -27,6 +37,8 @@ I metodi da valutare sono inventario delle parti e delle relazioni, prove indipe
 Non viene adottato il feed remoto ArtCraft: il launcher consulta anche un servizio terzo. Non vengono adottati i log liberi: i filtri di credenziali o di testo citato non garantiscono l’assenza di nomi, percorsi e contenuti. La politica diagnostica CosmOffice a elenco chiuso resta vincolante.
 
 ## Trasporto TLS Node autorizzato, non implementato
+
+Nota storica: questa sezione registra il momento dell’autorizzazione durante lo studio. Il successivo stato di implementazione e le prove sono nella sezione “Implementazione del trasporto TLS Node” sopra e nel report corrente; il prototipo Chromium non viene riabilitato.
 
 Risposta esplicita dell’utente alla proposta precedente: autorizzato un trasporto TLS Node separato da Chromium. Registriamo la scelta ora, durante il passo di sola documentazione; il codice main attuale continua a bloccare la rete. Nessun nuovo host è consentito nell’app distribuita da questo commit.
 

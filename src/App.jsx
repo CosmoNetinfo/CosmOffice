@@ -40,7 +40,7 @@ function Tool({ label, active, children, onClick, disabled }) {
 }
 
 export default function App() {
-  const { settings, storageError } = usePreferences();
+  const { settings, storageError, setSetting } = usePreferences();
   const spelling = useSpelling();
   const [debugOpen, setDebugOpen] = useState(false);
   const [guidedOpen, setGuidedOpen] = useState(false);
@@ -53,7 +53,9 @@ export default function App() {
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
   const [draftState, setDraftState] = useState('saved');
-  const [update, setUpdate] = useState({ phase: 'disabled', message: 'Modalità completamente offline. Per aggiornare installa un nuovo pacchetto locale.' });
+  const [update, setUpdate] = useState({ phase: 'disabled', message: 'Controllo aggiornamenti non avviato.' });
+  const [initialUpdatePreference, setInitialUpdatePreference] = useState(null);
+  const updateHandshake = useRef(false), lastUpdatePreference = useRef(null);
   const pending = useRef(Promise.resolve());
   const revisions = useRef(new Map());
   const editorApi = useRef(null);
@@ -69,7 +71,28 @@ export default function App() {
   }, [active, settings, draftState, spelling.ready, spelling.error, storageError]);
 
   const refresh = useCallback(() => listDrafts().then(setDocuments).catch(() => setNotice('Archivio locale non disponibile. Esporta il lavoro per conservarlo.')), []);
-  useEffect(() => { refresh(); window.cosmoffice?.updateStatus().then(setUpdate); return window.cosmoffice?.onUpdate(setUpdate); }, [refresh]);
+  useEffect(() => {
+    refresh();
+    window.cosmoffice?.updateStatus?.().then(state => {
+      setUpdate(state);
+      const preference = state.preference !== false && settings.automaticUpdates !== false;
+      setSetting('automaticUpdates', preference); setInitialUpdatePreference(preference);
+    }).catch(() => setNotice('Stato aggiornamenti non disponibile.'));
+    return window.cosmoffice?.onUpdate?.(setUpdate);
+  }, [refresh]);
+  useEffect(() => {
+    if (initialUpdatePreference === null) return;
+    if (!updateHandshake.current) {
+      if (settings.automaticUpdates !== initialUpdatePreference) return;
+      updateHandshake.current = true;
+    }
+    if (lastUpdatePreference.current === settings.automaticUpdates) return;
+    lastUpdatePreference.current = settings.automaticUpdates;
+    window.cosmoffice?.setUpdatePreferences?.(settings.automaticUpdates).then(setUpdate).catch(async () => {
+      setNotice('Preferenza aggiornamenti non salvata.');
+      const state = await window.cosmoffice.updateStatus(); setSetting('automaticUpdates', state.enabled === true);
+    });
+  }, [settings.automaticUpdates, initialUpdatePreference]);
   useEffect(() => window.cosmoffice?.onBeforeClose?.(async () => { document.activeElement?.blur(); await retryFailedDrafts(); window.cosmoffice.closeReady(!saveFailed.current); }), []);
   useEffect(() => {
     if (!notice) return;

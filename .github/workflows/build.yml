@@ -35,6 +35,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends poppler-utils
       - run: node scripts/pdf-independent.mjs
       - run: xvfb-run -a node scripts/offline-smoke.mjs
+      - run: xvfb-run -a node scripts/update-network-smoke.mjs
       - run: xvfb-run -a node scripts/debug-smoke.mjs
       - run: xvfb-run -a node scripts/guided-smoke.mjs
       - uses: actions/upload-artifact@v4
@@ -110,6 +111,10 @@ jobs:
         if: runner.os == 'Windows'
         env:
           COSMO_DEBUG_PACKAGE: '1'
+      - run: node scripts/update-network-smoke.mjs --package
+        if: runner.os == 'Windows'
+      - run: node scripts/update-confirm-smoke.mjs
+        if: runner.os == 'Windows'
       - uses: actions/upload-artifact@v4
         with:
           name: CosmOffice-anteprima-${{ matrix.name }}

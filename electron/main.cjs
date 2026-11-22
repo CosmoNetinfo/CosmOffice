@@ -15,7 +15,10 @@ process.on('unhandledRejection', error => debug.record('main', error));
 let debugSnapshot = '';
 let window;
 let closeAllowed = false;
-const updater = Object.freeze({ phase: 'disabled', message: 'Modalità completamente offline. Per aggiornare installa un nuovo pacchetto locale.' });
+let updater;
+let applyingUpdate = false;
+let updateConsent;
+let quittingSafely = false;
 const MAX_FILE = 50 * 1024 * 1024;
 const supported = new Set(['.docx', '.xlsx', '.csv', '.tsv', '.pdf', '.txt', '.html', '.cosmoffice', '.json']);
 
@@ -73,7 +76,13 @@ ipcMain.handle('office:debug-clear', event => {
   if (!debug.clear()) throw new Error('Registro in memoria svuotato, ma il file locale non è scrivibile.');
 });
 app.whenReady().then(() => {
-  app.configureHostResolver({ enableBuiltInResolver: false, enableHappyEyeballs: false, secureDnsMode: 'off', secureDnsServers: [], enableAdditionalDnsQueryTypes: false });
+  const transport = require('./offline.cjs').createUpdateTransport();
+  updater = require('./updater.cjs').createUpdater({ app, transport, notify: state => {
+    if (!state.enabled || state.phase !== 'ready') updateConsent = undefined;
+    debug.setUpdateState(state);
+    try { if (window && !window.isDestroyed()) window.webContents.send('office:update', state); } catch {}
+  } });
+  debug.setUpdateState(updater.status());
   createWindow();
 });
 
@@ -105,13 +114,12 @@ ipcMain.handle('office:print', event => {
   trusted(event);
   return new Promise((resolve, reject) => window.webContents.print({ printBackground: true }, (success, reason) => success ? resolve(true) : reject(new Error(reason || 'Stampa annullata.'))));
 });
-ipcMain.handle('office:update-status', event => { trusted(event); return updater; });
+ipcMain.handle('office:update-status', event => { trusted(event); return updater.status(); });
 ipcMain.handle('office:update-preferences', (event, enabled) => {
-  trusted(event); if (typeof enabled !== 'boolean') throw new Error('Preferenza non valida.');
-  return updater; // Compatibilità con preferenze di vecchie versioni: nessuna attività di rete.
+  trusted(event); return updater.setPreference(enabled);
 });
 ipcMain.handle('office:check-updates', async event => {
-  trusted(event); return updater;
+  trusted(event); return updater.check();
 });
 ipcMain.handle('office:export-pdf', async event => {
   trusted(event);
@@ -120,15 +128,31 @@ ipcMain.handle('office:export-pdf', async event => {
 ipcMain.handle('office:close-ready', async (event, saved) => {
   trusted(event);
   if (!saved) {
+    if (updateConsent) { updateConsent = undefined; await dialog.showMessageBox(window, { type: 'warning', message: 'Aggiornamento rinviato: la bozza non è salvata.', detail: 'Il lavoro resta aperto. Salva o esporta il documento prima di riprovare.', buttons: ['Torna al lavoro'] }); return; }
     const choice = await dialog.showMessageBox(window, { type: 'warning', message: 'L’ultima bozza non è stata salvata.', detail: 'Puoi tornare al lavoro per esportare il file.', buttons: ['Torna al lavoro', 'Esci comunque'], defaultId: 0, cancelId: 0 });
-    if (choice.response !== 1) return;
+    if (choice.response !== 1) { updateConsent = undefined; return; }
   }
   closeAllowed = true;
   window.close();
 });
-ipcMain.handle('office:install-update', event => {
+ipcMain.handle('office:install-update', async event => {
   trusted(event);
-  return updater;
+  const state = updater.status();
+  if (state.enabled && state.phase === 'ready') {
+    updateConsent = undefined;
+    const choice = await dialog.showMessageBox(window, { type: 'question', title: 'Conferma aggiornamento', message: `Installare CosmOffice ${state.version}?`, detail: 'Il file è stato verificato con SHA-256. L’app salverà le bozze prima di chiudersi. L’installer Windows si aprirà con i suoi comandi; su Linux verrà sostituita l’AppImage. Nessuna installazione senza questa conferma.', buttons: ['Annulla', 'Salva, chiudi e installa'], defaultId: 0, cancelId: 0 });
+    const current = updater.status();
+    if (choice.response === 1 && current.enabled && current.phase === 'ready' && current.version === state.version) { updateConsent = state.version; window.close(); }
+  }
+  else if (state.enabled && state.phase === 'available') return electron.shell.openExternal(updater.downloadPage()).then(() => updater.status());
+  return updater.status();
+});
+app.on('will-quit', event => {
+  const state = updater?.status();
+  if (!applyingUpdate && updateConsent && state?.enabled && state.phase === 'ready' && state.version === updateConsent) {
+    event.preventDefault(); applyingUpdate = true;
+    updater.applyPending(updateConsent).then(applied => { if (applied) { updater.stop(); app.exit(0); } else { applyingUpdate = false; updateConsent = undefined; createWindow(); } }).catch(error => { debug.record('main', error); applyingUpdate = false; updateConsent = undefined; createWindow(); dialog.showErrorBox('Aggiornamento non riuscito', 'Installazione non riuscita. Puoi continuare a lavorare e riprovare.'); });
+  } else if (!quittingSafely) { event.preventDefault(); quittingSafely = true; Promise.resolve(updater?.stop()).finally(() => app.exit(0)); }
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (window && !window.isDestroyed()) window.show(); else createWindow(); });

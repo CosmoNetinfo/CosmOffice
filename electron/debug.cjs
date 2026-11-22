@@ -5,6 +5,7 @@ const { safeEvent, safeContext, compactEvent } = require('./debug-policy.mjs');
 const { validateGuided, guidedLines } = require('./guided-policy.mjs');
 let events = [], filename, writable = true, context = safeContext();
 let guided = validateGuided(null);
+let updateState = { enabled: false, phase: 'disabled' };
 function persist() {
   if (!filename) return;
   try { fs.writeFileSync(filename, JSON.stringify(events), { mode: 0o600 }); writable = true; }
@@ -44,7 +45,7 @@ function report(app, networkAttempts) {
     `Electron: ${process.versions.electron}`, `Chromium: ${process.versions.chrome}`,
     `Lingua: ${app.getLocale().slice(0, 16)}`, `App in uso: ${context.app}`, `Tipo file: ${context.type}`,
     `Dimensione approssimativa: ${context.size === null ? 'non disponibile' : `${context.size} KB`}`,
-    `Ortografia: ${yes(context.spelling)}`, `Preferenza aggiornamenti: ${yes(context.updates)} (controllo online attualmente assente)`,
+    `Ortografia: ${yes(context.spelling)}`, `Aggiornamenti: ${yes(updateState.enabled)}; stato: ${updateState.phase}`,
     `Tema: ${{ system: 'sistema', light: 'chiaro', dark: 'scuro' }[context.theme]}`, `Scala: ${context.scale}%`, '', 'Controlli interni disponibili:',
     `Bozza: ${state(context.draft)}`, `Dizionario: ${state(context.dictionary)}`,
     `Preferenze locali: ${context.preferences ? 'errore di salvataggio' : 'nessun errore rilevato'}`,
@@ -57,4 +58,6 @@ function report(app, networkAttempts) {
     '', 'Nessun documento, nome file, percorso personale o identificativo incluso.',
   ].join('\n');
 }
-module.exports = { initialize, record, report, setGuided: value => { guided = validateGuided(value); }, setContext: value => { context = safeContext(value); }, clear: () => { events = []; persist(); return writable; } };
+module.exports = { initialize, record, report,
+  setUpdateState: value => { updateState = { enabled: value.enabled === true, phase: ['disabled', 'idle', 'checking', 'downloading', 'ready', 'available', 'error', 'unsupported'].includes(value.phase) ? value.phase : 'error' }; },
+  setGuided: value => { guided = validateGuided(value); }, setContext: value => { context = safeContext(value); }, clear: () => { events = []; persist(); return writable; } };
