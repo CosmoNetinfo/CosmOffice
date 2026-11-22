@@ -4,7 +4,9 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ## [Non rilasciato]
 
-Nessuna modifica applicativa successiva alla preparazione della 0.2.2.
+### Corretto
+
+- Distribuzione Linux: riconosciuto il nome AppImage reale linux-x86_64 prodotto da electron-builder. Le AppImage inattese ora causano errore, invece di essere ignorate. Completamento della Release pubblica con preservazione dell’installer Windows e riepilogo checksum aggiornato.
 
 ## [0.2.2] - 2026-11-22
 

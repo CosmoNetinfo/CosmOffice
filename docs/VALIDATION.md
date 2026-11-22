@@ -109,4 +109,6 @@ Il trasporto TLS Node per aggiornamenti resta futuro: nessuna verifica del suo d
 
 ## Pubblicazione di anteprima senza firma
 
+La prova reale ha trovato DIST-001 nonostante tutti i lavori della run 45035965421 fossero success: mancava l’asset Linux per il nome x86_64. Test aggiunto sul nome reale e sul completamento: l’installer Windows resta intatto, si aggiunge Linux e si aggiorna il riepilogo; una AppImage con nome diverso fallisce. Questo esempio mostra perché la CI verde non sostituisce il controllo degli asset pubblici.
+
 Test del publisher con API simulate: note estratte dalla versione nel CHANGELOG, piattaforma mancante dichiarata, hash SHA-256 calcolato sui byte, asset caricati prima di rendere pubblica la bozza, flag prerelease falso e make_latest vero. Non sono prove di upload su GitHub o di esecuzione degli installer: la run del tag e il download anonimo saranno verificati separatamente. Nessuna firma richiesta nel percorso normale di anteprima; il controllo esplicito del vecchio percorso firmato rimane separato.

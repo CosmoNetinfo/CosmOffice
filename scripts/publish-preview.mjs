@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url';
 const repository = 'CosmoNetinfo/CosmOffice';
 export function installerNames(version) {
   if (!/^0\.\d+\.\d+$/.test(version)) throw new Error('Versione di anteprima non valida.');
-  return { Windows: `CosmOffice-${version}-win-x64-Setup.exe`, Linux: `CosmOffice-${version}-linux-x64.AppImage` };
+  return { Windows: `CosmOffice-${version}-win-x64-Setup.exe`, Linux: `CosmOffice-${version}-linux-x86_64.AppImage` };
 }
 export function releaseNotes(changelog, version, names, packageResult = 'success') {
   const section = changelog.split(`## [${version}]`)[1]?.split(/^## /m)[0];
@@ -25,6 +25,7 @@ export async function prepareArtifacts(directory, version) {
   const expected = new Set(Object.values(installerNames(version)));
   const files = [];
   for (const name of (await readdir(directory)).sort()) {
+    if (name.endsWith('.AppImage') && !expected.has(name)) throw new Error(`AppImage inattesa: ${name}. Non verrà ignorata in silenzio.`);
     if (!expected.has(name)) continue;
     const path = resolve(directory, name);
     const info = await lstat(path);

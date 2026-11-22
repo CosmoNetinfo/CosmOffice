@@ -5,9 +5,34 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { installerNames, releaseNotes, prepareArtifacts, publishPreview } from '../scripts/publish-preview.mjs';
+import { completePreview } from '../scripts/complete-preview.mjs';
 
 const changelog = await readFile('CHANGELOG.md', 'utf8');
+test('Release: completa Linux preservando Windows e rifiuta AppImage con nome inatteso', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'cosmo-release-completa-'));
+  try {
+    const names = installerNames('0.2.2');
+    await writeFile(join(directory,names.Linux),'AppImage sintetica, non eseguibile.');
+    const calls=[];
+    const fakeFetch=async(url,options)=>{
+      calls.push({url,method:options.method});
+      if(!options.method)return {ok:true,json:async()=>({id:42,tag_name:'v0.2.2',draft:false,prerelease:false,assets:[{id:1,name:names.Windows,digest:'sha256:'+ 'a'.repeat(64)},{id:2,name:'SHA256SUMS.txt'}]})};
+      if(options.method==='DELETE')return {ok:true,status:204};
+      if(url.includes('uploads.github.com')) {const chunks=[];for await(const c of options.body)chunks.push(c);const bytes=Buffer.concat(chunks);return {ok:true,json:async()=>({size:bytes.length,digest:'sha256:'+createHash('sha256').update(bytes).digest('hex')})};}
+      return {ok:true,json:async()=>({})};
+    };
+    const result=await completePreview({directory,version:'0.2.2',token:'test',changelog,fetchImpl:fakeFetch});
+    assert.equal(result.checksums[names.Windows],'a'.repeat(64));
+    assert.ok(result.checksums[names.Linux]);
+    assert.deepEqual(calls.filter(c=>c.method==='DELETE').map(c=>c.url.split('/').at(-1)),['2'],'si sostituisce solo il riepilogo checksum');
+    assert.equal(calls.some(c=>c.method==='POST'&&c.url.includes(encodeURIComponent(names.Windows))),false);
+    await rm(join(directory,names.Linux));
+    await writeFile(join(directory,'CosmOffice-0.2.2-linux-x64.AppImage'),'nome diverso dal prodotto reale');
+    await assert.rejects(prepareArtifacts(directory,'0.2.2'),/AppImage inattesa/);
+  } finally {await rm(directory,{recursive:true,force:true});}
+});
 test('Release: note dal CHANGELOG e piattaforma mancante dichiarata, senza prerelease', () => {
+  assert.equal(installerNames('0.2.2').Linux, 'CosmOffice-0.2.2-linux-x86_64.AppImage', 'nome prodotto realmente da electron-builder');
   const notes = releaseNotes(changelog, '0.2.2', [installerNames('0.2.2').Windows], 'failure');
   assert.match(notes, /Linux x64: NON DISPONIBILE/);
   assert.match(notes, /Cosa ti aspetti da CosmOffice\?/);

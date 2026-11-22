@@ -1,0 +1,46 @@
+name: Completa AppImage della Release 0.2.2
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/release-linux.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  appimage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: git fetch origin tag v0.2.2 && git diff --exit-code v0.2.2 HEAD -- src electron public package.json package-lock.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run icons
+      - run: node scripts/notices.mjs
+      - run: npx electron-builder --config electron-builder.config.cjs --linux AppImage --x64 --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AppImage-completamento
+          path: release/*.AppImage
+          if-no-files-found: error
+  pubblica:
+    needs: appimage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: AppImage-completamento
+          path: release-public
+      - run: node scripts/complete-preview.mjs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COSMO_RELEASE_DIR: release-public

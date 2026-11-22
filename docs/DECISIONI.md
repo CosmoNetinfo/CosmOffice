@@ -2,6 +2,8 @@
 
 ## Release ordinaria senza firma — ordine del 22 novembre 2026
 
+Correzione dopo la prima pubblicazione: Linux usa il nome reale linux-x86_64.AppImage. Per completare una Release già pubblica si aggiungono soltanto installer assenti; quelli presenti vengono preservati e il checksum noto da GitHub deve essere disponibile. Solo SHA256SUMS.txt è rigenerato e sostituito dopo gli upload, oltre alle note. La sostituzione del riepilogo non è atomica (API GitHub), ma non cancella o sostituisce installer. Un nome AppImage inatteso ora fallisce invece di essere ignorato.
+
 L’utente richiede prima la Release pubblica 0.2.2 Windows/Linux, poi i DMG Mac e infine il trasporto TLS Node in un commit successivo. Il workflow di anteprima non usa COSMO_PUBLISH_UPDATES=1 né certificati: costruisce con --publish never, carica installer e checksum in una bozza con GITHUB_TOKEN e la pubblica come release ordinaria/latest solo dopo gli upload. Restano bloccanti i controlli comuni; le build delle piattaforme sono indipendenti e le assenze vengono dichiarate nelle note. Nessun rilascio del prototipo updater.
 
 Alternativa scartata per questa anteprima: attendere certificati di firma non necessari alla richiesta. La precedente configurazione firmata resta un percorso esplicito diverso; non si introduce un fallback silenzioso da firmato a non firmato. Nessuna nuova dipendenza. Le note sono generate dal CHANGELOG e non dai messaggi dei commit. Gli asset di una Release già pubblica non vengono sovrascritti dal publisher automaticamente.
