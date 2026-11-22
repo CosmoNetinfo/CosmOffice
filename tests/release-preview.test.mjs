@@ -6,8 +6,17 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { installerNames, releaseNotes, prepareArtifacts, publishPreview } from '../scripts/publish-preview.mjs';
 import { completePreview } from '../scripts/complete-preview.mjs';
+import { createRequire } from 'node:module';
 
 const changelog = await readFile('CHANGELOG.md', 'utf8');
+test('Mac: anteprima senza identità, firma forzata o notarizzazione', () => {
+  const config = createRequire(import.meta.url)('../electron-builder.config.cjs');
+  assert.equal(config.mac.identity, null);
+  assert.equal(config.mac.notarize, false);
+  assert.equal(config.forceCodeSigning, false);
+  assert.match(installerNames('0.2.2')['Mac Intel'], /mac-x64\.dmg$/);
+  assert.match(installerNames('0.2.2')['Mac Apple Silicon'], /mac-arm64\.dmg$/);
+});
 test('Release: completa Linux preservando Windows e rifiuta AppImage con nome inatteso', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'cosmo-release-completa-'));
   try {
@@ -15,7 +24,7 @@ test('Release: completa Linux preservando Windows e rifiuta AppImage con nome in
     await writeFile(join(directory,names.Linux),'AppImage sintetica, non eseguibile.');
     const calls=[];
     const fakeFetch=async(url,options)=>{
-      calls.push({url,method:options.method});
+      calls.push({url,method:options.method,json:typeof options.body==='string'?JSON.parse(options.body):null});
       if(!options.method)return {ok:true,json:async()=>({id:42,tag_name:'v0.2.2',draft:false,prerelease:false,assets:[{id:1,name:names.Windows,digest:'sha256:'+ 'a'.repeat(64)},{id:2,name:'SHA256SUMS.txt'}]})};
       if(options.method==='DELETE')return {ok:true,status:204};
       if(url.includes('uploads.github.com')) {const chunks=[];for await(const c of options.body)chunks.push(c);const bytes=Buffer.concat(chunks);return {ok:true,json:async()=>({size:bytes.length,digest:'sha256:'+createHash('sha256').update(bytes).digest('hex')})};}
@@ -29,6 +38,11 @@ test('Release: completa Linux preservando Windows e rifiuta AppImage con nome in
     await rm(join(directory,names.Linux));
     await writeFile(join(directory,'CosmOffice-0.2.2-linux-x64.AppImage'),'nome diverso dal prodotto reale');
     await assert.rejects(prepareArtifacts(directory,'0.2.2'),/AppImage inattesa/);
+    await rm(join(directory,'CosmOffice-0.2.2-linux-x64.AppImage'));
+    const deletedBefore=calls.filter(c=>c.method==='DELETE').length;
+    await completePreview({directory,version:'0.2.2',token:'test',changelog,fetchImpl:fakeFetch,allowEmpty:true,packageResult:'failure'});
+    assert.equal(calls.filter(c=>c.method==='DELETE').length,deletedBefore,'nessun asset o checksum eliminato se Mac non produce pacchetti');
+    assert.match(calls.at(-1).json.body,/Esito complessivo dei lavori pacchetti: failure/);
   } finally {await rm(directory,{recursive:true,force:true});}
 });
 test('Release: note dal CHANGELOG e piattaforma mancante dichiarata, senza prerelease', () => {

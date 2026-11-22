@@ -6,6 +6,7 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Aggiunto
 
+- DMG Mac Intel/Apple Silicon in CI, senza firma o notarizzazione, con verifica del contenitore e dell’architettura; guida “Aprire CosmOffice su Mac”. Nessun collaudo su hardware fisico dichiarato.
 - Nove screenshot reali e ottimizzati dell’interfaccia nella sezione “Com’è fatto” del README; generazione ripetibile con scripts/screenshots.mjs, esempi originali, profilo isolato e controlli su dati privati, dimensioni e risorse esterne. Nessuna modifica all’app.
 
 ### Corretto
@@ -16,6 +17,7 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Aggiunto
 
+- Pacchetti DMG Mac senza firma per Intel e Apple Silicon e guida al primo avvio; disponibilità reale indicata nell’elenco dei pacchetti, hardware fisico non collaudato.
 - Pubblicazione ordinaria dell’anteprima tramite tag v*: installer Windows x64 e AppImage Linux x64 senza certificati, checksum SHA-256 individuali e riepilogo. Le piattaforme mancanti vengono dichiarate nelle note.
 - Apertura e modifica essenziale DOCX/XLSX e lettura PDF offline; grafici a barre, linee e torta, ortografia italiana locale e impostazioni personalizzabili.
 - Studio statico ArtCraft con 80 file tracciati a commit immutabili: licenze ed esclusioni, conservazione DOCX/XLSX, limiti di --strict, aggiornamenti e privacy dei log. Idee ordinate per valore, senza integrazioni o scelta del motore.
@@ -49,7 +51,7 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Limiti noti
 
-- Pacchetti senza firma: Windows può mostrare SmartScreen. Aggiornamenti online ancora assenti; si scarica e installa una nuova versione manualmente. DMG Mac preparato in un passo separato.
+- Pacchetti senza firma: Windows può mostrare SmartScreen, Mac può bloccare il primo avvio. Aggiornamenti online ancora assenti; si scarica e installa una nuova versione manualmente. DMG Mac non collaudato su computer fisici.
 - La gratuità non equivale a compatibilità completa con Microsoft Office. PDF senza OCR, annotazioni o modifica del testo; grafici esterni e altri contenuti complessi restano bloccati quando rilevati.
 - Fedeltà Word/Excel completa non dimostrata; alcune funzionalità restano in sola lettura o con export bloccato.
 - Il vecchio XLSX v1 resta una copia identica con il difetto MIME originale, come eccezione storica esplicita; Excel reale non collaudato.
@@ -63,7 +65,7 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Prossimi passi
 
-- DMG Mac non firmato e guida al primo avvio; poi aggiornamenti con trasporto TLS Node, SHA-256, conferma prima dell’installazione e soli host autorizzati.
+- Collaudo dei pacchetti e del primo avvio Mac; poi aggiornamenti con trasporto TLS Node, SHA-256, conferma prima dell’installazione e soli host autorizzati.
 - Raccogliere prove dei tester e riprodurre i problemi con documenti autorizzati, dando priorità a integrità e compatibilità.
 
 ### Cosa ti aspetti da CosmOffice?

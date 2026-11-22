@@ -1,5 +1,11 @@
 # Decisioni e alternative tecniche
 
+## DMG Mac senza firma e completamento della Release
+
+Il percorso anteprima imposta esplicitamente identity:null, hardenedRuntime:false e notarize:false; non usa certificati, firma ad hoc aggiunta o notarizzazione. Restano possibili caratteristiche dei binari upstream Electron, distinte dalla firma dell’app CosmOffice. I due lavori Mac separati verificano DMG e architettura, poi aggiungono soltanto gli asset assenti alla Release ordinaria, conservando Windows/Linux e relativi hash. I futuri tag includono entrambe le architetture; una build Mac fallita è dichiarata senza cancellare gli altri pacchetti.
+
+La guida segue l’eccezione per singola app descritta da Apple; non modifica globalmente Gatekeeper. Nessuna prova su hardware fisico è dedotta da hdiutil/lipo o dal semplice upload. Su Mac il prossimo updater sarà solo avviso e collegamento, come richiesto. Fonte documentale: https://support.apple.com/it-it/102445. Nessun nuovo motore o libreria.
+
 ## Screenshot reali riproducibili — richiesta del 22 novembre 2026
 
 Si cattura l’interfaccia browser reale con Playwright e profilo temporaneo, senza modificare DOM, stili o codice dell’app per abbellirla. Esempi DOCX/XLSX/PDF e illustrazione generati appositamente nello script; nessun archivio o file personale aperto. Prima di ogni cattura si cercano percorsi e nome utente nel testo e nei campi; Sharp ottimizza PNG e rimuove metadati. Il rapporto contiene un solo evento simulato attraverso il filtro effettivo dell’app; esiti guidati Non provato. La didascalia dichiara anteprima di sviluppo: non si finge una prova dell’installer desktop. Nessuna dipendenza o marchio esterno aggiunto.

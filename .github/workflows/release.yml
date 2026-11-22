@@ -59,6 +59,12 @@ jobs:
           - os: ubuntu-latest
             target: --linux AppImage --x64
             name: Linux-x64
+          - os: macos-latest
+            target: --mac dmg --x64
+            name: Mac-Intel
+          - os: macos-latest
+            target: --mac dmg --arm64
+            name: Mac-AppleSilicon
     runs-on: ${{ matrix.os }}
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
@@ -73,6 +79,8 @@ jobs:
       - run: npm run icons
       - run: node scripts/notices.mjs
       - run: npx electron-builder --config electron-builder.config.cjs ${{ matrix.target }} --publish never
+      - run: hdiutil verify release/*.dmg
+        if: runner.os == 'macOS'
       - run: node scripts/debug-smoke.mjs
         if: runner.os == 'Windows'
         env:
@@ -87,6 +95,7 @@ jobs:
           path: |
             release/*-Setup.exe
             release/*.AppImage
+            release/*.dmg
           if-no-files-found: error
   pubblica:
     needs: [verifica, pacchetti]

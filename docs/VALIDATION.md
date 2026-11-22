@@ -116,3 +116,9 @@ Test del publisher con API simulate: note estratte dalla versione nel CHANGELOG,
 ## Schermate README
 
 scripts/screenshots.mjs esercita l’interfaccia browser reale con tre nuovi esempi originali e nove catture. Controlli: tabella e immagine Word, formula e grafico nel foglio, PDF renderizzato, tema scuro applicato, 24 radio guidati, un evento simulato nel rapporto, layout 390 px senza overflow, nessun errore pagina o richiesta esterna, nessun nome utente/percorso nei testi e campi visibili. PNG massimo 1600 px e 600 KB; EXIF/XMP/ICC assenti. Revisione visiva separata. Non è una prova di installazione né un OCR automatico delle immagini. Rigenerazione in SCREENSHOTS.md; esiti reali nel report.
+
+## Verifica pubblica delle immagini e preparazione Mac
+
+Dopo il push 5ee891b: GET anonima della pagina GitHub renderizzata, presenza dei nove riferimenti nel README, nove PNG HTTP 200 con Content-Type image/png e confronto byte per byte con i file locali, tutti passati. Esito in test-results/screenshots/github-esiti.json. Le immagini non dipendono da un percorso V: o da file del computer del tester.
+
+Mac: test della configurazione senza identità/firma forzata/notarizzazione e nomi DMG verificati anche nei log della CI precedente. I nuovi controlli hdiutil/lipo devono ancora essere eseguiti dai runner Mac dopo il push; non sono prove locali Windows. Il report del passo riporta lo stato reale, senza trasformare la preparazione del workflow in un collaudo del pacchetto.

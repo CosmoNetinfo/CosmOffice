@@ -1,5 +1,20 @@
 # Registro delle consultazioni
 
+## Configurazione Mac — consultazioni del 22 novembre 2026
+
+Per disattivare la firma nell’anteprima sono stati letti i file già installati di app-builder-lib 26.18.0 (MIT, dipendenza di build già presente nel lockfile), senza copiare implementazioni. Non è una scelta del motore documentale. Riferimento di versione: [pacchetto npm](https://www.npmjs.com/package/app-builder-lib/v/26.18.0); le righe seguenti identificano i file della distribuzione locale, non un commit GitHub inventato.
+
+| File/fonte | Natura e licenza | Problema e metodo compreso; uso originale |
+| --- | --- | --- |
+| node_modules/app-builder-lib/package.json | Documentazione/configurazione, MIT | Verificata versione e licenza del pacchetto; nessuna nuova dipendenza |
+| node_modules/electron-builder/LICENSE, versione 26.18.0 | Testo di licenza MIT del progetto | Letto il permesso del componente esistente; nessun testo o codice copiato nel prodotto |
+| node_modules/app-builder-lib/out/macPackager.js | Codice JavaScript compilato, MIT | identity:null evita il percorso di firma; impostazione originale della configurazione CosmOffice |
+| node_modules/app-builder-lib/out/mac/MacTargetHelper.js | Codice JavaScript compilato, MIT | Distinzione fra identità nulla, firma forzata e ad hoc; nessun algoritmo riscritto o copiato |
+| node_modules/app-builder-lib/out/codeSign/macCodeSign.js | Codice JavaScript compilato, MIT | Controlli di piattaforma e identità; anteprima senza certificati, senza adottarne l’implementazione |
+| [Aprire le app sul Mac in sicurezza](https://support.apple.com/it-it/102445) | Documentazione Apple, testo proprietario; non codice | Eccezione per singola app non verificata; guida italiana in parole nostre, senza asset o istruzioni per disattivare globalmente Gatekeeper |
+
+Il tentativo di leggere un LICENSE remoto al tag v26.18.0 ha restituito 404: non è usato come fonte né prova di un commit. Il pacchetto app-builder-lib non conteneva un proprio file LICENSE a quel percorso: licenza verificata nei metadati/avvisi esistenti e nel testo del progetto electron-builder installato. Nessuna implementazione copyleft letta, nessuna nuova risorsa distribuita, THIRD_PARTY_NOTICES invariato dopo rigenerazione.
+
 
 ## Studio ArtCraft del 22 novembre 2026
 

@@ -82,13 +82,24 @@ La ricerca su WordCraft, GridCraft e craft-launcher è in [ARTCRAFT.md](docs/ric
 
 Ogni push su `main` avvia test, un controllo indipendente con LibreOffice e crea gli installer di anteprima per Windows x64, Linux x64 e macOS Intel/Apple Silicon. Gli artefatti sono nella scheda **Actions**, disponibili per 14 giorni. Le build di anteprima non sono firmate e non attivano l’aggiornamento automatico.
 
-Il workflow per tag `v*` controlla versione, build, test browser, Open XML SDK, offline e interoperabilità. Costruisce installer Windows x64 e AppImage Linux x64 **senza firma**, carica gli asset in una bozza e la rende una **Release ordinaria pubblica** solo dopo gli upload. Le note derivano dalla sezione della versione nel CHANGELOG e dichiarano eventuali piattaforme fallite. Una build di piattaforma rossa non impedisce la pubblicazione dell’altra; controlli comuni rossi bloccano entrambe.
+Il workflow per tag `v*` controlla versione, build, test browser, Open XML SDK, offline e interoperabilità. Costruisce installer Windows x64, AppImage Linux x64 e DMG Mac Intel/Apple Silicon **senza firma**, carica gli asset in una bozza e la rende una **Release ordinaria pubblica** solo dopo gli upload. Le note derivano dalla sezione della versione nel CHANGELOG e dichiarano eventuali piattaforme fallite. Una build di piattaforma rossa non impedisce la pubblicazione delle altre; controlli comuni rossi bloccano tutte.
 
 Non servono certificati o segreti di firma: basta il GITHUB_TOKEN automatico del workflow con permesso contents: write nel solo lavoro di pubblicazione. Ogni installer ha un file .sha256; SHA256SUMS.txt li raccoglie. La pubblicazione si ferma se non c’è alcun installer, se un upload fallisce o se la Release è già pubblica: non sovrascrive automaticamente gli asset. In caso di bozza incompleta, controllarla prima di ripetere.
 
 Procedura: aggiornare package.json e la corrispondente sezione CHANGELOG, completare tutti i controlli, commit e push su main, poi creare il tag della stessa versione (per esempio git tag v0.2.2) e git push origin v0.2.2. Seguire Actions fino alla pubblicazione e verificare da una sessione senza account la pagina [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest), gli asset e i loro checksum. Il download dei pacchetti avviene fuori dall’app: gli aggiornamenti automatici non sono ancora implementati.
 
 Windows può mostrare SmartScreen per l’autore non verificato: controllare origine e checksum; se disponibile scegliere “Ulteriori informazioni” e “Esegui comunque”. I criteri dei computer gestiti possono vietarlo: non disattivare la protezione del sistema. Su Linux rendere eseguibile l’AppImage; il supporto delle singole distribuzioni non è garantito dai soli test CI. Le installazioni su computer puliti non sono ancora collaudate.
+
+## Aprire CosmOffice su Mac
+
+La versione Mac è un DMG non firmato né notarizzato e **non è collaudata su computer fisici**. I controlli CI del pacchetto non provano il primo avvio sul tuo Mac.
+
+1. Dalle [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest) scegli il DMG Intel (x64) oppure Apple Silicon (arm64). Confronta il file con il relativo SHA-256.
+2. Apri il DMG, trascina CosmOffice in Applicazioni ed espelli il disco immagine.
+3. Prova ad aprire CosmOffice da Applicazioni. Se macOS blocca lo sviluppatore non verificato, chiudi l’avviso e apri **Impostazioni di Sistema → Privacy e sicurezza → Apri comunque**; conferma poi **Apri**.
+4. Se l’eccezione non è disponibile o il sistema segnala un file danneggiato/pericoloso, fermati e segnala il problema: la guida non disattiva le protezioni del Mac.
+
+Procedura basata sul [supporto Apple](https://support.apple.com/it-it/102445). [Guida, checksum e limiti delle prove](docs/MAC.md). In questa anteprima gli aggiornamenti si installano manualmente; il futuro updater su Mac offrirà soltanto un avviso.
 
 ## Com'è fatto
 

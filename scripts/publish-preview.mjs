@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url';
 const repository = 'CosmoNetinfo/CosmOffice';
 export function installerNames(version) {
   if (!/^0\.\d+\.\d+$/.test(version)) throw new Error('Versione di anteprima non valida.');
-  return { Windows: `CosmOffice-${version}-win-x64-Setup.exe`, Linux: `CosmOffice-${version}-linux-x86_64.AppImage` };
+  return { Windows: `CosmOffice-${version}-win-x64-Setup.exe`, Linux: `CosmOffice-${version}-linux-x86_64.AppImage`, 'Mac Intel': `CosmOffice-${version}-mac-x64.dmg`, 'Mac Apple Silicon': `CosmOffice-${version}-mac-arm64.dmg` };
 }
 export function releaseNotes(changelog, version, names, packageResult = 'success') {
   const section = changelog.split(`## [${version}]`)[1]?.split(/^## /m)[0];
@@ -17,15 +17,15 @@ export function releaseNotes(changelog, version, names, packageResult = 'success
     if (!body.includes(`### ${heading}`)) throw new Error(`Note incomplete: ${heading}.`);
   }
   const available = new Set(names);
-  const states = Object.entries(installerNames(version)).map(([platform, name]) => `- ${platform} x64: ${available.has(name) ? `disponibile (${name})` : 'NON DISPONIBILE: la build non ha prodotto un installer pubblicabile.'}`);
-  return `# CosmOffice ${version} (anteprima)\n\nSuite gratuita, offline e in italiano. Release ordinaria per rendere disponibile /releases/latest; il prodotto rimane un’anteprima.\n\n${body}\n\n## Pacchetti pubblicati\n\n${states.join('\n')}\n- macOS: DMG in preparazione separata; non incluso in questa prima pubblicazione.\n\nEsito complessivo dei lavori pacchetti: ${packageResult}. I pacchetti riusciti vengono pubblicati anche se un’altra piattaforma fallisce. Nessun installer è firmato.\n\n## Aprire l’anteprima\n\nWindows: avvia l’installer .exe. Se SmartScreen avvisa che l’autore non è riconosciuto, controlla origine e checksum; se l’opzione è disponibile, scegli “Ulteriori informazioni” e “Esegui comunque”. Su computer gestiti il criterio aziendale può impedirlo. Non disattivare la protezione del sistema.\n\nLinux: rendi eseguibile l’AppImage e avviala. Le dipendenze del sistema, incluso il supporto AppImage/FUSE, non sono state collaudate su ogni distribuzione.\n\nVerifica il file con il relativo .sha256 o SHA256SUMS.txt prima di avviarlo. Su Windows: Get-FileHash -Algorithm SHA256; su Linux: sha256sum -c SHA256SUMS.txt.\n`;
+  const states = Object.entries(installerNames(version)).map(([platform, name]) => `- ${platform}${['Windows', 'Linux'].includes(platform) ? ' x64' : ''}: ${available.has(name) ? `disponibile (${name})` : 'NON DISPONIBILE: la build non ha prodotto un installer pubblicabile.'}`);
+  return `# CosmOffice ${version} (anteprima)\n\nSuite gratuita, offline e in italiano. Release ordinaria per rendere disponibile /releases/latest; il prodotto rimane un’anteprima.\n\n${body}\n\n## Pacchetti pubblicati\n\n${states.join('\n')}\n\nEsito complessivo dei lavori pacchetti: ${packageResult}. I pacchetti riusciti vengono pubblicati anche se un’altra piattaforma fallisce. Nessun installer è firmato.\n\n## Aprire l’anteprima\n\nWindows: avvia l’installer .exe. Se SmartScreen avvisa che l’autore non è riconosciuto, controlla origine e checksum; se l’opzione è disponibile, scegli “Ulteriori informazioni” e “Esegui comunque”. Su computer gestiti il criterio aziendale può impedirlo. Non disattivare la protezione del sistema.\n\nLinux: rendi eseguibile l’AppImage e avviala. Le dipendenze del sistema, incluso il supporto AppImage/FUSE, non sono state collaudate su ogni distribuzione.\n\nMac: scarica il DMG Intel o Apple Silicon adatto, aprilo e trascina CosmOffice in Applicazioni. Dopo il primo tentativo di apertura, se macOS blocca lo sviluppatore non verificato, usa Impostazioni di Sistema > Privacy e sicurezza > Apri comunque, poi conferma Apri. Nessuna firma o notarizzazione; non collaudato su computer Mac fisici. [Istruzioni Apple](https://support.apple.com/it-it/102445).\n\nVerifica il file con il relativo .sha256 o SHA256SUMS.txt prima di avviarlo. Su Windows: Get-FileHash -Algorithm SHA256; su Linux: sha256sum -c SHA256SUMS.txt.\n`;
 }
 
-export async function prepareArtifacts(directory, version) {
+export async function prepareArtifacts(directory, version, { allowEmpty = false } = {}) {
   const expected = new Set(Object.values(installerNames(version)));
   const files = [];
   for (const name of (await readdir(directory)).sort()) {
-    if (name.endsWith('.AppImage') && !expected.has(name)) throw new Error(`AppImage inattesa: ${name}. Non verrà ignorata in silenzio.`);
+    if (/\.(AppImage|dmg)$/.test(name) && !expected.has(name)) throw new Error(`AppImage inattesa o DMG inatteso: ${name}. Non verrà ignorato in silenzio.`);
     if (!expected.has(name)) continue;
     const path = resolve(directory, name);
     const info = await lstat(path);
@@ -34,7 +34,10 @@ export async function prepareArtifacts(directory, version) {
     for await (const chunk of createReadStream(path)) hash.update(chunk);
     files.push({ name, path, size: info.size, sha256: hash.digest('hex') });
   }
-  if (!files.length) throw new Error('Nessun installer disponibile: la Release non verrà pubblicata.');
+  if (!files.length) {
+    if (allowEmpty) return [];
+    throw new Error('Nessun installer disponibile: la Release non verrà pubblicata.');
+  }
   for (const file of [...files]) {
     const name = `${file.name}.sha256`;
     await writeFile(resolve(directory, name), `${file.sha256}  ${file.name}\n`);

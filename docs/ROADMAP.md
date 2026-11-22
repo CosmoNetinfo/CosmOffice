@@ -63,7 +63,7 @@ Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro
 1. CI 5a493a4 e 9e3173e: verificata verde; link nel report. Rapporto locale pubblicato, consolidamento breve e 10+10 ripetizioni superate; verifiche finali nel report.
 2. Prova guidata: implementata; verifiche nel report del passo. Otto prove e soli esiti Ok/Problema/Non provato; nessun campo libero.
 3. Aggiornamenti da GitHub Releases: trasporto TLS Node autorizzato con otto condizioni in DECISIONI, ancora da implementare e collaudare. Vecchio prototipo Chromium non pubblicato per NetLog rosso. Installazione solo dopo hash valido e conferma dell’utente; Mac solo avviso.
-4. Mac DMG non firmato e guida con titolo esatto: da consolidare per la distribuzione pubblica.
+4. Mac DMG non firmato e guida con titolo esatto: workflow per due architetture e guida preparati; attendere la run Mac e la verifica degli asset per dichiarare pubblicati i DMG. Nessuna prova su computer fisici.
 5. Release ordinaria CosmOffice 0.2.2 (anteprima): pubblicata e verificata con download anonimo Windows/Linux e SHA-256, dopo la correzione DIST-001. Checksum, limiti e domande ai tester inclusi nelle note dal CHANGELOG. Screenshot riproducibili aggiunti su richiesta; seguono Mac e updater secondo l’ultimo ordine dell’utente.
 6. Bozze di licenza utenti: da preparare; LICENSE resta invariato.
 

@@ -1,96 +1,32 @@
-# Screenshot reali dell’app nel README
+# DMG Mac non firmati, guida e stato CI
 
 ## 1. Obiettivo
 
-Aggiungere la sezione “Com'è fatto” al README con nove PNG reali dell’interfaccia, rigenerabili automaticamente, esempi originali e nessun dato del computer. Un solo commit per questo passo. Il completamento Linux della Release è stato verificato prima di pubblicare le immagini.
+Aggiungere DMG Intel e Apple Silicon alla Release ordinaria 0.2.2, senza certificati o notarizzazione, guida con titolo esatto “Aprire CosmOffice su Mac” e stato onesto delle ultime CI. Windows e Linux già pubblici devono restare intatti. Trasporto TLS Node rinviato al commit successivo, senza altre idee dello studio.
 
 ## 2. Cosa hai fatto
 
-- scripts/screenshots.mjs: genera DOCX con testo/tabella/illustrazione originale, XLSX con formule e grafico a barre e PDF originale; avvia la vera app browser con Playwright e contesto temporaneo; apre gli esempi con il normale file chooser; cattura nove pagine.
-- docs/images/home.png: Home con i tre documenti di esempio; viewport più alta per mostrarli tutti.
-- docs/images/write.png: CosmoWrite con il progetto della biblioteca, testo, tabella e illustrazione geometrica originale.
-- docs/images/grid.png: CosmoGrid con dati, formula SOMMA e grafico nativo a barre.
-- docs/images/view.png: CosmoView con PDF originale Una biblioteca per tutti.
-- docs/images/impostazioni-chiaro.png e impostazioni-scuro.png: le vere impostazioni nei due temi.
-- docs/images/prova-guidata.png: tutte le otto prove, esiti Non provato.
-- docs/images/segnala-problema.png: rapporto browser reale con un evento tecnico simulato; nessun messaggio arbitrario.
-- docs/images/layout-stretto.png: Home a 390 px.
-- README.md: immagini incorporate con percorsi relativi e testi alternativi italiani, didascalia “anteprima di sviluppo, versione 0.2.2” per ciascuna.
-- docs/SCREENSHOTS.md: comandi, contenuto, privacy e limiti della generazione.
-- CHANGELOG.md, docs/DECISIONI.md, docs/ROADMAP.md, docs/VALIDATION.md: richiesta, metodo e verifiche.
-- docs/BUG.md: DIST-001 chiuso soltanto dopo il download pubblico Linux verificato.
-- docs/report/2026-11-22_1813_screenshot-readme.md e docs/report/ULTIMO.md: report e copia identica.
+- electron-builder.config.cjs: anteprima con identity:null, hardenedRuntime:false, notarize:false; vecchio percorso firmato esplicito separato.
+- .github/workflows/release-mac.yml: due build indipendenti x64/arm64, sorgenti dell’app confrontati con il tag, hdiutil verify, lipo per architettura e controllo Developer ID assente; pubblicazione dei DMG riusciti senza sostituire Windows/Linux.
+- .github/workflows/release.yml: futuri tag costruiscono anche entrambi i DMG, con fail-fast disattivato e verifica del contenitore.
+- scripts/publish-preview.mjs: nomi DMG verificati nei log reali della precedente CI, elenco delle quattro piattaforme e istruzioni Mac nelle note.
+- scripts/complete-preview.mjs: se Mac fallisce completamente aggiorna soltanto le note con il fallimento; nessun installer o checksum esistente cancellato. Con pacchetti nuovi aggiunge file e checksum, conserva gli hash precedenti e rigenera il riepilogo.
+- tests/release-preview.test.mjs: configurazione Mac realmente senza identità/firma forzata/notarizzazione; caso senza pacchetti e failure nelle note, nessuna cancellazione.
+- README.md: sezione esatta “Aprire CosmOffice su Mac”, passi del primo avvio e dichiarazione di mancato collaudo su computer fisici.
+- docs/MAC.md: guida, checksum, differenza fra verifiche CI e prova di avvio reale.
+- docs/CI.md: nove ultimi commit principali con link e stato verificato, run di pubblicazione e correzione Linux.
+- CHANGELOG.md, docs/DECISIONI.md, docs/ROADMAP.md, docs/VALIDATION.md e docs/ricerca/CODICE-STUDIATO.md: stato, fonti consultate e decisione autorizzata.
+- docs/report/2026-11-22_1837_dmg-mac-e-ci.md e docs/report/ULTIMO.md: report e copia.
 
-**Nessuna modifica a src/, electron/, stili, workflow o LICENSE per le immagini.** Nessuna nuova libreria. Sharp e Playwright erano già dipendenze. node scripts/notices.mjs eseguito, exit 0, “Attribuzioni e licenze raccolte.”; avvisi distribuiti invariati. Nessun marchio o logo di altre suite. I loghi visibili sono quelli già presenti di CosmOffice.
+Nessuna modifica a src/ o electron/ e nessuna nuova dipendenza. node scripts/notices.mjs: exit 0, “Attribuzioni e licenze raccolte.”; avvisi invariati.
+
+Fonti: [supporto Apple](https://support.apple.com/it-it/102445), metadati e codice compilato già installato di app-builder-lib 26.18.0 MIT (macPackager.js, MacTargetHelper.js, macCodeSign.js), package.json e licenza del progetto electron-builder installato. File e tipo di materiale nel registro. Nessun codice copiato. Il tag GitHub v26.18.0 non era disponibile e non è inventato come riferimento: si identifica la versione npm e il lockfile.
 
 ## 3. Esiti reali di build e test
 
-Rigenerazione finale e tutti i controlli obbligatori eseguiti, tutti exit 0. Output reali, soli spazi a fine riga rimossi:
+Una prima esecuzione completa è passata. Dopo aver aggiunto la gestione del fallimento completo Mac e il relativo test, sono stati ripetuti build e tutti i controlli sul codice definitivo, con gli output seguenti. Non si tratta di una costruzione DMG locale su Windows.
 
-### catture — exit 0
-
-```text
-{
-  "result": "PASS",
-  "captured": [
-    {
-      "name": "write",
-      "width": 1440,
-      "height": 1000,
-      "bytes": 31883
-    },
-    {
-      "name": "grid",
-      "width": 1440,
-      "height": 1000,
-      "bytes": 29585
-    },
-    {
-      "name": "view",
-      "width": 1440,
-      "height": 1000,
-      "bytes": 25009
-    },
-    {
-      "name": "home",
-      "width": 1440,
-      "height": 1160,
-      "bytes": 39927
-    },
-    {
-      "name": "layout-stretto",
-      "width": 390,
-      "height": 844,
-      "bytes": 18518
-    },
-    {
-      "name": "impostazioni-chiaro",
-      "width": 1440,
-      "height": 1000,
-      "bytes": 31392
-    },
-    {
-      "name": "impostazioni-scuro",
-      "width": 1440,
-      "height": 1000,
-      "bytes": 30451
-    },
-    {
-      "name": "prova-guidata",
-      "width": 1440,
-      "height": 1440,
-      "bytes": 92403
-    },
-    {
-      "name": "segnala-problema",
-      "width": 1440,
-      "height": 1000,
-      "bytes": 57218
-    }
-  ],
-  "external": []
-}
-```
+Comandi: npm run build; npm test; npm run test:browser; npm run test:openxml; node scripts/offline-smoke.mjs; node scripts/desktop-smoke.mjs. Tutti exit 0; soli spazi finali rimossi dagli output:
 
 ### build — exit 0
 
@@ -124,7 +60,7 @@ dist/assets/index-Vzw8i3fV.js             2,320.77 kB │ gzip: 696.13 kB
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1.13s
+✓ built in 1.14s
 ```
 
 ### unit — exit 0
@@ -133,64 +69,65 @@ dist/assets/index-Vzw8i3fV.js             2,320.77 kB │ gzip: 696.13 kB
 > cosmoffice@0.2.2 test
 > node --test tests/*.test.mjs
 
-✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (75.2523ms)
-✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (73.792ms)
-✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (125.2207ms)
-✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (185.3762ms)
-✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (27.7434ms)
-✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (40.2417ms)
-✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (33.6059ms)
-✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (29.4715ms)
-✔ Diagnostica: messaggi, nomi e percorsi arbitrari non entrano negli eventi (6.7212ms)
-✔ Diagnostica: il contesto ammette solo valori controllati, nessun campo libero (1.1246ms)
+✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (69.4612ms)
+✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (65.5054ms)
+✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (121.4852ms)
+✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (179.9026ms)
+✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (32.8605ms)
+✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (34.3255ms)
+✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (37.5123ms)
+✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (25.1035ms)
+✔ Diagnostica: messaggi, nomi e percorsi arbitrari non entrano negli eventi (7.2502ms)
+✔ Diagnostica: il contesto ammette solo valori controllati, nessun campo libero (2.2086ms)
 Rapporto con 50 eventi e ultima traccia: 4964 byte UTF-8 (limite 6144).
-✔ Registro locale: ultimi 50, persistenza sicura, riapertura e svuotamento (50.4003ms)
-✔ Registro non scrivibile: memoria disponibile e svuotamento non dichiarato riuscito (5.6886ms)
-✔ DOCX exports real text, bold marks and tables readable by another parser (99.6812ms)
-✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (85.1834ms)
-✔ unknown formulas retain their source without exporting a misleading cached number (14.4195ms)
-✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (4.0754ms)
-✔ cross-sheet formulas survive XLSX round trips and get calculated results (18.0813ms)
-✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (9.6333ms)
-✔ landscape DOCX uses a physically wider page with matching orientation (10.9984ms)
-✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (9.4841ms)
-✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (155.2505ms)
-✔ references, arithmetic, precedence and percentages (4.0832ms)
-✔ Italian aliases, absolute references, text and lazy IF (0.7931ms)
-✔ cycles, division by zero and unknown functions are visible and propagated (1.291ms)
-✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (0.9748ms)
-✔ Excel address limits and column naming (1.6939ms)
-✔ conditional sums, lookups, text, dates and error handling (4.2417ms)
-✔ quoted sheet names, absolute references and cycles across sheets (0.7761ms)
-✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.4686ms)
-✔ literal text resembling errors stays text while actual formula errors propagate (0.8265ms)
-✔ empty strings, blank cells and boolean predicates retain their separate types (0.5954ms)
-✔ Prova guidata: otto sole scelte controllate, nessun campo o valore libero (2.777ms)
-✔ Il processo principale non contiene updater o caricamenti da server (7.4079ms)
-✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (235.1533ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (40.9219ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (9.9404ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (79.611ms)
-✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (21.0133ms)
-✔ Release: completa Linux preservando Windows e rifiuta AppImage con nome inatteso (61.1613ms)
-✔ Release: note dal CHANGELOG e piattaforma mancante dichiarata, senza prerelease (0.9182ms)
-✔ Release: hash reali e pubblicazione soltanto dopo upload, nessun certificato necessario (37.8121ms)
-✔ Excel exports do not mutate the open workbook, even when exported concurrently (116.3487ms)
-✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (39.9083ms)
-✔ damaged files and mismatched Office extensions are rejected before import (11.5486ms)
-✔ unsupported parts produce specific warnings without changing the original file (38.1535ms)
-✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (12.8818ms)
-✔ XLSX caches keep literal error-like strings separate from actual error cells (13.5429ms)
-✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (819.5148ms)
-✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1858.6279ms)
-ℹ tests 49
+✔ Registro locale: ultimi 50, persistenza sicura, riapertura e svuotamento (49.5777ms)
+✔ Registro non scrivibile: memoria disponibile e svuotamento non dichiarato riuscito (6.4945ms)
+✔ DOCX exports real text, bold marks and tables readable by another parser (96.0598ms)
+✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (81.8068ms)
+✔ unknown formulas retain their source without exporting a misleading cached number (20.5014ms)
+✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (3.4266ms)
+✔ cross-sheet formulas survive XLSX round trips and get calculated results (16.0322ms)
+✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (12.1407ms)
+✔ landscape DOCX uses a physically wider page with matching orientation (8.8073ms)
+✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (12.8229ms)
+✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (155.5306ms)
+✔ references, arithmetic, precedence and percentages (4.6848ms)
+✔ Italian aliases, absolute references, text and lazy IF (1.0461ms)
+✔ cycles, division by zero and unknown functions are visible and propagated (1.1051ms)
+✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (1.7114ms)
+✔ Excel address limits and column naming (3.1063ms)
+✔ conditional sums, lookups, text, dates and error handling (5.0213ms)
+✔ quoted sheet names, absolute references and cycles across sheets (1.0987ms)
+✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.5622ms)
+✔ literal text resembling errors stays text while actual formula errors propagate (0.807ms)
+✔ empty strings, blank cells and boolean predicates retain their separate types (0.9524ms)
+✔ Prova guidata: otto sole scelte controllate, nessun campo o valore libero (2.4092ms)
+✔ Il processo principale non contiene updater o caricamenti da server (10.5283ms)
+✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (255.3244ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (41.2628ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (12.3103ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (108.1988ms)
+✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (19.3919ms)
+✔ Mac: anteprima senza identità, firma forzata o notarizzazione (3.6851ms)
+✔ Release: completa Linux preservando Windows e rifiuta AppImage con nome inatteso (66.5539ms)
+✔ Release: note dal CHANGELOG e piattaforma mancante dichiarata, senza prerelease (1.3484ms)
+✔ Release: hash reali e pubblicazione soltanto dopo upload, nessun certificato necessario (38.1276ms)
+✔ Excel exports do not mutate the open workbook, even when exported concurrently (109.9366ms)
+✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (41.7307ms)
+✔ damaged files and mismatched Office extensions are rejected before import (10.842ms)
+✔ unsupported parts produce specific warnings without changing the original file (39.3916ms)
+✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (14.1071ms)
+✔ XLSX caches keep literal error-like strings separate from actual error cells (12.7124ms)
+✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (837.7394ms)
+✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1843.5116ms)
+ℹ tests 50
 ℹ suites 0
-ℹ pass 49
+ℹ pass 50
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 3131.0348
+ℹ duration_ms 3126.148
 ```
 
 ### browser — exit 0
@@ -228,7 +165,7 @@ Rapporto con 50 eventi e ultima traccia: 4964 byte UTF-8 (limite 6144).
   ],
   "errors": []
 }
-18:07:48 [vite] (client) [console.warn] Warning: Indexing all PDF objects
+18:30:53 [vite] (client) [console.warn] Warning: Indexing all PDF objects
 {
   "result": "PASS",
   "scenarios": [
@@ -277,7 +214,7 @@ V:\CosmonetOffice\scripts\openxml-validator\OpenXmlCheck.csproj : warning NU1900
     Avvisi: 2
     Errori: 0
 
-Tempo trascorso 00:00:02.05
+Tempo trascorso 00:00:00.33
 PASS V:\CosmonetOffice\test-results\corpus\01-testo-stili.docx: 0 errori Open XML SDK
 PASS V:\CosmonetOffice\test-results\corpus\02-tabella.docx: 0 errori Open XML SDK
 PASS V:\CosmonetOffice\test-results\corpus\03-immagine.docx: 0 errori Open XML SDK
@@ -344,57 +281,58 @@ ECCEZIONE STORICA VERIFICATA: copia v1 identica, errore MIME del disegno conserv
 }
 ```
 
-Controllo aggiuntivo locale, exit 0:
+Controllo YAML, exit 0:
 
 ```text
-PASS README locale: nove link relativi, testi alternativi italiani, PNG presenti e ottimizzate senza metadati personali.
+PASS YAML release e DMG Mac
 ```
 
-git diff --check: exit 0, output vuoto. Le PNG e i collegamenti del README esistono nel tree da pubblicare. La verifica HTTP dalla pagina GitHub richiede il push delle immagini nuove e verrà eseguita subito dopo: non è falsamente presentata come prova già effettuata prima della pubblicazione.
-
-Le righe FAIL del validatore sono i negativi intenzionali e la copia XLSX storica autorizzata. I 13 nuovi esportati passano. Avvisi reali rimasti: chunk Vite grande, indicizzazione PDF nel campione di errore e NU1900 dell’audit NuGet.
+git diff --check: iniziale riga vuota di documentazione a fine VALIDATION rimossa; controllo finale exit 0 e output vuoto. Nessun errore applicativo nascosto. I FAIL SDK sono i negativi intenzionali e la vecchia copia XLSX autorizzata; 13 nuovi esportati validi.
 
 ## 4. Cosa funziona, provato
 
-Nove catture dell’interfaccia reale, generate più volte dallo script e ispezionate visivamente (contatto completo, rapporto e Home anche a piena dimensione). Nessuna modifica manuale alle PNG, nessun ritocco o mockup. Le avvertenze reali dell’app non sono state nascoste.
+50 test e tutti i controlli locali passati. La configurazione Mac non richiede né seleziona certificati. Il publisher tratta esplicitamente il caso Mac senza output e conserva gli asset esistenti. L’interfaccia e i documenti dell’app restano quelli della Release.
 
-Tutte larghe 1440 px, salvo il layout 390 px; Home alta 1160 px, guida 1440 px, le altre 1000 px (telefono 844 px). Peso per file circa 18–92 KB, totale inferiore a 400 KB. EXIF, XMP e ICC assenti. Controllati testo e campi prima della cattura: nessun nome utente, lettera di unità o percorso personale. Nessun errore pagina o richiesta esterna. Il rapporto usa il filtro vero dell’app con un solo evento simulato.
+La build precedente b769647 produceva già i nomi DMG mac-x64 e mac-arm64, verificati nei log della run 45047079340; ciò non è presentato come verifica dei nuovi controlli aggiunti qui. I nuovi job hdiutil/lipo e upload si eseguiranno solo dopo il push.
 
-49 unit test e tutti i test browser, SDK, offline e pacchetto Windows passati. Il codice dell’app resta invariato rispetto alla Release.
+**Screenshot conclusi:** commit 5ee891b pubblicato. Verificata senza account la pagina GitHub del repository, i nove riferimenti PNG del README, ogni risposta HTTP 200 con Content-Type image/png e identità byte per byte con i file locali. Tutte nove immagini passano. Rigenerazione: npm run build, poi node scripts/screenshots.mjs; guida in docs/SCREENSHOTS.md. Nessuna modifica manuale delle immagini o dati personali.
 
-### Release ordinaria e CI, esiti effettivi
-
-[Release v0.2.2](https://github.com/CosmoNetinfo/CosmOffice/releases/tag/v0.2.2) e /releases/latest verificati senza autenticazione con GET HTTPS. Installer Windows scaricato nella prima verifica; Linux scaricato nella seconda. Nella seconda Windows è stato nuovamente confrontato dal file già scaricato e i checksum pubblici ricontrollati. Entrambi coincidono con file .sha256, SHA256SUMS.txt e digest GitHub:
-
-- Windows, 128.031.094 byte: ce37586a69151fbe56dc555acf2f49f4fc031dfc62cc6e20a3e03c8052c1f69a.
-- Linux, 134.019.591 byte: 6eb41f36df41d6bcfc1876430ae21abd0bbd59dc9cd7e26d8d4f476e17253792.
-
-Host della verifica esterna di sviluppo: github.com, api.github.com, release-assets.githubusercontent.com. Nessuna rete aggiunta all’app. Il mancato accesso del tool web per cache miss è stato superato con richieste HTTPS anonime, non con account o token.
-
-CI base b769647 [45047079340](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45047079340): cinque lavori completed/success verificati. Completamento Linux [45047079344](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45047079344): success. Base Release 2128469 [45035934913](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45035934913): success; tag [45035965421](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45035965421): success, con difetto iniziale DIST-001 poi corretto.
-
-Precedenti, tutti 5/5 success verificati: 94d93db [45034728552](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45034728552), e0fe801 [45022833708](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45022833708), e8faf0b [45020926005](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45020926005), 9e3173e [45015464220](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45015464220), 5a493a4 [45011842835](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45011842835), 3185603 [45007101728](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45007101728).
+**Release Windows/Linux conclusa:** ordinaria su /releases/latest e tag v0.2.2; download anonimo e SHA-256 verificati. Windows ce37586a69151fbe56dc555acf2f49f4fc031dfc62cc6e20a3e03c8052c1f69a, Linux 6eb41f36df41d6bcfc1876430ae21abd0bbd59dc9cd7e26d8d4f476e17253792. Il completamento Mac deve preservarli.
 
 ## 5. Cosa NON funziona o non hai potuto provare
 
-Le immagini sono della versione browser di sviluppo: nessun finto collaudo dell’installer o della finestra nativa. Il rapporto indica realmente che i dati Electron/OS non sono disponibili nel browser. Evento tecnico simulato, non crash reale. Le prove guidate restano Non provato. Il layout 390 px non equivale a un’app mobile installata.
+**Non provato:** hardware Mac fisico, Gatekeeper al primo avvio con il nuovo download, installazione su computer puliti e uso degli editor su Mac. La guida lo dichiara in modo esplicito.
 
-Il controllo su testi/campi e la revisione visiva non sono un OCR universale o una garanzia su immagini future. I documenti sono originali proprio per non introdurre dati reali. Non sono stati aperti archivi o profili personali.
+Al momento di questo commit i nuovi DMG non sono ancora stati pubblicati dalla nuova run: niente falso successo di hdiutil/lipo eseguiti su Windows. Stato e download dei nuovi asset saranno verificati dopo il push. Se Mac diventa rosso, lo si riporterà: Windows/Linux già pubblici non verranno rimossi né bloccati.
 
-La risoluzione dei link relativa su GitHub sarà verificata dopo il push, perché i nuovi file prima non esistono sul server. Non provate installazioni su sistemi puliti, hardware Mac/Linux o ogni funzione Office. DMG e updater appartengono ai passi successivi.
+Nessun updater TLS Node incluso o installazione automatica provata. Nessuna modifica chirurgica dei grafici esterni o nuovo motore implementati.
 
 ## 6. Bug e dubbi
 
-Nessun errore applicativo trovato dalle catture. Il primo inquadramento Home mostrava solo parte dell’elenco: aumentata l’altezza della cattura, senza alterare l’interfaccia. Segnalazione e guida sono catturate attraverso i comandi reali delle impostazioni, non ricostruite in una pagina finta.
+DIST-001 Linux risolto con prova pubblica; si sono controllati i nomi DMG effettivi prima di configurarli. Firma Vendor di eventuali componenti Electron non è firma Developer ID applicata da CosmOffice; il percorso di build salta esplicitamente la firma dell’app.
 
-I limiti di compatibilità visibili restano reali e non sono rimossi per le foto. DIST-001 Linux è ora verificato anche sul server; la prima CI verde non aveva garantito presenza dell’asset. Windows non è stato sostituito.
+Nessun pacchetto nuovo: il publisher Mac può aggiornare solo le note con failure, senza sostituire checksum. Pacchetti nuovi: solo il riepilogo checksum viene sostituito dopo gli upload; l’API non offre sostituzione atomica del riepilogo. Installer già pubblici mai sostituiti automaticamente.
 
-## 7. Hash del commit
+Avvisi rimasti nei log: chunk Vite grande, PDF indicizzato nel campione negativo e audit NuGet non raggiungibile. Test e build passati non equivalgono a compatibilità Office completa. Vecchio XLSX conserva il difetto MIME come eccezione autorizzata.
 
-Base: b769647, correzione della pubblicazione Linux. Questo passo si identifica con git log -1 --format=%H -- docs/report/2026-11-22_1813_screenshot-readme.md; il proprio hash viene comunicato dopo il push, perché inserirlo nel medesimo commit lo cambierebbe. Nessun secondo commit artificiale delle sole immagini.
+## 7. Hash del commit e CI
+
+Base 5ee891b (screenshot). Hash di questo passo: git log -1 --format=%H -- docs/report/2026-11-22_1837_dmg-mac-e-ci.md; verrà comunicato dopo il push.
+
+[Stato completo delle nove CI](../CI.md), tutti i cinque lavori principali success per ciascuna:
+
+- 5ee891b: [45048363758](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45048363758).
+- b769647: [45047079340](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45047079340).
+- 2128469: [45035934913](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45035934913).
+- 94d93db: [45034728552](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45034728552).
+- e0fe801: [45022833708](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45022833708).
+- e8faf0b: [45020926005](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45020926005).
+- 9e3173e: [45015464220](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45015464220).
+- 5a493a4: [45011842835](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45011842835).
+- 3185603: [45007101728](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45007101728).
+
+Pubblicazione tag [45035965421](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45035965421) e completamento Linux [45047079344](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45047079344): success, con asset realmente controllati dopo DIST-001. Le nuove run Mac di questo commit non esistono ancora al momento della scrittura e saranno controllate dopo il push.
 
 ## 8. Prossimo passo
 
-Rigenerazione: npm run build, poi node scripts/screenshots.mjs; dettagli Windows e Chromium CI in docs/SCREENSHOTS.md. Alla prossima versione aggiornare didascalie dopo aver controllato le nuove catture.
-
-Dopo il push verificare la pagina GitHub senza autenticazione, tutti i nove URL PNG e confronto byte per byte con i file locali. Poi proseguire con DMG Mac non firmati e guida “Aprire CosmOffice su Mac”, riportando anche questa verifica nel report successivo. L’updater TLS Node seguirà nel proprio commit e con tutte le condizioni autorizzate, senza altre idee o scelta del motore.
+Push dopo pull --rebase; seguire la nuova run Mac e la CI principale. Verificare DMG, checksum e preservazione di Windows/Linux con download anonimo. Aggiornare il report con eventuali rossi Mac senza bloccare gli altri pacchetti. Poi, in un commit distinto, trasporto TLS Node con HTTPS verificato, host chiusi anche nei redirect, nessuna richiesta con controllo spento, intestazioni minime, SHA-256, conferma prima dell’installazione, audit Node e NetLog Chromium senza connessioni.
