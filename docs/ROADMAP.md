@@ -37,12 +37,12 @@ Aggiornamento di ricerca ArtCraft: [studio completato](ricerca/ARTCRAFT.md), con
 | --- | --- | --- | --- |
 | 6 | Installer su sistemi puliti e accessibilità | Pianificato / non provato | Windows, Linux e Mac reali; tastiera e lettore schermo |
 | 7 | Rapporto per i tester copiabile e solo locale | Implementato; verifiche nel report corrente | Ultimi 50 eventi, messaggi controllati, tracce anonimizzate, copia esplicita e nessun invio |
-| 8 | Release pubblica, checksum e guide di primo avvio | Richiesta in precedenza, non eseguita da questo studio | Testi dal CHANGELOG; esiti parziali dichiarati; nessuna falsa certificazione |
-| 9 | Aggiornamenti automatici soltanto dalle Release autorizzate | Richiesti in precedenza, attualmente assenti | Integrità e comportamento senza rete provati; nessun altro host ammesso senza decisione |
+| 8 | Release pubblica, checksum e guide di primo avvio | Pubblicata 0.2.2 con quattro installer; download anonimi e SHA-256 verificati | Sistemi puliti e Mac fisici non collaudati |
+| 9 | Aggiornamenti automatici soltanto dalle Release autorizzate | Implementati nel main 06945c6, CI verde; non negli installer 0.2.2 | Audit Node, Chromium senza connessioni, consenso e hash provati; installazione reale da collaudare |
 | 10 | Verifica finale delle licenze e distribuzione del dizionario sostituibile | Pianificato | Fonte, licenza e sostituibilità del pacchetto verificate, senza confondere dati e codice |
 | 11 | Backup del dizionario personale e anteprima di stampa | Proposta | Ripristino verificato e scala leggibile |
 
-Per la release 0.2.2 l'utente ha già scelto una **release ordinaria intitolata “CosmOffice 0.2.2 (anteprima)”**, per usare `/releases/latest`, con limiti espliciti. La pubblicazione non viene eseguita nel passo di sola ricerca.
+La release ordinaria **“CosmOffice 0.2.2 (anteprima)”** è pubblica su `/releases/latest`, con quattro installer, checksum e limiti espliciti. La pubblicazione è avvenuta dopo il passo di sola ricerca.
 
 ## Priorità P2 — Qualità, dopo P0
 
@@ -54,7 +54,7 @@ Scheda di compatibilità prima dell'export; confronto locale prima/dopo; control
 
 ## Fuori dal lavoro corrente
 
-Richiesta aggiuntiva eseguita dopo la preparazione Release: screenshot reali riproducibili e README illustrato, senza modifiche al codice dell’app. Esiti e verifica pubblica nel report del passo. Il completamento Linux precede la pubblicazione delle immagini; poi restano DMG Mac e updater TLS Node, come richiesto.
+Richiesta aggiuntiva eseguita dopo la preparazione Release: screenshot reali riproducibili e README illustrato, senza modifiche al codice dell’app. Esiti e verifica pubblica nel report del passo. Dopo Linux e immagini sono stati completati i DMG Mac e l’updater TLS Node nel main; restano i collaudi fisici dichiarati.
 
 Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro e app mobili non vengono implementati in questa ricerca. L'app rimane gratuita e proprietaria, con componenti soggetti alle proprie licenze. Non viene cambiata la licenza del progetto.
 
@@ -64,7 +64,7 @@ Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro
 2. Prova guidata: implementata; verifiche nel report del passo. Otto prove e soli esiti Ok/Problema/Non provato; nessun campo libero.
 3. Aggiornamenti da GitHub Releases: implementati nel main con trasporto TLS Node, host chiusi e conferma esplicita; audit/NetLog e prove del pacchetto nel report del passo. Non inclusi retroattivamente negli installer 0.2.2. Installazione su computer puliti e AppImage reale in uso non provate. Nessun altro motore o idea dello studio.
 4. Mac DMG non firmato e guida con titolo esatto: pubblicati entrambi e verificati con download anonimo/SHA-256, CI verde. Nessuna prova su computer fisici.
-5. Release ordinaria CosmOffice 0.2.2 (anteprima): pubblicata e verificata con download anonimo Windows/Linux e SHA-256, dopo la correzione DIST-001. Checksum, limiti e domande ai tester inclusi nelle note dal CHANGELOG. Screenshot riproducibili aggiunti su richiesta; seguono Mac e updater secondo l’ultimo ordine dell’utente.
-6. Bozze di licenza utenti: da preparare; LICENSE resta invariato.
+5. Release ordinaria CosmOffice 0.2.2 (anteprima): pubblicata e verificata con download anonimo di Windows, Linux e due DMG Mac e SHA-256, dopo la correzione DIST-001. Checksum, limiti e domande ai tester inclusi nelle note dal CHANGELOG. Screenshot riproducibili e successivo updater nel main completati separatamente.
+6. Bozze di licenza utenti: preparate in [LICENZA-BOZZE.md](LICENZA-BOZZE.md), scelta del titolare in attesa; LICENSE invariato, nessun testo adottato.
 
 Le altre proposte rimangono sospese; nessun motore scelto.

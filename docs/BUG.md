@@ -1,5 +1,7 @@
 # Registro dei bug CosmOffice
 
+Passo bozze di licenza del 22 novembre 2026: solo documentazione, nessuna correzione applicativa e nessun bug tecnico chiuso. Il LICENSE attuale non concede una licenza d’uso generale del codice originale: il contrasto con il messaggio di gratuità è documentato nelle bozze, ma rimane da risolvere con la scelta esplicita del titolare.
+
 Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o comportamento errati), P3 (limiti di impaginazione o usabilità). Uno stato risolto richiede una prova; le incompatibilità non ancora riprodotte non vengono dichiarate risolte.
 
 ## P1 Perdita o alterazione dei dati

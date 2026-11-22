@@ -1,5 +1,7 @@
 # Stato delle verifiche e limiti
 
+Passo bozze di licenza del 22 novembre 2026: nessuna modifica dell’app o di LICENSE. Le prove eseguite prima del push e gli output reali sono nel report del passo. Non si presenta la stesura come approvazione legale; installazioni fisiche e limiti documentali già dichiarati restano invariati. CI del codice updater 06945c6 verificata dopo il push: [45056887388](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45056887388), tutti cinque i lavori success.
+
 Aggiornato il 22 novembre 2026 con il recupero del validatore dopo lo studio (base 3185603). Versione applicativa 0.2.2. Lo studio comparativo resta documentale, non una prova manuale delle suite concorrenti.
 
 ## Distinzioni necessarie

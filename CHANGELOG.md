@@ -6,6 +6,7 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Aggiunto
 
+- Due bozze non operative della licenza utenti in docs/LICENZA-BOZZE.md: uso gratuito con codice e marchio riservati, oppure apertura del codice con confronto MIT/Apache-2.0. Nessuna licenza selezionata e LICENSE invariato.
 - Updater nel main per una successiva versione: TLS Node con certificato verificato, soli host GitHub del progetto, SHA-256 e conferma esplicita prima di installare. Windows NSIS e AppImage, Mac solo notifica. Interruttore per disattivarlo; audit Node e NetLog Chromium nei test. Non incluso retroattivamente negli installer 0.2.2.
 - DMG Mac Intel/Apple Silicon in CI, senza firma o notarizzazione, con verifica del contenitore e dell’architettura; guida “Aprire CosmOffice su Mac”. Nessun collaudo su hardware fisico dichiarato.
 - Nove screenshot reali e ottimizzati dell’interfaccia nella sezione “Com’è fatto” del README; generazione ripetibile con scripts/screenshots.mjs, esempi originali, profilo isolato e controlli su dati privati, dimensioni e risorse esterne. Nessuna modifica all’app.

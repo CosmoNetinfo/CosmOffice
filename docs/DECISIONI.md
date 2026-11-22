@@ -1,5 +1,9 @@
 # Decisioni e alternative tecniche
 
+## Bozze di licenza utenti, nessuna adozione
+
+Il 22 novembre 2026 sono state preparate le due alternative richieste in [LICENZA-BOZZE.md](LICENZA-BOZZE.md): A, uso gratuito con codice e marchio riservati; B, codice aperto con MIT oppure Apache-2.0 da selezionare. La scelta resta del titolare, incluse titolarità, ambito dei file e redistribuzione degli installer. Non sono modificati LICENSE, pacchetti, schermate di accettazione o licenze di terzi. È stata esclusa l’adozione automatica di una bozza: la sola pubblicazione di questo confronto non concede diritti. Nessuna decisione sul motore.
+
 ## Implementazione del trasporto TLS Node
 
 Si recupera il prototipo conservato nello stash, sostituendo integralmente il broker Chromium che aveva NetLog rosso. Un worker Node isolato usa HTTPS con certificato verificato; il main conserva tutti i blocchi generali e Chromium conserva MAP * ~NOTFOUND, senza eccezioni per le sessioni. Il worker non eredita ambiente o execArgv e invia solo GET con intestazioni statiche minime. Nessuna nuova libreria o codice altrui copiato. Fonti API: https://nodejs.org/api/worker_threads.html e https://nodejs.org/api/https.html.
