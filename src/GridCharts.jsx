@@ -13,25 +13,25 @@ function ChartCanvas({ book, model, revision }) {
   }, [model, revision]);
   return <><div className="chart-canvas"><canvas ref={canvas} role="img" aria-label={`Grafico ${model.title}`}/></div><details><summary>Dati del grafico · {model.start}:{model.end}</summary><table aria-label={`Dati ${model.title}`}><thead><tr><th>Categoria</th>{data.series.map((s, i) => <th key={i}>{s.name}</th>)}</tr></thead><tbody>{data.labels.map((label, row) => <tr key={row}><th>{label}</th>{data.series.map((s, i) => <td key={i}>{s.values[row] ?? '—'}</td>)}</tr>)}</tbody></table></details></>;
 }
-function ChartCard({ book, model, revision, onChange, onDelete, onError }) {
+function ChartCard({ book, model, revision, readOnly, onChange, onDelete, onError }) {
   const [editing, setEditing] = useState(false), [draft, setDraft] = useState(null);
   return <article className="grid-chart" data-chart-id={model.id}>
-    <header><strong>{model.title || 'Grafico senza titolo'}</strong><div><button className="text-tool" onClick={() => { setDraft(structuredClone(model)); setEditing(!editing); }}>Modifica grafico</button><button className="text-tool" onClick={onDelete}>Elimina grafico</button></div></header>
+    <header><strong>{model.title || 'Grafico senza titolo'}</strong><div><button disabled={readOnly} className="text-tool" onClick={() => { setDraft({ ...structuredClone(model), labels: chartData(book, model).labels }); setEditing(!editing); }}>Modifica grafico</button><button disabled={readOnly} className="text-tool" onClick={onDelete}>Elimina grafico</button></div></header>
     <ChartCanvas book={book} model={model} revision={revision}/>
     {editing && <form className="chart-settings" onSubmit={event => { event.preventDefault(); try { chartData(book, draft); onChange(draft); setEditing(false); } catch (error) { onError(error.message); } }}>
       <label>Titolo<input aria-label="Titolo del grafico" maxLength={200} value={draft.title} onChange={e => setDraft({ ...draft, title: e.target.value })}/></label>
       <label>Tipo<select aria-label="Tipo di grafico" value={draft.type} onChange={e => setDraft({ ...draft, type: e.target.value })}><option value="bar">Barre</option><option value="line">Linee</option><option value="pie">Torta</option></select></label>
       <label>Legenda<select aria-label="Posizione legenda" value={draft.legend} onChange={e => setDraft({ ...draft, legend: e.target.value })}><option value="right">A destra</option><option value="bottom">In basso</option><option value="none">Nascosta</option></select></label>
-      <label><input type="checkbox" checked={draft.headers} onChange={e => setDraft({ ...draft, headers: e.target.checked })}/>Prima riga con intestazioni</label>
+      <label><input type="checkbox" checked={draft.headers} onChange={e => { const next = { ...draft, headers: e.target.checked }; setDraft({ ...next, labels: chartData(book, next).labels }); }}/>Prima riga con intestazioni</label>
       <label>Etichetta asse orizzontale<input aria-label="Etichetta asse orizzontale" maxLength={200} value={draft.axisX} onChange={e => setDraft({ ...draft, axisX: e.target.value })}/></label>
       <label>Etichetta asse verticale<input aria-label="Etichetta asse verticale" maxLength={200} value={draft.axisY} onChange={e => setDraft({ ...draft, axisY: e.target.value })}/></label>
       <label>Etichette categorie, una per riga<textarea aria-label="Etichette categorie" value={draft.labels.join('\n')} onChange={e => setDraft({ ...draft, labels: e.target.value.split('\n') })}/></label>
       <label>Nomi nella legenda, uno per serie<textarea aria-label="Nomi delle serie" value={draft.seriesNames.join('\n')} onChange={e => setDraft({ ...draft, seriesNames: e.target.value.split('\n') })}/></label>
-      <p>Lascia vuote le etichette per usare le celle. La prima colonna contiene le categorie; la torta usa solo la prima serie numerica. Celle vuote, testo ed errori nelle serie restano senza valore.</p>
+      <p>Le etichette modificano le celle reali della prima colonna dell’intervallo, anche per gli altri grafici che le usano. La torta usa solo la prima serie numerica. Celle vuote, testo ed errori nelle serie restano senza valore.</p>
       <div><button type="button" className="button secondary" onClick={() => setEditing(false)}>Annulla</button><button className="button primary">Applica grafico</button></div>
     </form>}
   </article>;
 }
-export default function GridCharts({ book, sheetId, revision, onChange, onDelete, onError }) {
-  return <section className="grid-charts" aria-label="Grafici del foglio" onKeyDown={event => event.stopPropagation()} onPaste={event => event.stopPropagation()} onCopy={event => event.stopPropagation()}>{(book.properties.cosmoCharts || []).filter(model => model.sheetId === sheetId).map(model => <ChartCard key={model.id} book={book} model={model} revision={revision} onChange={next => onChange(model.id, next)} onDelete={() => onDelete(model.id)} onError={onError}/>)}</section>;
+export default function GridCharts({ book, sheetId, revision, readOnly, onChange, onDelete, onError }) {
+  return <section className="grid-charts" aria-label="Grafici del foglio" onKeyDown={event => event.stopPropagation()} onPaste={event => event.stopPropagation()} onCopy={event => event.stopPropagation()}>{(book.properties.cosmoCharts || []).filter(model => model.sheetId === sheetId).map(model => <ChartCard key={model.id} book={book} model={model} revision={revision} readOnly={readOnly} onChange={next => onChange(model.id, next)} onDelete={() => onDelete(model.id)} onError={onError}/>)}</section>;
 }

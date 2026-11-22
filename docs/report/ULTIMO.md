@@ -1,21 +1,22 @@
-# Report — parte 2: stampa dei grafici
+# Report — parte 3: categorie nelle celle reali
 
 ## 1. Obiettivo
 
-Impostare la stampa degli XLSX con grafici senza spezzarli e chiudere CHART-002 dopo prova LibreOffice PDF.
+Non creare fogli tecnici nascosti nei nuovi XLSX e mantenere l'apertura dei file precedenti senza perdita di informazioni.
 
 ## 2. Cosa hai fatto
 
-- src/charts.mjs: nella sola copia di esportazione, fogli con grafici in orizzontale, fitToPage attivo, larghezza 1 pagina e altezza 1 pagina. L'altezza aggiuntiva è stata espressamente autorizzata dall'utente dopo la prova che larghezza 1 e orientamento orizzontale non bastavano.
-- tests/chart-print.test.mjs: verifica impostazioni, serializzazione e modello originale non mutato.
-- scripts/charts-interop.mjs: il PDF LibreOffice deve avere esattamente una pagina orizzontale; restano i confronti dei dati e dei tre grafici dopo XLSX → ODS → XLSX.
-- README.md e docs/BUG.md: comportamento di stampa, riduzione dei fogli grandi e chiusura CHART-002 sul campione provato.
-- scripts/notices.mjs eseguito: nessuna nuova dipendenza, attribuzioni già presenti invariate.
-- Creato questo report e aggiornata la copia docs/report/ULTIMO.md.
+- src/charts.mjs e src/workbooks.mjs: categorie dei nuovi grafici riferite alle celle reali dell'intervallo; metadati versione 2, riconoscimento senza foglio tecnico e nessuna generazione di veryHidden.
+- Per i vecchi grafici v1 con categorie diverse dalle celle: sola lettura, foglio tecnico esistente intatto ed export esclusivamente byte per byte identico. È la soluzione espressamente richiesta dall'utente al posto della proposta di tabelle visibili, rifiutata e non implementata.
+- src/GridCharts.jsx e src/GridEditor.jsx: avviso italiano sulla precedente anteprima, comandi di modifica disabilitati per quei file, grafici ancora visibili. Nei nuovi grafici le etichette modificano le celle reali; il pannello avverte che questo vale anche per gli altri grafici che le condividono. Nessuna cella aggiunta per migrare file vecchi.
+- tests/chart-legacy.test.mjs, tests/charts.test.mjs e tests/fixtures/legacy/: campione immutabile v1 creato prima della modifica, hash verificato, categorie discordanti conservate, copia originale e nuovi file senza fogli nascosti. I 13 campioni del manifest restano invariati.
+- scripts/charts-smoke.mjs e scripts/charts-interop.mjs: verifica interfaccia e round trip LibreOffice senza fogli nascosti; prova negativa dei grafici esterni ancora bloccati; prova di sola copia per i vecchi grafici.
+- scripts/charts-desktop-check.mjs e scripts/offline-smoke.mjs: prova del vecchio file anche in Electron e copia identica sul filesystem del pacchetto Windows.
+- README.md, docs/BUG.md, questo report e docs/report/ULTIMO.md: comportamento e deroga esplicita per i vecchi file. scripts/notices.mjs eseguito; nessuna nuova libreria.
 
 ## 3. Esiti reali di build e test
 
-Sequenza finale: tutti i comandi seguenti terminati con codice 0.
+Sequenza finale a sorgenti fermi: tutti i comandi seguenti terminati con codice 0.
 
 ### npm run build
 
@@ -33,20 +34,20 @@ dist/index.html                               0.93 kB │ gzip:   0.50 kB
 dist/assets/pdf.worker.min-CIqJB0yW.mjs   1,271.91 kB
 dist/assets/index-CXaGNzX4.css               44.59 kB │ gzip:  10.33 kB
 dist/assets/rolldown-runtime-COiEfhsA.js      1.11 kB │ gzip:   0.62 kB
-dist/assets/PdfViewer-B4dqdgi4.js            10.91 kB │ gzip:   4.17 kB
-dist/assets/SettingsPage-upAwXs8-.js         19.96 kB │ gzip:   6.86 kB
-dist/assets/GridEditor-CaZZLmAU.js          203.05 kB │ gzip:  70.48 kB
-dist/assets/import-docx-DBl4aX8S.js         301.70 kB │ gzip:  89.24 kB
+dist/assets/PdfViewer-DegIELvb.js            10.91 kB │ gzip:   4.17 kB
+dist/assets/SettingsPage-8ktBdiiU.js         19.96 kB │ gzip:   6.86 kB
+dist/assets/GridEditor-B1UQfFot.js          203.76 kB │ gzip:  70.73 kB
+dist/assets/import-docx-B2FSo26L.js         301.70 kB │ gzip:  89.24 kB
 dist/assets/pdf-editing-D-QQ0kUb.js         420.76 kB │ gzip: 175.99 kB
 dist/assets/pdf-engine-BF-5vh4s.js          443.65 kB │ gzip: 133.60 kB
-dist/assets/index-DbW1uvNr.js             2,319.93 kB │ gzip: 695.51 kB
+dist/assets/index-CaqtXkIh.js             2,321.06 kB │ gzip: 695.89 kB
 
 [plugin builtin:vite-reporter]
 (!) Some chunks are larger than 1900 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1.18s
+✓ built in 1.46s
 ```
 
 ### npm test
@@ -55,53 +56,55 @@ dist/assets/index-DbW1uvNr.js             2,319.93 kB │ gzip: 695.51 kB
 > cosmoffice@0.2.2 test
 > node --test tests/*.test.mjs
 
-✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (114.0196ms)
-✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (154.8994ms)
-✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (28.5545ms)
-✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (33.6668ms)
-✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (29.8967ms)
-✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (26.2663ms)
-✔ DOCX exports real text, bold marks and tables readable by another parser (99.5495ms)
-✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (68.5141ms)
-✔ unknown formulas retain their source without exporting a misleading cached number (13.3493ms)
-✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (3.3465ms)
-✔ cross-sheet formulas survive XLSX round trips and get calculated results (9.231ms)
-✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (13.128ms)
-✔ landscape DOCX uses a physically wider page with matching orientation (8.1514ms)
-✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (7.87ms)
-✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (148.553ms)
-✔ references, arithmetic, precedence and percentages (4.0332ms)
-✔ Italian aliases, absolute references, text and lazy IF (0.7022ms)
-✔ cycles, division by zero and unknown functions are visible and propagated (0.744ms)
-✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (0.5488ms)
-✔ Excel address limits and column naming (1.4066ms)
-✔ conditional sums, lookups, text, dates and error handling (3.8092ms)
-✔ quoted sheet names, absolute references and cycles across sheets (0.6187ms)
-✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.4108ms)
-✔ literal text resembling errors stays text while actual formula errors propagate (1.3008ms)
-✔ empty strings, blank cells and boolean predicates retain their separate types (0.9593ms)
-✔ Il processo principale non contiene updater o caricamenti da server (7.4551ms)
-✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (211.0449ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (38.3277ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (9.0933ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (128.3615ms)
-✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (21.735ms)
-✔ Excel exports do not mutate the open workbook, even when exported concurrently (113.0091ms)
-✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (30.6779ms)
-✔ damaged files and mismatched Office extensions are rejected before import (8.9091ms)
-✔ unsupported parts produce specific warnings without changing the original file (43.7382ms)
-✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (15.2248ms)
-✔ XLSX caches keep literal error-like strings separate from actual error cells (8.8224ms)
-✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (807.4013ms)
-✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1847.6918ms)
-ℹ tests 39
+✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (84.6351ms)
+✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (80.1231ms)
+✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (132.0776ms)
+✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (191.8864ms)
+✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (24.0772ms)
+✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (30.5931ms)
+✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (20.7985ms)
+✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (20.4465ms)
+✔ DOCX exports real text, bold marks and tables readable by another parser (118.7017ms)
+✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (97.1519ms)
+✔ unknown formulas retain their source without exporting a misleading cached number (15.2622ms)
+✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (4.888ms)
+✔ cross-sheet formulas survive XLSX round trips and get calculated results (13.4576ms)
+✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (14.7003ms)
+✔ landscape DOCX uses a physically wider page with matching orientation (8.9321ms)
+✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (10.384ms)
+✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (203.6258ms)
+✔ references, arithmetic, precedence and percentages (3.9801ms)
+✔ Italian aliases, absolute references, text and lazy IF (0.7027ms)
+✔ cycles, division by zero and unknown functions are visible and propagated (0.6501ms)
+✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (0.6505ms)
+✔ Excel address limits and column naming (1.452ms)
+✔ conditional sums, lookups, text, dates and error handling (4.1664ms)
+✔ quoted sheet names, absolute references and cycles across sheets (0.6431ms)
+✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.4244ms)
+✔ literal text resembling errors stays text while actual formula errors propagate (0.9034ms)
+✔ empty strings, blank cells and boolean predicates retain their separate types (0.726ms)
+✔ Il processo principale non contiene updater o caricamenti da server (8.4049ms)
+✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (210.5919ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (31.2914ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (9.4237ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (85.7928ms)
+✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (17.5339ms)
+✔ Excel exports do not mutate the open workbook, even when exported concurrently (134.1318ms)
+✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (41.4702ms)
+✔ damaged files and mismatched Office extensions are rejected before import (10.263ms)
+✔ unsupported parts produce specific warnings without changing the original file (43.2163ms)
+✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (10.8206ms)
+✔ XLSX caches keep literal error-like strings separate from actual error cells (10.1427ms)
+✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (741.1641ms)
+✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1945.0771ms)
+ℹ tests 41
 ℹ suites 0
-ℹ pass 39
+ℹ pass 41
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 2932.9867
+ℹ duration_ms 3431.0453
 ```
 
 ### npm run test:browser
@@ -139,7 +142,7 @@ dist/assets/index-DbW1uvNr.js             2,319.93 kB │ gzip: 695.51 kB
   ],
   "errors": []
 }
-08:43:51 [vite] (client) [console.warn] Warning: Indexing all PDF objects
+09:02:37 [vite] (client) [console.warn] Warning: Indexing all PDF objects
 {
   "result": "PASS",
   "scenarios": [
@@ -165,15 +168,15 @@ PASS 01-testo.pdf
 PASS 02-scansione.pdf
 PASS 03-venti-pagine.pdf
 PASS ortografia italiana: Write, Grid, impostazioni, parole personali, riavvio pagina e nessuna richiesta esterna.
-PASS grafici: barre, linee, torta, aggiornamento dati, titolo/etichette/legenda, bozza e XLSX riaperti; grafici esterni in sola lettura con export bloccato; nessuna richiesta esterna.
+PASS grafici: categorie nelle celle, nuovi XLSX senza fogli nascosti, dati aggiornati e file riaperti; vecchia anteprima in sola lettura con copia identica; grafici esterni con export bloccato; nessuna richiesta esterna.
 ```
 
 ### node scripts/charts-interop.mjs
 
 ```text
-convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795333526807\ods\grafici-ui.ods using filter : calc8
-convert V:\CosmonetOffice\test-results\charts-interop-1795333526807\ods\grafici-ui.ods as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795333526807\xlsx\grafici-ui.xlsx using filter : Calc Office Open XML
-convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795333526807\xlsx\grafici-ui.pdf using filter : calc_pdf_Export
+convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795334652054\ods\grafici-ui.ods using filter : calc8
+convert V:\CosmonetOffice\test-results\charts-interop-1795334652054\ods\grafici-ui.ods as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795334652054\xlsx\grafici-ui.xlsx using filter : Calc Office Open XML
+convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\CosmonetOffice\test-results\charts-interop-1795334652054\xlsx\grafici-ui.pdf using filter : calc_pdf_Export
 {
   "result": "PASS",
   "engine": "LibreOffice: XLSX → ODS → XLSX e PDF",
@@ -201,7 +204,7 @@ convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\
         ]
       ],
       "labels": [
-        "Gennaio",
+        "Gennaio personalizzato",
         "Febbraio"
       ],
       "result": "PASS"
@@ -215,7 +218,7 @@ convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\
         ]
       ],
       "labels": [
-        "Gennaio",
+        "Gennaio personalizzato",
         "Febbraio"
       ],
       "result": "PASS"
@@ -225,7 +228,7 @@ convert V:\CosmonetOffice\test-results\grafici-ui.xlsx as a Calc document -> V:\
     "pages": 1,
     "landscape": true
   },
-  "output": "V:\\CosmonetOffice\\test-results\\charts-interop-1795333526807",
+  "output": "V:\\CosmonetOffice\\test-results\\charts-interop-1795334652054",
   "limits": "Microsoft Excel non eseguito. I file riscritti da LibreOffice vengono aperti in sola lettura da CosmOffice per conservarne i grafici. Adattamento a una pagina anche in altezza: i fogli grandi si riducono in stampa."
 }
 ```
@@ -250,20 +253,20 @@ dist/index.html                               0.93 kB │ gzip:   0.50 kB
 dist/assets/pdf.worker.min-CIqJB0yW.mjs   1,271.91 kB
 dist/assets/index-CXaGNzX4.css               44.59 kB │ gzip:  10.33 kB
 dist/assets/rolldown-runtime-COiEfhsA.js      1.11 kB │ gzip:   0.62 kB
-dist/assets/PdfViewer-B4dqdgi4.js            10.91 kB │ gzip:   4.17 kB
-dist/assets/SettingsPage-upAwXs8-.js         19.96 kB │ gzip:   6.86 kB
-dist/assets/GridEditor-CaZZLmAU.js          203.05 kB │ gzip:  70.48 kB
-dist/assets/import-docx-DBl4aX8S.js         301.70 kB │ gzip:  89.24 kB
+dist/assets/PdfViewer-DegIELvb.js            10.91 kB │ gzip:   4.17 kB
+dist/assets/SettingsPage-8ktBdiiU.js         19.96 kB │ gzip:   6.86 kB
+dist/assets/GridEditor-B1UQfFot.js          203.76 kB │ gzip:  70.73 kB
+dist/assets/import-docx-B2FSo26L.js         301.70 kB │ gzip:  89.24 kB
 dist/assets/pdf-editing-D-QQ0kUb.js         420.76 kB │ gzip: 175.99 kB
 dist/assets/pdf-engine-BF-5vh4s.js          443.65 kB │ gzip: 133.60 kB
-dist/assets/index-DbW1uvNr.js             2,319.93 kB │ gzip: 695.51 kB
+dist/assets/index-CaqtXkIh.js             2,321.06 kB │ gzip: 695.89 kB
 
 [plugin builtin:vite-reporter]
 (!) Some chunks are larger than 1900 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1.14s
+✓ built in 1.11s
 
 > cosmoffice@0.2.2 icons
 > node scripts/icons.mjs
@@ -329,20 +332,20 @@ Attribuzioni e licenze raccolte.
 
 ## 4. Cosa funziona (provato)
 
-39 test del motore passati; tutte le suite browser e il corpus di 13 file passati. LibreOffice produce una pagina orizzontale con tre grafici interi; rendering Poppler della pagina esaminato visivamente. Dati, titoli, etichette e legenda rimangono verificati dopo il round trip indipendente. Pacchetto Windows ricostruito e provato; offline-smoke ancora senza connessioni.
+41 test del motore e tutte le suite browser passati. I nuovi file hanno categorie nei riferimenti reali A2:A3 e nessun foglio hidden/veryHidden, verificato prima e dopo LibreOffice. Riapertura nell'app e riconoscimento v2 passati. Il vecchio campione conserva A2=Gennaio e la categoria separata Gennaio personalizzato per il grafico a barre; linee e torta restano Gennaio. Grafici visibili ma non modificabili, avviso italiano presente e copia identica provata sia nel browser sia sul filesystem Windows. Nessuna connessione in offline-smoke.
 
 ## 5. Cosa NON funziona o non hai potuto provare
 
-Adattare anche l'altezza a una pagina può rendere piccoli i fogli grandi: è il compromesso approvato dall'utente. Non provato: tutte le combinazioni di dimensioni, impostazioni manuali di stampa e Microsoft Excel reale. Le parti 3–8 restano da svolgere, senza anticiparne l'implementazione.
+I vecchi file con categorie discordanti non sono modificabili: consentono soltanto la copia identica con il foglio tecnico e le impostazioni di stampa originali, come richiesto dall'utente. Non viene tentata una migrazione. Eventuali altri fogli nascosti già presenti nei file degli utenti non vengono cancellati automaticamente. Grafici esterni non riconosciuti ancora in sola lettura con export bloccato fino alla parte 8. Non provato: Microsoft Excel reale, tutte le varianti storiche e file modificati da terzi. Parti 4–8 da svolgere.
 
 ## 6. Bug e dubbi
 
-La prima prova con solo fitToWidth=1, fitToHeight=0 e landscape produceva ancora 2 pagine e spezzava la torta verticalmente. Non è stata dichiarata riuscita. Dopo l'autorizzazione esplicita è stata aggiunta l'altezza 1: PDF di 1 pagina, tutti e tre i grafici interi. CHART-002 chiuso per il campione riprodotto. Rimane l'avviso di dimensione del bundle.
+La prima esecuzione mirata passava 5 test su 6: il test immagini inseriva ancora un'etichetta nel modello v1 invece di una cella reale. Un errore nello script di modifica ne aveva impedito l'aggiornamento. Corretto il test senza cambiare il campione storico e ripetuta l'intera sequenza. Non sono state create tabelle visibili né sovrascritti dati per i vecchi file. Restano l'avviso di dimensione bundle e i limiti documentati.
 
 ## 7. Hash del commit
 
-Base: 2f208b23c220d40fca5d557f48ffcab71958042b, con cinque lavori CI verdi (run 44998973575). Codice e report vengono pubblicati nello stesso commit della parte 2; l'hash finale è nella cronologia di questo file e nel riepilogo conclusivo. L'hash del proprio commit non può essere inserito autoreferenzialmente senza cambiarlo.
+Base: 405a613ae05b8574d18c01affd920d22b705eba9, cinque lavori CI verdi, run 44999964554. Codice e report condividono un unico commit della parte 3; hash finale nella cronologia del file e nel riepilogo conclusivo (un hash autoreferenziale non può essere scritto nello stesso commit).
 
 ## 8. Prossimo passo
 
-Parte 3: eliminare il foglio tecnico conservando la compatibilità dei file precedenti e verificando nuovamente il round trip LibreOffice.
+Parte 4: aggiungere alla CI il validatore Open XML SDK Microsoft per gli XLSX e DOCX esportati, rendendo gli errori bloccanti.

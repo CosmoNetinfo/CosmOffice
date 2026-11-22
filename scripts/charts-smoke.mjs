@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 import { createServer } from 'vite';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import JSZip from 'jszip';
 import { newWorkbook, openWorkbook, exportWorkbook } from '../src/workbooks.mjs';
@@ -49,7 +49,9 @@ try {
   await page.waitForFunction(() => window.saved.length === 1);
   const bytes = new Uint8Array(await page.evaluate(() => window.saved[0]));
   await writeFile('test-results/grafici-ui.xlsx', bytes);
+  assert.doesNotMatch(await (await JSZip.loadAsync(bytes)).file('xl/workbook.xml').async('string'), /state="(?:hidden|veryHidden)"|_CosmoGrafici/);
   const reopened = await openWorkbook(bytes); assert.equal(chartModels(reopened).length, 3);
+  assert.equal(reopened.worksheets[0].getCell('A2').value, 'Gennaio personalizzato', 'le etichette sono celle reali');
   await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
   await page.reload(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
   await page.getByRole('button', { name: 'grafici CosmoGrid', exact: true }).click();
@@ -67,6 +69,18 @@ try {
   await page.getByRole('button', { name: 'Esporta XLSX', exact: true }).click();
   await page.getByRole('status').filter({ hasText: 'esportazione XLSX è bloccata' }).waitFor();
   assert.equal(await page.evaluate(() => window.saved.length), 0, 'nessun salvataggio dopo il ricaricamento e il tentativo bloccato');
+  await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
+  const legacy = new Uint8Array(await readFile('tests/fixtures/legacy/grafici-categorie-v1.xlsx'));
+  await open(legacy, 'vecchia-anteprima.xlsx');
+  await page.getByRole('alert').filter({ hasText: 'versione di anteprima precedente' }).waitFor();
+  assert.equal(await cell('A2').getAttribute('readonly'), '');
+  assert.equal(await page.getByRole('button', { name: '_CosmoGrafici', exact: true }).count(), 0);
+  assert.equal(await page.locator('.grid-chart canvas').count(), 3);
+  assert.equal(await page.locator('.grid-chart').first().getByRole('button', { name: 'Modifica grafico', exact: true }).isDisabled(), true);
+  await page.locator('.grid-chart').first().locator('summary').click();
+  assert.match(await page.locator('.grid-chart').first().locator('table').innerText(), /Gennaio personalizzato/);
+  await page.getByRole('button', { name: 'Esporta XLSX', exact: true }).click(); await page.waitForFunction(() => window.saved.length === 1);
+  assert.deepEqual(new Uint8Array(await page.evaluate(() => window.saved[0])), legacy, 'copia identica senza riscrivere il foglio tecnico');
   assert.deepEqual(errors, []); assert.deepEqual(external, []);
-  console.log('PASS grafici: barre, linee, torta, aggiornamento dati, titolo/etichette/legenda, bozza e XLSX riaperti; grafici esterni in sola lettura con export bloccato; nessuna richiesta esterna.');
+  console.log('PASS grafici: categorie nelle celle, nuovi XLSX senza fogli nascosti, dati aggiornati e file riaperti; vecchia anteprima in sola lettura con copia identica; grafici esterni con export bloccato; nessuna richiesta esterna.');
 } finally { await browser?.close(); await server.close(); }

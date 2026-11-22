@@ -24,6 +24,8 @@ async function convert(source, format, destination) {
 }
 const input = resolve('test-results/grafici-ui.xlsx');
 const original = await openWorkbook(new Uint8Array(await readFile(input)));
+const sourceZip = await JSZip.loadAsync(await readFile(input));
+assert.doesNotMatch(await sourceZip.file('xl/workbook.xml').async('string'), /state="(?:hidden|veryHidden)"|_CosmoGrafici/, 'nuovo XLSX senza fogli nascosti');
 assert.equal(chartModels(original).length, 3, 'occorre il file realmente creato dal test UI');
 await convert(input, 'ods', intermediate);
 await convert(join(intermediate, 'grafici-ui.ods'), 'xlsx', output);
@@ -34,6 +36,7 @@ const printedPage = printed.getPage(0);
 assert.ok(printedPage.getWidth() > printedPage.getHeight(), 'pagina di stampa orizzontale');
 const roundtrip = new Uint8Array(await readFile(join(output, 'grafici-ui.xlsx')));
 const zip = await JSZip.loadAsync(roundtrip);
+assert.doesNotMatch(await zip.file('xl/workbook.xml').async('string'), /state="(?:hidden|veryHidden)"|_CosmoGrafici/, 'nessun foglio nascosto dopo LibreOffice');
 const parts = [];
 for (const name of Object.keys(zip.files).filter(name => /^xl\/charts\/.*\.xml$/.test(name))) {
   const doc = new DOMParser().parseFromString(await zip.file(name).async('string'), 'application/xml');

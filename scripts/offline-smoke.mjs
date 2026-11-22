@@ -21,8 +21,8 @@ try {
   assert.equal((await page.evaluate(() => window.cosmoffice.checkUpdates())).phase, 'disabled');
   assert.equal((await page.evaluate(() => window.cosmoffice.setUpdatePreferences(true))).phase, 'disabled');
   assert.equal((await page.evaluate(() => window.cosmoffice.installUpdate())).phase, 'disabled');
-  for (const file of ['05-intestazioni.docx', '03-formati.xlsx', '03-venti-pagine.pdf', 'grafici-ui.xlsx']) {
-    const source = file === 'grafici-ui.xlsx' ? `test-results/${file}` : `tests/fixtures/${file}`;
+  for (const file of ['05-intestazioni.docx', '03-formati.xlsx', '03-venti-pagine.pdf', 'grafici-ui.xlsx', 'grafici-categorie-v1.xlsx']) {
+    const source = file === 'grafici-ui.xlsx' ? `test-results/${file}` : file === 'grafici-categorie-v1.xlsx' ? `tests/fixtures/legacy/${file}` : `tests/fixtures/${file}`;
     await application.evaluate(({ dialog }, filename) => { dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [filename] }); }, resolve(source));
     await page.getByRole('button', { name: 'Apri un file', exact: true }).click();
     if (file.endsWith('.docx')) await page.locator('.document-page').waitFor();

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Bold, Italic, Euro, Percent, Plus, Check, Undo2, Redo2, Download, Copy, Trash2, Pencil, LoaderCircle } from 'lucide-react';
 import Papa from 'papaparse';
 import GridCharts from './GridCharts.jsx';
-import { chartModels, newChart, unsupportedChartMessage } from './charts.mjs';
+import { chartModels, newChart, unsupportedChartMessage, legacyChartMessage, categoryEdits } from './charts.mjs';
 import { usePreferences } from './preferences.jsx';
 import { useSpelling } from './Spelling.jsx';
 import { openWorkbook, exportWorkbook, rawValue, setCellInput, calculatorFor, exportDelimited, pasteRange, snapshotWorkbook, snapshotWorksheet } from './workbooks.mjs';
@@ -36,11 +36,12 @@ export default function GridEditor({ record, onEdit, api, onError }) {
     return () => { cancelled = true; };
   }, []);
   const sheet = book?.getWorksheet(sheetId);
-  const readOnly = !!book?.cosmoUnsupportedCharts;
+  const readOnly = !!(book?.cosmoUnsupportedCharts || book?.cosmoLegacyChartCopyOnly);
+  const displaySheets = book?.worksheets.filter(item => !book.cosmoLegacyChartCopyOnly || item.name !== book.properties.cosmoChartDataSheetName) || [];
   const calc = useMemo(() => sheet ? calculatorFor(sheet) : () => '', [sheet, revision]);
   const area = bounds(selected, rangeEnd);
   useEffect(() => { if (sheet) setFormula(String(rawValue(sheet.getCell(selected)))); }, [sheet, selected, revision]);
-  useEffect(() => { if (book) api.current = { export: () => exportWorkbook(book), snapshot: async () => book.cosmoUnsupportedCharts ? book.cosmoOriginalBytes.slice() : exportWorkbook(book) }; }, [book, api]);
+  useEffect(() => { if (book) api.current = { export: () => exportWorkbook(book), snapshot: async () => (book.cosmoUnsupportedCharts || book.cosmoLegacyChartCopyOnly) ? book.cosmoOriginalBytes.slice() : exportWorkbook(book) }; }, [book, api]);
   function activate(target) {
     setSheetId(target.id); setSelected('A1'); setRangeEnd('A1');
     setRows(Math.max(settings.gridRows, Math.min(target.rowCount + 5, 500))); setCols(Math.max(settings.gridCols, Math.min(target.columnCount + 2, 40)));
@@ -123,13 +124,13 @@ export default function GridEditor({ record, onEdit, api, onError }) {
     try { const model = newChart(book, sheet.id, `${columnName(area.c0)}${area.r0}`, `${columnName(area.c1)}${area.r1}`, type); checkpoint(); book.properties.cosmoCharts = [...chartModels(book), model]; changed(); }
     catch (error) { onError(error.message); }
   }
-  function updateChart(id, next) { checkpoint(); book.properties.cosmoCharts = chartModels(book).map(model => model.id === id ? next : model); changed(); }
+  function updateChart(id, next) { if (readOnly) return; const edits = categoryEdits(book, next, next.labels); checkpoint(); for (const edit of edits) book.getWorksheet(next.sheetId).getCell(edit.address).value = edit.value; book.properties.cosmoCharts = chartModels(book).map(model => model.id === id ? { ...next, labels: [] } : model); changed(); }
   function deleteChart(id) { checkpoint(); book.properties.cosmoCharts = chartModels(book).filter(model => model.id !== id); changed(); }
   if (!book || !sheet) return <div className="loading-editor"><LoaderCircle className="spin"/> Apertura del foglio…</div>;
   const current = sheet.getCell(selected), values = [];
   for (let r = area.r0; r <= Math.min(area.r1, area.r0 + 999); r++) for (let c = area.c0; c <= area.c1; c++) { const v = calc(`${columnName(c)}${r}`); if (typeof v === 'number') values.push(v); }
   return <div className={`editor-body grid-editor ${settings.gridLines ? '' : 'no-gridlines'}`} onPaste={paste} onCopy={copy} onKeyDown={onKey}>
-    {readOnly && <div className="import-notice" role="alert">{unsupportedChartMessage}</div>}
+    {readOnly && <div className="import-notice" role="alert">{book.cosmoLegacyChartCopyOnly ? legacyChartMessage : unsupportedChartMessage}</div>}
     <div inert={readOnly || undefined} className="toolbar" role="toolbar" aria-label="Strumenti foglio di calcolo">
       <div className="tool-group"><Tool label="Annulla modifica foglio" disabled={!history.current.undo.length} onClick={() => restore('undo')}><Undo2 size={17}/></Tool><Tool label="Ripristina modifica foglio" disabled={!history.current.redo.length} onClick={() => restore('redo')}><Redo2 size={17}/></Tool></div>
       <div className="tool-group"><Tool label="Grassetto cella" active={!!current.font?.bold} onClick={() => format('bold')}><Bold size={17}/></Tool><Tool label="Corsivo cella" active={!!current.font?.italic} onClick={() => format('italic')}><Italic size={17}/></Tool></div>
@@ -148,9 +149,9 @@ export default function GridEditor({ record, onEdit, api, onError }) {
       const bg = cell.fill?.fgColor?.argb, fg = cell.font?.color?.argb, within = r + 1 >= area.r0 && r + 1 <= area.r1 && c + 1 >= area.c0 && c + 1 <= area.c1;
       return <GridCell key={`${sheet.id}-${address}`} readOnly={readOnly} address={address} raw={String(rawValue(cell))} display={String(display)} selected={selected === address} within={within && selected !== rangeEnd} numeric={typeof value === 'number'} error={calculated.error} style={{ fontWeight: cell.font?.bold ? 700 : undefined, fontStyle: cell.font?.italic ? 'italic' : undefined, backgroundColor: bg?.length === 8 ? `#${bg.slice(2)}` : undefined, color: fg?.length === 8 ? `#${fg.slice(2)}` : undefined }} onSelect={() => { setSelected(address); setRangeEnd(address); }} onExtend={() => setRangeEnd(address)} onCommit={value => commit(address, value)}/>;
     })}</tr>)}</tbody></table></div>
-    {!readOnly && <GridCharts book={book} sheetId={sheetId} revision={revision} onChange={updateChart} onDelete={deleteChart} onError={onError}/>}
-    <div className="sheet-tabs"><button className="icon-button" disabled={readOnly} aria-label="Aggiungi foglio" onClick={() => { checkpoint(); let n = book.worksheets.length + 1; while (book.getWorksheet(`Foglio ${n}`)) n++; activate(book.addWorksheet(`Foglio ${n}`)); changed(); }}><Plus size={18}/></button>{book.worksheets.map(s => <button key={s.id} className={s.id === sheetId ? 'sheet-tab active' : 'sheet-tab'} onClick={() => activate(s)} onDoubleClick={() => { if (readOnly) return; setSheetName(s.name); setSheetDialog('rename'); }}>{s.name}</button>)}<div className="sheet-actions"><Tool disabled={readOnly} label="Rinomina foglio" onClick={() => { setSheetName(sheet.name); setSheetDialog('rename'); }}><Pencil size={14}/></Tool><Tool disabled={readOnly} label="Duplica foglio" onClick={duplicate}><Copy size={15}/></Tool><Tool label="Elimina foglio" disabled={readOnly || book.worksheets.length < 2} onClick={() => setSheetDialog('delete')}><Trash2 size={15}/></Tool></div></div>
-    <div className="editor-status"><span>{book.worksheets.length} {book.worksheets.length === 1 ? 'foglio' : 'fogli'}<i/>{selected === rangeEnd ? `Cella ${selected}` : `${selected}:${rangeEnd} · Somma: ${values.reduce((a, b) => a + b, 0).toLocaleString(settings.gridLocale)} · Numeri: ${values.length}`}</span><span>Shift + clic per selezionare · Incolla intervalli con Ctrl+V</span></div>
+    {!book.cosmoUnsupportedCharts && <GridCharts readOnly={readOnly} book={book} sheetId={sheetId} revision={revision} onChange={updateChart} onDelete={deleteChart} onError={onError}/>}
+    <div className="sheet-tabs"><button className="icon-button" disabled={readOnly} aria-label="Aggiungi foglio" onClick={() => { checkpoint(); let n = book.worksheets.length + 1; while (book.getWorksheet(`Foglio ${n}`)) n++; activate(book.addWorksheet(`Foglio ${n}`)); changed(); }}><Plus size={18}/></button>{displaySheets.map(s => <button key={s.id} className={s.id === sheetId ? 'sheet-tab active' : 'sheet-tab'} onClick={() => activate(s)} onDoubleClick={() => { if (readOnly) return; setSheetName(s.name); setSheetDialog('rename'); }}>{s.name}</button>)}<div className="sheet-actions"><Tool disabled={readOnly} label="Rinomina foglio" onClick={() => { setSheetName(sheet.name); setSheetDialog('rename'); }}><Pencil size={14}/></Tool><Tool disabled={readOnly} label="Duplica foglio" onClick={duplicate}><Copy size={15}/></Tool><Tool label="Elimina foglio" disabled={readOnly || book.worksheets.length < 2} onClick={() => setSheetDialog('delete')}><Trash2 size={15}/></Tool></div></div>
+    <div className="editor-status"><span>{displaySheets.length} {displaySheets.length === 1 ? 'foglio' : 'fogli'}<i/>{selected === rangeEnd ? `Cella ${selected}` : `${selected}:${rangeEnd} · Somma: ${values.reduce((a, b) => a + b, 0).toLocaleString(settings.gridLocale)} · Numeri: ${values.length}`}</span><span>Shift + clic per selezionare · Incolla intervalli con Ctrl+V</span></div>
     {sheetDialog && <div className="modal-backdrop"><form className="modal" role="dialog" aria-modal="true" aria-label={sheetDialog === 'delete' ? 'Elimina foglio' : 'Rinomina foglio'} onSubmit={event => { event.preventDefault(); if (sheetDialog === 'rename') rename(); else { checkpoint(); book.properties.cosmoCharts = chartModels(book).filter(model => model.sheetId !== sheet.id); book.removeWorksheet(sheet.id); activate(book.worksheets[0]); setSheetDialog(null); changed(); } }}><h2>{sheetDialog === 'delete' ? 'Eliminare questo foglio?' : 'Rinomina il foglio'}</h2>{sheetDialog === 'delete' ? <p>Il foglio «{sheet.name}» verrà rimosso dalla bozza. I riferimenti al foglio eliminato mostreranno un errore. Puoi annullare l’operazione.</p> : <input className="dialog-input" autoFocus aria-label="Nuovo nome foglio" maxLength={31} value={sheetName} onChange={e => setSheetName(e.target.value)}/>}<div className="modal-actions"><button type="button" className="button secondary" onClick={() => setSheetDialog(null)}>Annulla</button><button className={`button ${sheetDialog === 'delete' ? 'danger' : 'primary'}`}>{sheetDialog === 'delete' ? 'Elimina foglio' : 'Salva nome'}</button></div></form></div>}
   </div>;
 }

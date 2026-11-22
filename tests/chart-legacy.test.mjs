@@ -1,0 +1,34 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import JSZip from 'jszip';
+import { openWorkbook, exportWorkbook, newWorkbook, snapshotWorkbook } from '../src/workbooks.mjs';
+import { chartModels, chartData, newChart, categoryEdits } from '../src/charts.mjs';
+const legacy = new Uint8Array(await readFile('tests/fixtures/legacy/grafici-categorie-v1.xlsx'));
+test('Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto', async () => {
+  assert.equal(createHash('sha256').update(legacy).digest('hex'), '32f78da3b5c628b67671d34a7f578ab3366ce585658e85f7a4c6934581fcfc0a');
+  const book = await openWorkbook(legacy);
+  assert.equal(book.cosmoLegacyChartCopyOnly, true);
+  assert.equal(book.getWorksheet('_CosmoGrafici').state, 'veryHidden');
+  assert.equal(book.worksheets[0].getCell('A2').value, 'Gennaio');
+  assert.deepEqual(chartData(book, chartModels(book)[0]).labels, ['Gennaio personalizzato', 'Febbraio']);
+  assert.deepEqual(chartData(book, chartModels(book)[1]).labels, ['Gennaio', 'Febbraio']);
+  const snapshot = snapshotWorkbook(book);
+  assert.deepEqual(await exportWorkbook(book), legacy);
+  assert.deepEqual(snapshotWorkbook(book), snapshot);
+});
+test('Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura', async () => {
+  const book = newWorkbook(), sheet = book.worksheets[0]; sheet.addRows([['Voce', 'Valore'], ['A', 4], ['B', 8]]);
+  const model = newChart(book, sheet.id, 'A1', 'B3', 'bar'); book.properties.cosmoCharts = [model];
+  const edits = categoryEdits(book, model, ['Nome reale', 'B']);
+  for (const edit of edits) sheet.getCell(edit.address).value = edit.value;
+  const bytes = await exportWorkbook(book), zip = await JSZip.loadAsync(bytes);
+  const xml = await zip.file('xl/workbook.xml').async('string');
+  assert.doesNotMatch(xml, /state="(?:hidden|veryHidden)"|_CosmoGrafici/);
+  assert.match(await zip.file(`xl/charts/cosmoChart-${model.id}.xml`).async('string'), /\$A\$2:\$A\$3/);
+  assert.match(await zip.file('customXml/cosmoCharts.xml').async('string'), /&quot;version&quot;:2|"version":2/);
+  const restored = await openWorkbook(bytes);
+  assert.equal(restored.cosmoUnsupportedCharts, undefined); assert.equal(restored.cosmoLegacyChartCopyOnly, undefined);
+  assert.equal(restored.worksheets.length, 1); assert.deepEqual(chartData(restored, chartModels(restored)[0]).labels, ['Nome reale', 'B']);
+});

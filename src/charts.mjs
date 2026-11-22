@@ -11,6 +11,7 @@ const XDR = 'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing
 const S = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
 const CT = 'http://schemas.openxmlformats.org/package/2006/content-types';
 export const unsupportedChartMessage = 'Questa cartella contiene grafici importati non modificabili da CosmOffice. Per conservare i grafici la cartella è in sola lettura e l’esportazione XLSX è bloccata. Apri l’originale in Excel o LibreOffice.';
+export const legacyChartMessage = 'File creato con una versione di anteprima precedente: alcune categorie personalizzate sono in un foglio tecnico. Il file è in sola lettura. Puoi esportare soltanto una copia identica all’originale, senza riscrivere il foglio tecnico.';
 export const chartModels = book => book.properties.cosmoCharts || [];
 const escape = value => String(value).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;');
 const xml = content => `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${content}`;
@@ -42,12 +43,12 @@ function validate(model) {
   for (const key of ['labels', 'seriesNames']) if (!Array.isArray(model[key]) || model[key].length > 10000 || model[key].some(value => typeof value !== 'string' || value.length > 200)) throw new Error('Etichette del grafico non valide.');
   return { a, b };
 }
-export function chartData(book, model) {
+export function chartData(book, model, legacy = !!book.cosmoLegacyChartCopyOnly) {
   const { a, b } = validate(model), sheet = book.getWorksheet(model.sheetId);
   if (!sheet) throw new Error('Il foglio del grafico non esiste.');
   const calc = calculatorFor(sheet), first = a.row + (model.headers ? 1 : 0);
   const labels = [], series = [];
-  for (let row = first; row <= b.row; row++) labels.push(model.labels[row - first] || String(calc(`${columnName(a.col)}${row}`) ?? ''));
+  for (let row = first; row <= b.row; row++) labels.push(legacy && model.labels[row - first] || String(calc(`${columnName(a.col)}${row}`) ?? ''));
   for (let col = a.col + 1; col <= (model.type === 'pie' ? a.col + 1 : b.col); col++) {
     const values = [];
     for (let row = first; row <= b.row; row++) {
@@ -63,8 +64,12 @@ export function newChart(book, sheetId, start, end, type) {
   const model = { id: crypto.randomUUID(), sheetId, start, end, type, title: 'Nuovo grafico', headers: true, legend: 'right', axisX: '', axisY: '', labels: [], seriesNames: [] };
   chartData(book, model); return model;
 }
-// Le etichette personalizzate usano celle reali in un foglio tecnico nascosto:
-// LibreOffice perde le categorie espresse solo come c:strLit durante il risalvataggio.
+export function categoryEdits(book, model, labels) {
+  const data = chartData(book, model, false);
+  if (!Array.isArray(labels) || labels.length !== data.labels.length || labels.some(label => typeof label !== 'string' || label.length > 200)) throw new Error(`Inserisci ${data.labels.length} etichette, una per riga, con massimo 200 caratteri ciascuna.`);
+  return labels.flatMap((label, index) => label === data.labels[index] ? [] : [{ address: `${columnName(data.categoryCol)}${data.first + index}`, value: label }]);
+}
+// Le categorie dei nuovi file provengono soltanto dall'intervallo reale.
 export function prepareCharts(book) {
   const models = chartModels(book).filter(model => book.getWorksheet(model.sheetId));
   book.properties.cosmoCharts = models;
@@ -72,21 +77,14 @@ export function prepareCharts(book) {
     sheet.pageSetup = { ...sheet.pageSetup, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 1 };
   }
   delete book.properties.cosmoChartDataSheetName;
-  if (!models.some(model => model.labels.some(Boolean))) return;
-  let name = '_CosmoGrafici', index = 1;
-  while (book.worksheets.some(sheet => sheet.name.toLowerCase() === name.toLowerCase())) name = `_CosmoGrafici${index++}`;
-  const sheet = book.addWorksheet(name, { state: 'veryHidden' });
-  book.properties.cosmoChartDataSheetName = name;
-  models.forEach((model, col) => {
-    if (model.labels.some(Boolean)) chartData(book, model).labels.forEach((label, row) => { sheet.getCell(row + 1, col + 1).value = label; });
-  });
+  if (models.some(model => model.labels.some(Boolean))) throw new Error('Le categorie dei nuovi grafici devono essere scritte nelle celle dell’intervallo.');
 }
 const richTitle = title => `<c:title><c:tx><c:rich><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="it-IT"/><a:t>${escape(title)}</a:t></a:r></a:p></c:rich></c:tx><c:overlay val="0"/></c:title>`;
 const strCache = values => `<c:ptCount val="${values.length}"/>${values.map((value, index) => `<c:pt idx="${index}"><c:v>${escape(value)}</c:v></c:pt>`).join('')}`;
-export function chartXml(book, model) {
-  const data = chartData(book, model);
+export function chartXml(book, model, legacy = false) {
+  const data = chartData(book, model, legacy);
   const ref = col => `'${data.sheet.name.replaceAll("'", "''")}'!$${columnName(col)}$${data.first}:$${columnName(col)}$${data.last}`;
-  const labelsRef = model.labels.some(Boolean) ? `'${book.properties.cosmoChartDataSheetName.replaceAll("'", "''")}'!$${columnName(chartModels(book).findIndex(item => item.id === model.id) + 1)}$1:$${columnName(chartModels(book).findIndex(item => item.id === model.id) + 1)}$${data.labels.length}` : ref(data.categoryCol);
+  const labelsRef = legacy && model.labels.some(Boolean) ? `'${book.properties.cosmoChartDataSheetName.replaceAll("'", "''")}'!$${columnName(chartModels(book).findIndex(item => item.id === model.id) + 1)}$1:$${columnName(chartModels(book).findIndex(item => item.id === model.id) + 1)}$${data.labels.length}` : ref(data.categoryCol);
   const cats = `<c:strRef><c:f>${escape(labelsRef)}</c:f><c:strCache>${strCache(data.labels)}</c:strCache></c:strRef>`;
   const series = data.series.map((serie, index) => `<c:ser><c:idx val="${index}"/><c:order val="${index}"/><c:tx><c:v>${escape(serie.name)}</c:v></c:tx>${model.type === 'line' ? '<c:marker><c:symbol val="circle"/><c:size val="5"/></c:marker>' : ''}<c:cat>${cats}</c:cat><c:val><c:numRef><c:f>${escape(ref(serie.col))}</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="${serie.values.length}"/>${serie.values.map((value, i) => value === null ? '' : `<c:pt idx="${i}"><c:v>${value}</c:v></c:pt>`).join('')}</c:numCache></c:numRef></c:val>${model.type === 'line' ? '<c:smooth val="0"/>' : ''}</c:ser>`).join('');
   const type = model.type === 'bar' ? 'barChart' : model.type === 'line' ? 'lineChart' : 'pieChart';
@@ -104,7 +102,8 @@ export async function readCharts(book, bytes) {
     const file = zip.file('customXml/cosmoCharts.xml');
     if (!file || file._data.uncompressedSize > 2000000) throw new Error('Grafici di origine esterna.');
     const metadata = JSON.parse(parse(await file.async('string')).documentElement.textContent);
-    if (metadata.version !== 1 || !Array.isArray(metadata.charts) || metadata.charts.length !== parts.length || parts.length > 100) throw new Error('Metadati grafici non riconosciuti.');
+    if (![1, 2].includes(metadata.version) || !Array.isArray(metadata.charts) || metadata.charts.length !== parts.length || parts.length > 100) throw new Error('Metadati grafici non riconosciuti.');
+    if (metadata.version === 2 && (metadata.dataSheet || metadata.charts.some(model => model.labels?.some(Boolean)))) throw new Error('Categorie non collegate alle celle.');
     const seen = new Set();
     book.properties.cosmoCharts = metadata.charts;
     book.properties.cosmoChartDataSheetName = metadata.dataSheet;
@@ -114,13 +113,28 @@ export async function readCharts(book, bytes) {
     for (const model of metadata.charts) {
       validate(model);
       const part = `xl/charts/cosmoChart-${model.id}.xml`;
-      if (seen.has(part) || !parts.includes(part) || zip.file(part)._data.uncompressedSize > 2000000 || await zip.file(part).async('string') !== chartXml(book, model)) throw new Error('Il grafico è stato modificato da un altro programma.');
+      if (seen.has(part) || !parts.includes(part) || zip.file(part)._data.uncompressedSize > 2000000 || await zip.file(part).async('string') !== chartXml(book, model, metadata.version === 1)) throw new Error('Il grafico è stato modificato da un altro programma.');
       seen.add(part);
-      if (model.labels.some(Boolean)) chartData(book, model).labels.forEach((label, row) => {
+      if (model.labels.some(Boolean)) chartData(book, model, true).labels.forEach((label, row) => {
         if (dataSheet.getCell(row + 1, metadata.charts.indexOf(model) + 1).value !== label) throw new Error('Etichette modificate da un altro programma.');
       });
     }
+    if (metadata.version === 1 && metadata.charts.some(model => {
+      const original = chartData(book, model, false).labels;
+      return chartData(book, model, true).labels.some((label, row) => label !== original[row]);
+    })) {
+      book.cosmoLegacyChartCopyOnly = true;
+      book.cosmoOriginalBytes = new Uint8Array(bytes).slice();
+      return;
+    }
+    if (dataSheet) {
+      const expected = new Set();
+      metadata.charts.forEach((model, col) => { if (model.labels.some(Boolean)) chartData(book, model, true).labels.forEach((_, row) => expected.add(`${row + 1}:${col + 1}`)); });
+      dataSheet.eachRow(row => row.eachCell(cell => { if (!expected.has(`${cell.row}:${cell.col}`)) throw new Error('Il foglio tecnico contiene altri dati da conservare.'); }));
+    }
     if (dataSheet) book.removeWorksheet(dataSheet.id);
+    delete book.properties.cosmoChartDataSheetName;
+    metadata.charts.forEach(model => { model.labels = []; });
   } catch {
     delete book.properties.cosmoCharts;
     delete book.properties.cosmoChartDataSheetName;
@@ -172,7 +186,7 @@ export async function writeCharts(book, bytes) {
     zip.file(sheetPath, serialize(doc)); zip.file(relPath, serialize(rels));
   }
   const metadataPath = 'customXml/cosmoCharts.xml';
-  zip.file(metadataPath, xml(`<cosmoCharts xmlns="urn:cosmonet:charts:1">${escape(JSON.stringify({ version: 1, charts: models, dataSheet: book.properties.cosmoChartDataSheetName }))}</cosmoCharts>`));
+  zip.file(metadataPath, xml(`<cosmoCharts xmlns="urn:cosmonet:charts:1">${escape(JSON.stringify({ version: 2, charts: models }))}</cosmoCharts>`));
   override(metadataPath, 'application/xml');
   const bookRelsPath = 'xl/_rels/workbook.xml.rels', bookRels = parse(await zip.file(bookRelsPath).async('string'));
   addRelation(bookRels, 'customXml', '../customXml/cosmoCharts.xml');

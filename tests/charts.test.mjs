@@ -34,7 +34,7 @@ test('Grafici e immagini condividono il disegno; titoli ed etichette XML sono es
   const book = newWorkbook(), sheet = book.worksheets[0]; sheet.addRows([['Voce', 'Valore'], ['A & B', 1]]);
   const id = book.addImage({ base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j2ioAAAAASUVORK5CYII=', extension: 'png' });
   sheet.addImage(id, 'D1:E3');
-  const model = newChart(book, sheet.id, 'A1', 'B2', 'line'); model.title = 'Ricavi <2026> & "costi"'; model.labels = ['Uno & due']; model.seriesNames = ['Serie <1>'];
+  const model = newChart(book, sheet.id, 'A1', 'B2', 'line'); model.title = 'Ricavi <2026> & "costi"'; sheet.getCell('A2').value = 'Uno & due'; model.seriesNames = ['Serie <1>'];
   book.properties.cosmoCharts = [model];
   const reopened = await openWorkbook(await exportWorkbook(book));
   assert.equal(reopened.worksheets.length, 1, 'foglio tecnico interno non esposto nell’editor');

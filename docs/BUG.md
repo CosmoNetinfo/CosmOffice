@@ -60,6 +60,6 @@ Primo giro del corpus: 9/13 PASS. DAT-008 era una perdita reale. I tre confronti
 
 ### Grafici: compatibilità e verifica indipendente
 
-- CHART-001: LibreOffice perdeva le categorie personalizzate espresse come c:strLit. Corretto usando riferimenti a celle in un foglio tecnico veryHidden, incluso nel file esportato. charts-interop confronta categorie e dati dopo XLSX → ODS → XLSX.
+- CHART-001: LibreOffice perdeva le categorie personalizzate espresse come c:strLit. I nuovi grafici ora usano riferimenti alle celle reali dell’intervallo senza fogli nascosti. I file v1 con categorie diverse sono in sola lettura e consentono soltanto la copia identica, come richiesto dall’utente; nessuna migrazione che sovrascriva o aggiunga celle.
 - Grafici esterni o riscritti da altri programmi non sono modificabili; export bloccato per evitare perdita silenziosa. Il supporto completo di questi grafici resta da implementare.
 - Non provato: Microsoft Excel reale, grafici avanzati e cartelle grandi. La disposizione e i colori del lettore indipendente possono differire dal pannello CosmOffice.

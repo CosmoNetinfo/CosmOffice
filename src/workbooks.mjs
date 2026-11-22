@@ -105,6 +105,7 @@ export function newWorkbook(template = 'blank') {
   return book;
 }
 export async function exportWorkbook(book) {
+  if (book.cosmoLegacyChartCopyOnly) return book.cosmoOriginalBytes.slice();
   if (book.cosmoUnsupportedCharts) throw new Error(unsupportedChartMessage);
   const copy = new ExcelJS.Workbook();
   copy.model = snapshotWorkbook(book);

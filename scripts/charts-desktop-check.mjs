@@ -23,4 +23,14 @@ export async function checkDesktopCharts(application, page) {
   await page.getByRole('textbox', { name: 'Cella B2', exact: true }).waitFor();
   assert.equal(await page.locator('.grid-chart canvas').count(), 3);
   await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
+  const legacyPath = resolve('tests/fixtures/legacy/grafici-categorie-v1.xlsx'), legacyCopy = resolve('test-results/grafici-anteprima-desktop.xlsx');
+  await application.evaluate(({ dialog }, file) => { dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [file] }); }, legacyPath);
+  await page.getByRole('button', { name: 'Apri un file', exact: true }).click();
+  await page.getByRole('alert').filter({ hasText: 'versione di anteprima precedente' }).waitFor();
+  assert.equal(await page.getByRole('textbox', { name: 'Cella A2', exact: true }).getAttribute('readonly'), '');
+  await application.evaluate(({ dialog }, file) => { dialog.showSaveDialog = async () => ({ canceled: false, filePath: file }); }, legacyCopy);
+  await page.getByRole('button', { name: 'Esporta XLSX', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: 'Copia esportata: grafici-anteprima-desktop.xlsx' }).waitFor();
+  assert.deepEqual(await readFile(legacyCopy), await readFile(legacyPath));
+  await page.getByRole('button', { name: 'Torna alle bozze' }).click(); await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
 }
