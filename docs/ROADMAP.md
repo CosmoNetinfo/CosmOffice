@@ -57,7 +57,7 @@ Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro
 ## Ordine operativo richiesto dopo lo studio
 
 1. CI 5a493a4 e 9e3173e: verificata verde; link nel report. Rapporto locale pubblicato, consolidamento breve e 10+10 ripetizioni superate; verifiche finali nel report.
-2. Prova guidata: richiesta dall’utente, non ancora implementata. Otto prove e soli esiti Ok/Problema/Non provato; nessun campo libero.
+2. Prova guidata: implementata; verifiche nel report del passo. Otto prove e soli esiti Ok/Problema/Non provato; nessun campo libero.
 3. Aggiornamenti da GitHub Releases: da implementare e collaudare.
 4. Mac DMG non firmato e guida con titolo esatto: da consolidare per la distribuzione pubblica.
 5. Release ordinaria CosmOffice 0.2.2 (anteprima): da pubblicare con installer, checksum, limiti e domande ai tester.

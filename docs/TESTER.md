@@ -11,3 +11,11 @@ Il registro tiene al massimo 50 eventi e viene riletto al riavvio. I dettagli li
 Non allegare documenti reali senza autorizzazione. Un rapporto privo di errori non significa che ogni documento sia stato conservato fedelmente.
 
 Il rapporto copiato è compatto: massimo 6 KB UTF-8 nelle prove automatiche anche con 50 eventi. Include una riga per evento e soltanto la traccia anonimizzata più recente. Nessun invio a Facebook o ad altri servizi viene eseguito dall’app.
+
+## Prova guidata
+
+Apri Prova guidata da Impostazioni o dal menu CosmOffice. Per ognuna delle otto istruzioni scegli Ok, Problema o Non provato. Puoi chiudere la schermata fra una prova e l’altra: le scelte restano solo sul dispositivo. Nessun campo di testo libero.
+
+Apri l’anteprima del rapporto e premi Copia rapporto: le prime otto righe riportano i tuoi esiti; seguono i dati tecnici filtrati. Queste scelte non sono verifiche automatiche e non aggiungono documenti o nomi dei file. Il rapporto resta entro 6 KB nel test con 50 eventi (4.964 byte con le otto righe). Non è inviato: usa i commenti del post Facebook di CosmOffice.
+
+Svuota registro cancella gli eventi tecnici; gli esiti della prova guidata restano separati. Puoi riportare una prova a Non provato dalla sua scelta.

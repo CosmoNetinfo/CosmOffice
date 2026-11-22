@@ -6,6 +6,8 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Aggiunto
 
+- Prova guidata con otto prove e soli esiti Ok/Problema/Non provato, salvati localmente e inclusi nelle prime otto righe del rapporto copiato. Nessun campo libero o invio automatico.
+
 - Rapporto tester locale da Impostazioni e menu: ultimi 50 eventi, descrizioni sicure, anteprima, copia negli appunti e svuotamento. Nessun invio automatico.
 
 - Studio di LibreOffice, ONLYOFFICE, Collabora, Calligra, AbiWord, Gnumeric, Apache OpenOffice e CryptPad con fonti, limiti della ricerca e confronto con CosmOffice 0.2.2.

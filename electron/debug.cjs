@@ -2,7 +2,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const { safeEvent, safeContext, compactEvent } = require('./debug-policy.mjs');
+const { validateGuided, guidedLines } = require('./guided-policy.mjs');
 let events = [], filename, writable = true, context = safeContext();
+let guided = validateGuided(null);
 function persist() {
   if (!filename) return;
   try { fs.writeFileSync(filename, JSON.stringify(events), { mode: 0o600 }); writable = true; }
@@ -36,6 +38,7 @@ function report(app, networkAttempts) {
   const yes = value => value ? 'attivo' : 'disattivo';
   const state = value => ({ saved: 'salvata', saving: 'salvataggio in corso', error: 'errore', unknown: 'non disponibile', ready: 'pronto', loading: 'caricamento' }[value]);
   return [
+    ...guidedLines(guided), '', 'Esiti dichiarati dal tester, non verifiche automatiche.', '',
     'Rapporto di debug CosmOffice', `Versione: ${app.getVersion().slice(0, 64)}`,
     `Sistema: ${os.type().slice(0, 32)} ${os.release().slice(0, 80)}`, `Architettura: ${process.arch}`,
     `Electron: ${process.versions.electron}`, `Chromium: ${process.versions.chrome}`,
@@ -54,4 +57,4 @@ function report(app, networkAttempts) {
     '', 'Nessun documento, nome file, percorso personale o identificativo incluso.',
   ].join('\n');
 }
-module.exports = { initialize, record, report, setContext: value => { context = safeContext(value); }, clear: () => { events = []; persist(); return writable; } };
+module.exports = { initialize, record, report, setGuided: value => { guided = validateGuided(value); }, setContext: value => { context = safeContext(value); }, clear: () => { events = []; persist(); return writable; } };

@@ -4,7 +4,7 @@ Aggiornato il 22 novembre 2026 con il recupero del validatore dopo lo studio (ba
 
 ## Distinzioni necessarie
 
-- Test funzionali CosmOffice: corpus sintetico di 13 file, più campione storico dei grafici; unit test dopo il rapporto tester: 45. Il report di questo passo contiene la nuova esecuzione completa e gli output reali.
+- Test funzionali CosmOffice: corpus sintetico di 13 file, più campione storico dei grafici; unit test dopo la prova guidata: 46. Il report di questo passo contiene la nuova esecuzione completa e gli output reali.
 - Interoperabilità: LibreOffice apre e risalva i campioni; non equivale a Microsoft Office né a fedeltà visiva universale.
 - Conformità: recuperate le correzioni FMT-001/002/003 e il validatore Microsoft Open XML SDK 3.5.1, schema Microsoft365. Controllo bloccante in CI su 13 nuovi esportati, hash invariati dopo la lettura e due controlli negativi. Gli esiti reali della ripresa sono nel report corrente. La validità dello schema non equivale alla fedeltà dei documenti.
 - Eccezione storica autorizzata: copia v1 identica, con diagnostica SDK di apertura fallita conservata; nessuna certificazione di apertura in Excel. Non si estende l’eccezione ai nuovi file.
@@ -96,3 +96,7 @@ Caso negativo aggiuntivo: una directory al posto del file del registro simula un
 La prova con 50 eventi usa la classe più lunga ammessa, il testo di categoria più lungo e tre posizioni di traccia. Il rapporto mantiene tutte le 50 righe e soltanto l’ultima traccia, entro 6.144 byte UTF-8. Nessuna garanzia sul limite del servizio Facebook, che può cambiare; l’app non lo contatta. CI 5a493a4: [run 45011842835](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45011842835), tutti e cinque i lavori verdi verificati.
 
 CI del rapporto tester 9e3173e321ce5ac60b224fb1344821a5e29ca8f4: [run 45015464220](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45015464220), tutti i cinque lavori success verificati, incluse le prove del rapporto in Linux e nel pacchetto Windows.
+
+## Prova guidata
+
+Otto prove, 24 radio, nessun campo editabile libero; scelte persistenti dopo ricaricamento e accesso da Impostazioni/menu. Il test confronta le prime otto righe degli appunti reali con gli esiti scelti e scarta campi/valori arbitrari. Report con 50 eventi più guida: 4.964 byte UTF-8, sotto 6.144. La cattura grafica è eseguita nel browser; la prima acquisizione della finestra Electron nascosta è andata in timeout dopo la verifica degli appunti. Non è dichiarata una prova di installazione reale dall’esito manuale Installazione.

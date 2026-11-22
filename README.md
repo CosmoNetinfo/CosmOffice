@@ -138,3 +138,9 @@ Guida breve: [Tester](docs/TESTER.md). Il rapporto non certifica la compatibilit
 Il rapporto copiato è compatto: massimo 6 KB UTF-8 nelle prove automatiche anche con 50 eventi. Include una riga per evento e soltanto la traccia anonimizzata più recente. Nessun invio a Facebook o ad altri servizi viene eseguito dall’app.
 
 Per ripetere il controllo del rapporto su Windows: ricostruisci con `npm run pack`, poi esegui `node scripts/debug-repeat.mjs`. Esegue 10 prove Electron e 10 nel pacchetto, in sequenza, e si ferma al primo fallimento. Esiti e output di ogni esecuzione restano in `test-results/debug-repeat-*/`.
+
+## Prova guidata
+
+Apri **Impostazioni → Prova guidata**, oppure **CosmOffice → Prova guidata** dal menu. Le otto prove sono Installazione, Word, Excel, Grafici, PDF, Offline, Ortografia e Segnalazione. Ogni istruzione ha soltanto **Ok**, **Problema**, **Non provato**: non ci sono campi liberi. Puoi chiudere la schermata per provare una funzione e ritrovi gli esiti quando la riapri.
+
+**Copia rapporto** include prima le otto righe con le tue scelte e poi versione, sistema ed eventi tecnici. L’anteprima è leggibile prima della copia. Gli esiti sono dichiarazioni del tester: non certificano compatibilità o installazione. Restano in localStorage sul dispositivo, separati dai documenti; non vengono inviati né inclusi nei backup dei documenti. Incolla tu il rapporto nei commenti del post Facebook di CosmOffice.

@@ -1,4 +1,6 @@
 import { safeEvent, safeContext, compactEvent } from '../electron/debug-policy.mjs';
+import { guidedLines } from '../electron/guided-policy.mjs';
+import { readGuided } from './guided.mjs';
 let context = safeContext(), events = [];
 export function recordError(kind, error) {
   try {
@@ -18,8 +20,12 @@ export function updateDebugContext(value) {
   window.cosmoffice?.debugContext?.(value).catch(() => {});
 }
 export async function readDebug() {
-  if (window.cosmoffice?.debugReport) return window.cosmoffice.debugReport();
-  return ['Rapporto di debug CosmOffice — anteprima browser', 'Versione: 0.2.2',
+  const guided = readGuided();
+  if (window.cosmoffice?.debugReport) {
+    await window.cosmoffice.debugGuided(guided);
+    return window.cosmoffice.debugReport();
+  }
+  return [...guidedLines(guided), '', 'Esiti dichiarati dal tester, non verifiche automatiche.', '', 'Rapporto di debug CosmOffice — anteprima browser', 'Versione: 0.2.2',
     'Sistema, architettura, Electron e Chromium: non disponibili nel browser.', 'Lingua: it',
     `App in uso: ${context.app}`, `Tipo file: ${context.type}`, `Dimensione approssimativa: ${context.size ?? 'non disponibile'} KB`,
     `Ortografia: ${context.spelling}`, `Aggiornamenti: assenti`, `Tema: ${context.theme}`, `Scala: ${context.scale}%`,

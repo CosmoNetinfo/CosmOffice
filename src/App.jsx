@@ -23,6 +23,7 @@ const GridEditor = lazy(() => import('./GridEditor.jsx'));
 const PdfViewer = lazy(() => import('./PdfViewer.jsx'));
 const SettingsPage = lazy(() => import('./SettingsPage.jsx'));
 const DebugReport = lazy(() => import('./DebugReport.jsx'));
+const GuidedTest = lazy(() => import('./GuidedTest.jsx'));
 const VERSION = '0.2.2';
 const templates = {
   blank: '<p></p>',
@@ -42,6 +43,7 @@ export default function App() {
   const { settings, storageError } = usePreferences();
   const spelling = useSpelling();
   const [debugOpen, setDebugOpen] = useState(false);
+  const [guidedOpen, setGuidedOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [active, setActive] = useState(null);
@@ -57,7 +59,8 @@ export default function App() {
   const editorApi = useRef(null);
   const saveFailed = useRef(false);
   const failedDrafts = useRef(new Map());
-  useEffect(() => window.cosmoffice?.onDebug?.(() => setDebugOpen(true)), []);
+  useEffect(() => window.cosmoffice?.onDebug?.(() => { setGuidedOpen(false); setDebugOpen(true); }), []);
+  useEffect(() => window.cosmoffice?.onGuided?.(() => { setDebugOpen(false); setGuidedOpen(true); }), []);
   useEffect(() => {
     updateDebugContext({ kind: active?.kind, type: active?.fileType || ({ write: 'DOCX', grid: 'XLSX', pdf: 'PDF' }[active?.kind]),
       size: active ? active.sourceSize ?? (typeof active.payload === 'string' ? new TextEncoder().encode(active.payload).length : active.payload?.byteLength) : undefined,
@@ -183,7 +186,7 @@ export default function App() {
       <div className="sidebar-bottom"><div className="local-card"><span className="local-dot"/><strong>Il lavoro resta qui.</strong><p>I tuoi file sul tuo dispositivo.<br/>Anche senza connessione.</p></div><button className={settingsOpen ? 'nav-item active' : 'nav-item'} aria-label="Impostazioni" title="Impostazioni" onClick={showSettings}><Settings size={18}/><span>Impostazioni</span></button><div className="sidebar-version"><span>COSMONET</span><span>v{VERSION} · Anteprima</span></div></div>
     </aside>
     <main className="main">
-      {settingsOpen ? <Suspense fallback={<div className="loading-editor">Apertura impostazioni…</div>}><SettingsPage documents={documents} refresh={refresh} onBack={() => home('all')} onReport={() => setDebugOpen(true)} update={update} onError={setNotice} onInstallUpdate={async () => { await pending.current; if (!saveFailed.current) window.cosmoffice?.installUpdate(); }} version={VERSION}/></Suspense> : !active ? <>
+      {settingsOpen ? <Suspense fallback={<div className="loading-editor">Apertura impostazioni…</div>}><SettingsPage documents={documents} refresh={refresh} onBack={() => home('all')} onReport={() => setDebugOpen(true)} onGuided={() => setGuidedOpen(true)} update={update} onError={setNotice} onInstallUpdate={async () => { await pending.current; if (!saveFailed.current) window.cosmoffice?.installUpdate(); }} version={VERSION}/></Suspense> : !active ? <>
         <header className="topbar"><div className="breadcrumb">Spazio personale <ChevronRight size={14}/><strong>{labels[filter]}</strong></div><span className="offline-pill"><HardDrive size={14}/> Archivio locale</span></header>
         <div className="home-content">
           <div className="home-heading"><div><div className="eyebrow">COSMOFFICE / IL TUO LAVORO, CON TE</div><h1>{filter === 'all' ? 'Il tuo spazio di lavoro.' : labels[filter]}</h1><p>Documenti, numeri e nuove idee. Comincia da qui.</p></div><button className="button secondary" onClick={open} disabled={busy}><FolderOpen size={17}/> Apri un file</button></div>
@@ -208,6 +211,7 @@ export default function App() {
         {active.kind === 'write' ? <WriteEditor key={active.id} record={active} onEdit={onEdit} api={editorApi} onError={setNotice}/> : active.kind === 'pdf' ? <Suspense fallback={<div className="loading-editor">Apertura PDF…</div>}><PdfViewer key={active.id} record={active} api={editorApi} onError={setNotice} onEdit={onEdit}/></Suspense> : <Suspense fallback={<div className="loading-editor">Apertura foglio…</div>}><GridEditor key={active.id} record={active} onEdit={onEdit} api={editorApi} onError={setNotice}/></Suspense>}
       </>}
     </main>
+    {guidedOpen && <Suspense fallback={null}><GuidedTest onClose={() => setGuidedOpen(false)}/></Suspense>}
     {debugOpen && <Suspense fallback={null}><DebugReport onClose={() => setDebugOpen(false)}/></Suspense>}
     {busy && <div className="busy" role="status"><LoaderCircle className="spin" size={18}/> Elaborazione del file…</div>}
     {notice && <div className="toast" role="status"><span>{notice}</span><button className="icon-button" aria-label="Chiudi messaggio" onClick={() => setNotice('')}><X size={16}/></button></div>}

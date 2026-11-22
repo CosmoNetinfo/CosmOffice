@@ -10,7 +10,7 @@ const tabs = [['appearance', 'Aspetto', Palette], ['write', 'Documenti', FileTex
 const bytesLabel = bytes => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 function Row({ title, description, children }) { return <div className="setting-row"><div><strong>{title}</strong><p>{description}</p></div><div className="setting-control">{children}</div></div>; }
 function Group({ title, description, children }) { return <section className="settings-group"><div className="settings-group-title"><h2>{title}</h2>{description && <p>{description}</p>}</div><div className="settings-panel">{children}</div></section>; }
-export default function SettingsPage({ documents, refresh, onBack, onReport, update, onError, onInstallUpdate, version }) {
+export default function SettingsPage({ documents, refresh, onBack, onReport, onGuided, update, onError, onInstallUpdate, version }) {
   const { settings, setSetting, reset, importSettings, storageError } = usePreferences();
   const [tab, setTab] = useState('appearance'), [busy, setBusy] = useState(false), [message, setMessage] = useState(''), [confirmClear, setConfirmClear] = useState(false);
   const backupInput = useRef(null), preferencesInput = useRef(null);
@@ -87,7 +87,7 @@ export default function SettingsPage({ documents, refresh, onBack, onReport, upd
         <Row title="Nessun controllo online" description="CosmOffice non cerca né scarica aggiornamenti. Installa un nuovo pacchetto locale per aggiornare l’app."><span>Solo installazione locale</span></Row>
       </Group><div className="settings-explanation"><SlidersHorizontal size={18}/><p>Documenti e preferenze restano sul dispositivo. Non servono account o connessioni a server.</p></div>
     </>}
-    <Group title="Assistenza per l’anteprima"><Row title="Segnala un problema" description="Leggi e copia un rapporto locale senza contenuti o nomi dei documenti. Nessun invio automatico."><button className="button secondary" onClick={onReport}>Segnala un problema</button></Row></Group>
+    <Group title="Assistenza per l’anteprima"><Row title="Prova guidata" description="Otto prove con esiti locali, senza campi liberi o invio automatico."><button className="button secondary" onClick={onGuided}>Prova guidata</button></Row><Row title="Segnala un problema" description="Leggi e copia un rapporto locale senza contenuti o nomi dei documenti. Nessun invio automatico."><button className="button secondary" onClick={onReport}>Segnala un problema</button></Row></Group>
     <footer className="settings-footer"><span><Check size={13}/> {busy ? 'Operazione in corso…' : 'Le modifiche si applicano subito'}</span><span>Cosmonet · CosmOffice {version}</span></footer>
     </div></div></div>
     {confirmClear && <div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-label="Conferma svuotamento archivio"><h2>Svuotare l’archivio?</h2><p>Verranno eliminate {documents.length} copie locali. Questa operazione non può essere annullata. I file esportati sul disco rimangono intatti.</p><div className="modal-actions"><button className="button secondary" autoFocus onClick={() => setConfirmClear(false)}>Conserva i file</button><button className="button danger" onClick={() => run(async () => { await clearDrafts(); await refresh(); setConfirmClear(false); setMessage('Archivio locale svuotato.'); })}>Elimina tutte le copie locali</button></div></section></div>}

@@ -82,3 +82,9 @@ Il difetto storico esatto resta: The document cannot be opened because there is 
 - Non provati arresti reali del sistema operativo/Chromium e guasti di disco durante un crash. Un registro non scrivibile conserva soltanto la memoria e lo segnala.
 
 Consolidamento Facebook: il rapporto usa una riga per ogni evento e solo l’ultima traccia; il test con 50 eventi misura 4.733 byte, sotto 6.144. Le ripetizioni richieste (10 Electron e 10 pacchetto) sono registrate singolarmente nel report corrente, senza presumere risolto un problema solo dalla CI verde.
+
+## Prova guidata: limiti e preparazione QA
+
+- Gli esiti sono dichiarati dal tester, non certificazioni automatiche. Nessuna prova su macchine pulite è dedotta dal selezionare Ok.
+- Prima cattura della finestra Electron nascosta: timeout dopo le verifiche degli appunti. Cattura spostata nel browser; prove funzionali restano native e nel pacchetto.
+- Prima prova browser: conteggio radio eseguito prima del caricamento lazy (0 anziché 24). Aggiunta attesa esplicita della schermata. Esiti finali nel report.

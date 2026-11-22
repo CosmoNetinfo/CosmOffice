@@ -103,3 +103,7 @@ Autorizzato esplicitamente dopo lo studio. Si conservano soltanto categoria, cla
 ## Rapporto breve nei commenti
 
 Richiesta successiva dell’utente: testo copiabile nei commenti Facebook, senza invio automatico. Si rende ogni evento una riga con data, app, categoria e classe da liste chiuse; solo l’ultima traccia è inclusa. Il buffer rimane di 50 eventi. Il test impone 6.144 byte sul caso più lungo del corpus diagnostico; non si presume un limite stabile di Facebook. La prova guidata sarà aggiunta nel passo successivo, senza campi liberi.
+
+## Prova guidata — scelta esplicita dell’utente
+
+Otto chiavi fisse e tre valori ammessi, senza testo libero. Gli esiti sono salvati soltanto in localStorage; il processo principale riceve un dizionario nuovamente validato prima di generare il rapporto. Le prime otto righe sono esiti dichiarati dal tester, non verifiche automatiche. Nessuna deduzione automatica di un esito dalla presenza dell’app. Backup documenti e impostazioni non includono questi esiti. Non viene introdotto un servizio di raccolta.

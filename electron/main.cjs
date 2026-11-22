@@ -29,7 +29,7 @@ ipcMain.handle('office:italian-dictionary', async event => {
 function createWindow() {
   closeAllowed = false;
   Menu.setApplicationMenu(Menu.buildFromTemplate([
-    { label: 'CosmOffice', submenu: [{ label: 'Segnala un problema', click: () => window?.webContents.send('office:show-debug') }, { type: 'separator' }, { role: 'quit', label: 'Esci' }] },
+    { label: 'CosmOffice', submenu: [{ label: 'Segnala un problema', click: () => window?.webContents.send('office:show-debug') }, { label: 'Prova guidata', click: () => window?.webContents.send('office:show-guided') }, { type: 'separator' }, { role: 'quit', label: 'Esci' }] },
     { label: 'Modifica', submenu: [{ role: 'undo', label: 'Annulla' }, { role: 'redo', label: 'Ripristina' }, { type: 'separator' }, { role: 'cut', label: 'Taglia' }, { role: 'copy', label: 'Copia' }, { role: 'paste', label: 'Incolla' }, { role: 'selectAll', label: 'Seleziona tutto' }] },
   ]));
   window = new BrowserWindow({
@@ -57,6 +57,7 @@ ipcMain.handle('office:debug-record', (event, value) => {
   debug.record(value.kind, { name: value.name, trace: value.trace });
 });
 ipcMain.handle('office:debug-context', (event, value) => { trusted(event); debug.setContext(value); });
+ipcMain.handle('office:debug-guided', (event, value) => { trusted(event); debug.setGuided(value); });
 ipcMain.handle('office:debug-report', event => {
   trusted(event);
   debugSnapshot = debug.report(app, require('./offline.cjs').getNetworkAttempts().length);

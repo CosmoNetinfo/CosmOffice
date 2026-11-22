@@ -36,6 +36,7 @@ jobs:
       - run: node scripts/pdf-independent.mjs
       - run: xvfb-run -a node scripts/offline-smoke.mjs
       - run: xvfb-run -a node scripts/debug-smoke.mjs
+      - run: xvfb-run -a node scripts/guided-smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -102,6 +103,10 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
       - run: node scripts/debug-smoke.mjs
+        if: runner.os == 'Windows'
+        env:
+          COSMO_DEBUG_PACKAGE: '1'
+      - run: node scripts/guided-smoke.mjs
         if: runner.os == 'Windows'
         env:
           COSMO_DEBUG_PACKAGE: '1'
