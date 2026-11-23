@@ -4,21 +4,47 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ## [Non rilasciato]
 
+Nessun’altra modifica pianificata adottata in questo passo.
+
+## [0.2.3] - In preparazione, non pubblicata
+
 ### Aggiunto
 
-- Licenza d’uso A adottata in LICENSE: uso gratuito, codice originale e grafica riservati, nessuna redistribuzione degli installer; consentito condividere il link ufficiale. Titolare e recapito forniti dall’utente: Daniele Spalletti, danielespalletti@cosmonet.info; revisione professionale necessaria. B non adottata; pacchetti 0.2.2 e impostazione aggiornamenti invariati. Audit dei metadati rileva l’assenza del file della licenza propria negli installer pubblici; allineamento futuro non eseguito.
-- Due bozze non operative della licenza utenti in docs/LICENZA-BOZZE.md: uso gratuito con codice e marchio riservati, oppure apertura del codice con confronto MIT/Apache-2.0. Nessuna licenza selezionata e LICENSE invariato.
-- Updater nel main per una successiva versione: TLS Node con certificato verificato, soli host GitHub del progetto, SHA-256 e conferma esplicita prima di installare. Windows NSIS e AppImage, Mac solo notifica. Interruttore per disattivarlo; audit Node e NetLog Chromium nei test. Non incluso retroattivamente negli installer 0.2.2.
-- DMG Mac Intel/Apple Silicon in CI, senza firma o notarizzazione, con verifica del contenitore e dell’architettura; guida “Aprire CosmOffice su Mac”. Nessun collaudo su hardware fisico dichiarato.
-- Nove screenshot reali e ottimizzati dell’interfaccia nella sezione “Com’è fatto” del README; generazione ripetibile con scripts/screenshots.mjs, esempi originali, profilo isolato e controlli su dati privati, dimensioni e risorse esterne. Nessuna modifica all’app.
+- Pulsante «Controlla aggiornamenti ora»: una sola operazione su richiesta, HTTPS verificato, due host GitHub autorizzati, SHA-256 e conferma prima di installare. Rete spenta al termine o dopo annullamento.
+- Impostazioni → Informazioni: versione, titolare Daniele Spalletti, licenza A e attribuzioni lette dai file locali, senza rete.
+- LICENSE e THIRD_PARTY_NOTICES.txt nelle risorse dei pacchetti; controllo dei byte negli archivi Windows, AppImage e DMG in CI. Licenza propria anche nell’ASAR.
+- Lavoro Windows separato in CI: installazione NSIS reale non interattiva nel runner, avvio visibile dell’app installata, Home, apertura DOCX/XLSX/PDF, controllo delle licenze e disinstallazione. Selettore file automatizzato; lettura e rendering reali.
 
 ### Modificato
 
-- Nome e recapito nella licenza A e nei testi correnti completati con i dati forniti dall’utente; condizioni d’uso e report storici invariati.
+- Aggiornamenti spenti di default e nessun controllo all’avvio. Vecchie preferenze «attivo» prive del nuovo consenso ignorate. Controlli periodici facoltativi ogni sei ore solo dopo attivazione esplicita; nessuna richiesta nemmeno al loro avvio.
+- Nome e recapito della licenza A compilati con i dati del titolare; condizioni invariate. Metadati dei nuovi pacchetti allineati alla licenza proprietaria e al titolare.
+- Screenshot reali rigenerabili, comprese le nuove pagine Aggiornamenti e Informazioni; didascalie di sviluppo 0.2.3.
 
 ### Corretto
 
-- Distribuzione Linux: riconosciuto il nome AppImage reale linux-x86_64 prodotto da electron-builder. Le AppImage inattese ora causano errore, invece di essere ignorate. Completamento della Release pubblica con preservazione dell’installer Windows e riepilogo checksum aggiornato.
+- LIC-001: distribuzione della licenza propria nei nuovi pacchetti con verifica reale dei file, non soltanto della configurazione. La 0.2.2 pubblica resta invariata e mantiene il precedente assetto.
+- Consenso d’installazione distinto dal permesso temporaneo di rete: il file verificato resta installabile solo dopo conferma anche quando il trasporto si è spento.
+
+### Rimosso
+
+- Controllo di rete implicito all’avvio e abilitazione predefinita degli aggiornamenti. Nessuna rimozione dell’interruttore periodico: rimane una scelta effettiva dell’utente.
+
+### Limiti noti
+
+- Anteprima con compatibilità DOCX/XLSX/PDF parziale; nessun nuovo motore o intervento sui motori in questa versione.
+- Pacchetti non firmati; Mac solo avviso/download manuale. Rete autorizzata esclusivamente a github.com e release-assets.githubusercontent.com per le Release CosmoNetinfo/CosmOffice.
+- La licenza deve essere rivista da un professionista. SHA-256 da GitHub HTTPS non equivale a firma indipendente.
+
+### Prove mancanti
+
+- PC Windows fisico pulito, SmartScreen, UAC con antivirus e utente normale. Il runner non sostituisce queste prove; il test CI non collauda il dialogo nativo di selezione file.
+- AppImage realmente in uso e hardware Mac; primo avvio/Gatekeeper reali. Nessuna installazione manuale dell’updater con elevazione certificata.
+
+### Prossimi passi
+
+- Il titolare prova l’installer su un PC Windows pulito e decide se creare tag e pubblicare la Release. Nessun tag o Release 0.2.3 creati durante questa preparazione.
+- Quando sarà pubblicata, chi ha la 0.2.2 aggiorna a mano una volta alla 0.2.3, poi usa il pulsante «Controlla aggiornamenti ora».
 
 ## [0.2.2] - 2026-11-22
 

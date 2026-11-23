@@ -1,17 +1,20 @@
 {
   "name": "cosmoffice",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "description": "CosmOffice — CosmoWrite, CosmoGrid e CosmoView, suite desktop offline Cosmonet",
-  "author": "Cosmonet",
+  "author": {
+    "name": "Daniele Spalletti",
+    "email": "danielespalletti@cosmonet.info"
+  },
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "dev:web": "vite --host 127.0.0.1",
-    "build": "node scripts/pdf-assets.mjs && vite build",
+    "build": "node scripts/pdf-assets.mjs && node scripts/legal-assets.mjs && vite build",
     "start": "electron .",
     "test": "node --test tests/*.test.mjs",
-    "test:browser": "node scripts/smoke.mjs && node scripts/preferences-smoke.mjs && node scripts/reliability-smoke.mjs && node scripts/corpus-smoke.mjs && node scripts/spelling-smoke.mjs && node scripts/charts-smoke.mjs && node scripts/guided-browser.mjs",
+    "test:browser": "node scripts/smoke.mjs && node scripts/preferences-smoke.mjs && node scripts/reliability-smoke.mjs && node scripts/corpus-smoke.mjs && node scripts/spelling-smoke.mjs && node scripts/charts-smoke.mjs && node scripts/guided-browser.mjs && node scripts/about-browser.mjs",
     "icons": "node scripts/icons.mjs",
     "pack": "npm run build && npm run icons && node scripts/notices.mjs && electron-builder --config electron-builder.config.cjs --dir --publish never",
     "dist": "npm run build && npm run icons && node scripts/notices.mjs && electron-builder --config electron-builder.config.cjs --publish never",
@@ -52,5 +55,6 @@
     "react-dom": "19.3.1",
     "sharp": "0.35.5",
     "vite": "8.3.8"
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE"
 }

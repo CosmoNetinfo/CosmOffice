@@ -21,7 +21,11 @@ try {
   assert.deepEqual(await attempts(), [], 'nessun tentativo di rete all’avvio');
   const nodeAudit = () => application.evaluate(({ app }) => process.getBuiltinModule('node:module').createRequire(process.getBuiltinModule('node:path').join(app.getAppPath(), 'electron/main.cjs'))('./offline.cjs').getUpdateAudit());
   assert.deepEqual(await nodeAudit(), [], 'controllo spento: nessuna richiesta Node');
-  assert.equal((await page.evaluate(() => window.cosmoffice.checkUpdates())).phase, 'disabled');
+  // Consultare lo stato non è un consenso a un controllo manuale: questo test deve restare senza clic.
+  const initialUpdate = await page.evaluate(() => window.cosmoffice.updateStatus());
+  assert.equal(initialUpdate.phase, 'disabled');
+  assert.equal(initialUpdate.enabled, false);
+  assert.equal(initialUpdate.networkActive, false);
   assert.equal((await page.evaluate(() => window.cosmoffice.setUpdatePreferences(false))).phase, 'disabled');
   assert.equal((await page.evaluate(() => window.cosmoffice.installUpdate())).phase, 'disabled');
   for (const file of ['05-intestazioni.docx', '03-formati.xlsx', '03-venti-pagine.pdf', 'grafici-ui.xlsx', 'grafici-categorie-v1.xlsx']) {

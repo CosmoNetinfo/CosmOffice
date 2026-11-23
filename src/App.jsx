@@ -24,7 +24,7 @@ const PdfViewer = lazy(() => import('./PdfViewer.jsx'));
 const SettingsPage = lazy(() => import('./SettingsPage.jsx'));
 const DebugReport = lazy(() => import('./DebugReport.jsx'));
 const GuidedTest = lazy(() => import('./GuidedTest.jsx'));
-const VERSION = '0.2.2';
+const VERSION = '0.2.3';
 const templates = {
   blank: '<p></p>',
   letter: '<h1>Una nuova collaborazione</h1><p>Alla cortese attenzione di</p><p><strong>Oggetto: proposta di collaborazione</strong></p><p>Gentile destinatario,</p><p>scrivo per presentare una proposta di collaborazione. Qui puoi descrivere la tua idea, gli obiettivi e i prossimi passi.</p><p>Resto a disposizione per un incontro di approfondimento.</p><p>Cordiali saluti,</p><p>Il tuo nome</p>',
@@ -75,7 +75,7 @@ export default function App() {
     refresh();
     window.cosmoffice?.updateStatus?.().then(state => {
       setUpdate(state);
-      const preference = state.preference !== false && settings.automaticUpdates !== false;
+      const preference = state.preference === true;
       setSetting('automaticUpdates', preference); setInitialUpdatePreference(preference);
     }).catch(() => setNotice('Stato aggiornamenti non disponibile.'));
     return window.cosmoffice?.onUpdate?.(setUpdate);

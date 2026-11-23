@@ -78,7 +78,7 @@ ipcMain.handle('office:debug-clear', event => {
 app.whenReady().then(() => {
   const transport = require('./offline.cjs').createUpdateTransport();
   updater = require('./updater.cjs').createUpdater({ app, transport, notify: state => {
-    if (!state.enabled || state.phase !== 'ready') updateConsent = undefined;
+    if (state.phase !== 'ready') updateConsent = undefined;
     debug.setUpdateState(state);
     try { if (window && !window.isDestroyed()) window.webContents.send('office:update', state); } catch {}
   } });
@@ -121,6 +121,13 @@ ipcMain.handle('office:update-preferences', (event, enabled) => {
 ipcMain.handle('office:check-updates', async event => {
   trusted(event); return updater.check();
 });
+ipcMain.handle('office:cancel-update', async event => { trusted(event); return updater.cancel(); });
+ipcMain.handle('office:legal-text', async (event, name) => {
+  trusted(event);
+  if (!['LICENSE', 'THIRD_PARTY_NOTICES.txt'].includes(name)) throw new Error('Testo non disponibile.');
+  const root = app.isPackaged ? process.resourcesPath : path.join(__dirname, '..');
+  return fs.readFile(path.join(root, name), 'utf8');
+});
 ipcMain.handle('office:export-pdf', async event => {
   trusted(event);
   return new Uint8Array(await window.webContents.printToPDF({ printBackground: true, preferCSSPageSize: true }));
@@ -138,18 +145,18 @@ ipcMain.handle('office:close-ready', async (event, saved) => {
 ipcMain.handle('office:install-update', async event => {
   trusted(event);
   const state = updater.status();
-  if (state.enabled && state.phase === 'ready') {
+  if (!state.networkActive && state.phase === 'ready') {
     updateConsent = undefined;
     const choice = await dialog.showMessageBox(window, { type: 'question', title: 'Conferma aggiornamento', message: `Installare CosmOffice ${state.version}?`, detail: 'Il file è stato verificato con SHA-256. L’app salverà le bozze prima di chiudersi. L’installer Windows si aprirà con i suoi comandi; su Linux verrà sostituita l’AppImage. Nessuna installazione senza questa conferma.', buttons: ['Annulla', 'Salva, chiudi e installa'], defaultId: 0, cancelId: 0 });
     const current = updater.status();
-    if (choice.response === 1 && current.enabled && current.phase === 'ready' && current.version === state.version) { updateConsent = state.version; window.close(); }
+    if (choice.response === 1 && !current.networkActive && current.phase === 'ready' && current.version === state.version) { updateConsent = state.version; window.close(); }
   }
-  else if (state.enabled && state.phase === 'available') return electron.shell.openExternal(updater.downloadPage()).then(() => updater.status());
+  else if (state.phase === 'available') return electron.shell.openExternal(updater.downloadPage()).then(() => updater.status());
   return updater.status();
 });
 app.on('will-quit', event => {
   const state = updater?.status();
-  if (!applyingUpdate && updateConsent && state?.enabled && state.phase === 'ready' && state.version === updateConsent) {
+  if (!applyingUpdate && updateConsent && !state?.networkActive && state.phase === 'ready' && state.version === updateConsent) {
     event.preventDefault(); applyingUpdate = true;
     updater.applyPending(updateConsent).then(applied => { if (applied) { updater.stop(); app.exit(0); } else { applyingUpdate = false; updateConsent = undefined; createWindow(); } }).catch(error => { debug.record('main', error); applyingUpdate = false; updateConsent = undefined; createWindow(); dialog.showErrorBox('Aggiornamento non riuscito', 'Installazione non riuscita. Puoi continuare a lavorare e riprovare.'); });
   } else if (!quittingSafely) { event.preventDefault(); quittingSafely = true; Promise.resolve(updater?.stop()).finally(() => app.exit(0)); }

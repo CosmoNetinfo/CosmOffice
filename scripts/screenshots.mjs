@@ -114,6 +114,11 @@ try {
   await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
   await capture('impostazioni-scuro');
   await page.getByRole('combobox', { name: 'Tema interfaccia' }).selectOption('light');
+  await page.getByRole('button', { name: 'Aggiornamenti', exact: true }).click();
+  await capture('aggiornamenti');
+  await page.getByRole('button', { name: 'Informazioni', exact: true }).click();
+  await page.waitForFunction(() => document.querySelector('textarea[aria-label="Testo della licenza A"]')?.value.includes('1. Titolare'));
+  await capture('informazioni');
   await page.setViewportSize({ width: 1440, height: 1440 });
   await page.getByRole('button', { name: 'Prova guidata', exact: true }).click();
   const guided = page.getByRole('dialog', { name: 'Prova guidata', exact: true });
@@ -131,7 +136,7 @@ try {
   await capture('segnala-problema');
   assert.deepEqual(errors, [], 'Nessun errore della pagina durante le catture.');
   assert.deepEqual(external, [], 'Nessuna risorsa esterna caricata.');
-  assert.equal(captured.length, 9);
+  assert.equal(captured.length, 11);
   const readme = await readFile('README.md', 'utf8');
   for (const item of captured) assert.ok(readme.includes(`](docs/images/${item.name}.png)`), 'Immagine collegata al README con percorso relativo.');
   await writeFile('test-results/screenshots/esiti.json', JSON.stringify({ result: 'PASS', version, originalExamples: true, privacy: 'Nessun percorso o nome utente visibile; metadati PNG rimossi.', external, captured }, null, 2));

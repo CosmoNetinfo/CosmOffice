@@ -2,10 +2,10 @@ const release = process.env.COSMO_PUBLISH_UPDATES === '1';
 module.exports = {
   appId: 'it.cosmonet.cosmoffice',
   productName: 'CosmOffice',
-  copyright: 'Copyright © 2026 Cosmonet',
+  copyright: 'Copyright © 2026 Daniele Spalletti',
   directories: { output: 'release', buildResources: 'build' },
-  files: ['dist/**/*', 'electron/**/*', 'public/brand/suite.png', 'package.json'],
-  extraResources: [{ from: 'THIRD_PARTY_NOTICES.txt', to: 'THIRD_PARTY_NOTICES.txt' }],
+  files: ['dist/**/*', '!dist/legal/**/*', 'electron/**/*', 'public/brand/suite.png', 'package.json', 'LICENSE'],
+  extraResources: [{ from: 'public/legal/LICENSE', to: 'LICENSE' }, { from: 'THIRD_PARTY_NOTICES.txt', to: 'THIRD_PARTY_NOTICES.txt' }],
   asar: true,
   npmRebuild: false,
   forceCodeSigning: release && process.platform !== 'linux',

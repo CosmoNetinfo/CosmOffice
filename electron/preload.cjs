@@ -25,6 +25,8 @@ contextBridge.exposeInMainWorld('cosmoffice', Object.freeze({
   exportPdf: () => ipcRenderer.invoke('office:export-pdf'),
   setUpdatePreferences: enabled => ipcRenderer.invoke('office:update-preferences', enabled),
   checkUpdates: () => ipcRenderer.invoke('office:check-updates'),
+  cancelUpdate: () => ipcRenderer.invoke('office:cancel-update'),
+  legalText: name => ipcRenderer.invoke('office:legal-text', name),
   updateStatus: () => ipcRenderer.invoke('office:update-status'),
   installUpdate: () => ipcRenderer.invoke('office:install-update'),
   closeReady: saved => ipcRenderer.invoke('office:close-ready', saved),

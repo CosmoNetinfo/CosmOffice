@@ -35,11 +35,11 @@ test('Mac: notifica senza download del DMG; preferenza disattivata senza richies
   const transport = { setEnabled() {}, get: async url => { calls.push(url); return { bytes: Buffer.from(`${'a'.repeat(64)}  CosmOffice-0.2.2-mac-arm64.dmg\n`) }; } };
   const updater = createUpdater({ app: mockApp(dir), transport, platform: 'darwin', arch: 'arm64' });
   try {
-    await updater.check(); assert.deepEqual(calls, []);
+    assert.deepEqual(calls, []); assert.equal(updater.status().enabled, false);
     updater.setPreference(true); await new Promise(resolve => setImmediate(resolve)); await updater.check();
     assert.equal(updater.status().phase, 'available'); assert.ok(calls.every(url => url === policy.SUMS));
     assert.equal(await updater.applyPending(), false);
-    updater.setPreference(false); const count = calls.length; await updater.check(); assert.equal(calls.length, count);
+    updater.setPreference(false); const count = calls.length; await new Promise(resolve => setImmediate(resolve)); assert.equal(calls.length, count); await updater.check(); assert.equal(calls.length, count + 1);
     assert.equal(JSON.parse(await readFile(join(dir, 'updates.json'), 'utf8')).enabled, false);
   } finally { updater.stop(); }
 });
@@ -84,9 +84,9 @@ test('Disattivazione durante il controllo: risposta tardiva ignorata, nessun dow
   const dir = await root(); let complete, calls = 0;
   const updater = createUpdater({ app: mockApp(dir), transport: { setEnabled() {}, get: () => { calls++; return new Promise(resolve => { complete = resolve; }); } } });
   try {
-    updater.setPreference(true); await new Promise(resolve => setImmediate(resolve));
+    updater.setPreference(true); const checking = updater.check(); await new Promise(resolve => setImmediate(resolve));
     updater.setPreference(false); complete({ bytes: Buffer.from(`${'a'.repeat(64)}  CosmOffice-0.2.2-win-x64-Setup.exe`) });
-    await updater.check(); await new Promise(resolve => setImmediate(resolve));
+    await checking; await new Promise(resolve => setImmediate(resolve));
     assert.equal(updater.status().phase, 'disabled'); assert.equal(calls, 1);
   } finally { updater.stop(); }
 });
@@ -128,7 +128,7 @@ test('Disattivazione senza disco scrivibile: rete spenta subito e avviso di manc
     setEnabled: value => { network = value; }, get: async () => ({ bytes: Buffer.from(`${'a'.repeat(64)}  CosmOffice-0.2.2-mac-arm64.dmg`) }),
   } });
   try {
-    updater.setPreference(true); await new Promise(resolve => setImmediate(resolve)); await updater.check(); assert.equal(network, true);
+    updater.setPreference(true); await new Promise(resolve => setImmediate(resolve)); await updater.check(); assert.equal(network, false);
     await rename(join(dir, 'updates.json'), join(dir, 'updates-prima.json')); await mkdir(join(dir, 'updates.json'));
     const state = updater.setPreference(false);
     assert.equal(network, false); assert.equal(state.enabled, false); assert.match(state.message, /Preferenza non salvata/);

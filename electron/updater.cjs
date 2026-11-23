@@ -36,15 +36,16 @@ function ownAppImage(app, appDir) {
   if (!app.isPackaged || !appDir) return false;
   try { const exe = fs.realpathSync(app.getPath('exe')), dir = fs.realpathSync(appDir); return exe.startsWith(`${dir}${path.sep}`) && path.basename(exe) === 'cosmoffice'; } catch { return false; }
 }
-function createUpdater({ app, transport, notify = () => {}, platform = process.platform, arch = process.arch, appImage = process.env.APPIMAGE, appDir = process.env.APPDIR, launch = launchInstaller }) {
+function createUpdater({ app, transport, notify = () => {}, platform = process.platform, arch = process.arch, appImage = process.env.APPIMAGE, appDir = process.env.APPDIR, launch = launchInstaller, intervalMs = 6 * 60 * 60 * 1000 }) {
   const config = path.join(app.getPath('userData'), 'updates.json'), cache = path.join(app.getPath('userData'), 'aggiornamenti');
-  let configured = false, preference = false, enabled = false, generation = 0, busy = false, operation = Promise.resolve(), pending;
+  let preference = false, generation = 0, busy = false, stopped = false, operation = Promise.resolve(), pending;
   let state = { phase: 'disabled', message: 'Controllo aggiornamenti disattivato.', version: null };
-  try { const value = JSON.parse(fs.readFileSync(config, 'utf8')); preference = value.enabled === true; configured = true; }
-  catch (error) { if (error.code !== 'ENOENT') configured = true; } // Configurazione corrotta: rete disattivata.
-  function status() { return { ...state, enabled, preference: configured ? preference : null }; }
+  try { const value = JSON.parse(fs.readFileSync(config, 'utf8')); preference = value.policy === 2 && value.enabled === true; }
+  catch { /* Preferenza assente, vecchia o corrotta: nessun consenso automatico ereditato. */ }
+  if (preference) state = { phase: 'idle', message: 'Controlli periodici attivi ogni sei ore. Nessun controllo all’avvio.', version: null };
+  function status() { return { ...state, enabled: preference, preference, networkActive: busy }; }
   function set(phase, message, version = null) { state = { phase, message, version }; notify(status()); return status(); }
-  function valid(token) { if (!enabled || token !== generation) throw new Error('Controllo annullato.'); }
+  function valid(token) { if (stopped || token !== generation) throw new Error('Controllo annullato.'); }
   async function checkNow(token) {
     set('checking', 'Controllo della Release GitHub…');
     try {
@@ -70,47 +71,57 @@ function createUpdater({ app, transport, notify = () => {}, platform = process.p
         return set('ready', `Versione ${manifest.version} verificata. Scegli Installa e conferma prima di chiudere il lavoro.`, manifest.version);
       } finally { await fsp.unlink(temp).catch(() => {}); }
     } catch {
-      if (enabled && token === generation) return set('error', 'Aggiornamento non disponibile. Puoi continuare a lavorare.');
+      if (!stopped && token === generation) return set('error', 'Aggiornamento non disponibile. Puoi continuare a lavorare.');
       return status();
     }
   }
   function check() {
-    if (!enabled) return Promise.resolve(status());
+    if (stopped) return Promise.resolve(status());
     if (busy) return operation;
-    busy = true; const token = generation;
-    operation = checkNow(token).finally(() => { busy = false; }); return operation;
+    busy = true; pending = undefined; const token = ++generation;
+    transport.setEnabled(true);
+    operation = checkNow(token).finally(async () => {
+      await transport.setEnabled(false);
+      busy = false; notify(status());
+    }).then(() => status()); return operation;
+  }
+  async function cancel() {
+    generation++; pending = undefined;
+    set('disabled', 'Controllo annullato. Rete spenta.');
+    await transport.setEnabled(false);
+    await operation.catch(() => {});
+    return status();
   }
   function setPreference(value) {
     if (typeof value !== 'boolean') throw new Error('Preferenza non valida.');
-    if (configured && enabled === value && preference === value) return status();
+    if (preference === value && value) return status();
     const temp = `${config}.${randomUUID()}.tmp`;
-    try { fs.writeFileSync(temp, JSON.stringify({ enabled: value }), { flag: 'wx', mode: 0o600 }); fs.renameSync(temp, config); }
+    try { fs.writeFileSync(temp, JSON.stringify({ policy: 2, enabled: value }), { flag: 'wx', mode: 0o600 }); fs.renameSync(temp, config); }
     catch {
       if (!value) {
-        generation++; enabled = false; preference = false; pending = undefined; transport.setEnabled(false);
+        generation++; preference = false; pending = undefined; transport.setEnabled(false);
         return set('disabled', 'Controllo disattivato per questa sessione. Preferenza non salvata.');
       }
       throw new Error('Impossibile salvare la preferenza degli aggiornamenti.');
     }
     finally { try { fs.unlinkSync(temp); } catch {} }
-    const prior = operation, token = ++generation; configured = true; preference = value; enabled = value; pending = undefined;
-    transport.setEnabled(false); transport.setEnabled(value);
-    set(value ? 'idle' : 'disabled', value ? 'Controllo automatico attivo.' : 'Controllo aggiornamenti disattivato.');
-    if (value) prior.catch(() => {}).then(() => { if (enabled && token === generation) check(); });
+    preference = value;
+    if (!value) { generation++; pending = undefined; transport.setEnabled(false); }
+    set(value ? 'idle' : 'disabled', value ? 'Controlli periodici attivi ogni sei ore. Nessun controllo all’avvio.' : 'Controlli periodici spenti. Usa il pulsante quando vuoi.');
     return status();
   }
   async function applyPending(confirmedVersion) {
-    if (!enabled || state.phase !== 'ready' || !pending || confirmedVersion !== pending.version) return false;
+    if (stopped || busy || state.phase !== 'ready' || !pending || confirmedVersion !== pending.version) return false;
     const approved = pending, token = generation;
     const actual = await fileHash(approved.file);
-    if (!enabled || token !== generation || pending !== approved || state.phase !== 'ready') return false;
+    if (stopped || token !== generation || pending !== approved || state.phase !== 'ready') return false;
     if (actual !== approved.sha256) throw new Error('Integrità dell’aggiornamento non verificata.');
     if (platform === 'win32') await launch(approved.file);
     else if (platform === 'linux' && appImage) await replaceAppImage(approved.file, appImage, approved.sha256);
     else throw new Error('Installazione automatica non disponibile.');
     return true;
   }
-  const timer = setInterval(() => { if (enabled) check(); }, 6 * 60 * 60 * 1000); timer.unref();
-  return { status, setPreference, check, applyPending, downloadPage: () => state.version ? `${ROOT}/tag/v${state.version}` : `${ROOT}/latest`, stop: () => { clearInterval(timer); return transport.setEnabled(false); } };
+  const timer = setInterval(() => { if (preference && !busy) check(); }, intervalMs); timer.unref();
+  return { status, setPreference, check, cancel, applyPending, downloadPage: () => state.version ? `${ROOT}/tag/v${state.version}` : `${ROOT}/latest`, stop: () => { stopped = true; generation++; pending = undefined; clearInterval(timer); return transport.setEnabled(false); } };
 }
 module.exports = { createUpdater, replaceAppImage, fileHash, launchInstaller };

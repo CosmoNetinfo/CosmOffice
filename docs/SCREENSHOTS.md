@@ -1,6 +1,6 @@
 # Rigenerare le schermate del README
 
-Le immagini in docs/images sono catture della vera interfaccia React servita da Vite in un browser temporaneo. Non sono mockup e non sono catture di un’installazione desktop. Didascalie correnti: “anteprima di sviluppo, versione 0.2.2”.
+Le immagini in docs/images sono catture della vera interfaccia React servita da Vite in un browser temporaneo. Non sono mockup e non sono catture di un’installazione desktop. Didascalie correnti: “anteprima di sviluppo, versione 0.2.3”.
 
 ## Comandi
 
@@ -31,6 +31,8 @@ In PowerShell la variabile si imposta con `$env:COSMO_BROWSER='chromium'`. Lo sc
 | view.png | PDF originale Una biblioteca per tutti |
 | impostazioni-chiaro.png | Impostazioni del tema chiaro |
 | impostazioni-scuro.png | Le stesse impostazioni nel tema scuro |
+| aggiornamenti.png | Pulsante su richiesta, rete spenta al termine e periodici facoltativi; comando desktop non attivo nell’anteprima browser |
+| informazioni.png | Versione, titolare e licenza A letta dal file locale |
 | prova-guidata.png | Otto prove; esiti lasciati a Non provato, senza fingere un collaudo manuale |
 | segnala-problema.png | Rapporto browser con un solo errore tecnico simulato, senza messaggio libero |
 | layout-stretto.png | Home a larghezza 390 px; non equivale a un’app per telefono installabile |

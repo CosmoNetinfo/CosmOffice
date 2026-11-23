@@ -1,5 +1,19 @@
 # Decisioni e alternative tecniche
 
+## 0.2.3 su richiesta — scelta del titolare del 23 novembre 2026
+
+Aggiornamenti spenti di default e nessuna richiesta all’avvio: né Node né Chromium, anche con periodici già autorizzati. Vecchi «attivo» senza policy 2 non ereditati. Il pulsante «Controlla aggiornamenti ora» apre una sola operazione; clic duplicati accorpati, trasporto chiuso al termine/errore/annullamento. Il consenso all’installazione rimane distinto dal permesso temporaneo di rete, con SHA-256 e conferma esplicita.
+
+Anche l’importazione JSON conserva il consenso corrente invece di applicare un vecchio «attivo»; il messaggio rimanda all’interruttore esplicito. Evita di attivare rete periodica come effetto secondario dell’importazione di altre regolazioni.
+
+Interruttore periodico conservato perché ha funzione effettiva, opt-in ogni sei ore; non è stato rimosso senza decisione. Nessun controllo immediato alla sua attivazione o all’avvio. Testo vicino al pulsante esplicito quando l’utente lo attiva. HTTPS, certificati, repository e due host rimangono invariati.
+
+Informazioni legge i testi locali via IPC a elenco chiuso. LICENSE e THIRD_PARTY_NOTICES.txt esterni nelle risorse; piccola copia della licenza anche nell’ASAR per il riferimento package.json. Le copie per il browser sono generate localmente e non aggiungono rete all’app. Il filtro di extraResources esclude i corrispondenti sorgenti dall’ASAR: la copia esterna LICENSE deriva da public/legal/LICENSE, mentre l’ASAR include l’originale. Due ispezioni iniziali hanno rilevato la copia ASAR mancante; la verifica non viene rimossa. Licenza A e motori documentali invariati; aggiornato solo il numero di versione visualizzato nel rapporto browser.
+
+Su aggiunta esplicita, un lavoro CI Windows separato installa davvero NSIS in modalità non interattiva esclusivamente nel runner, controlla app installata, finestra/Home, tre file, licenze e disinstalla. Non cambia la modalità interattiva dell’updater. Selezione file automatizzata, lettura e rendering reali; nessuna falsa prova del dialogo OS. Non sostituisce PC fisico, SmartScreen, UAC con antivirus o utente normale. Il test non è avviato localmente con l’ambiente CI contraffatto.
+
+Versione main 0.2.3 in preparazione. Nessun tag o Release: decide il titolare dopo prova su PC Windows pulito. La 0.2.2 pubblica non cambia; chi la usa aggiornerà manualmente una volta, poi userà il pulsante. Nessuna nuova dipendenza, nessuna scelta del motore.
+
 ## Dati del titolare forniti dall’utente — 22 novembre 2026
 
 Daniele Spalletti, recapito danielespalletti@cosmonet.info: inseriti nei testi correnti al posto del segnaposto della licenza A, su indicazione esplicita dell’utente. Non aggiunti indirizzi o ragioni sociali. Condizioni A invariate, B non adottata; revisione professionale ancora necessaria. Non modificati i report storici, app, metadati di packaging, preferenza aggiornamenti, versioni o Release.

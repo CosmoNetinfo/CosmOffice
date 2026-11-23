@@ -1,10 +1,16 @@
-# Aggiornamenti dal ramo main
+# Aggiornamenti su richiesta — 0.2.3 in preparazione
 
 Questa implementazione segue l’autorizzazione esplicita dell’utente. **Non è dentro i pacchetti pubblici 0.2.2**, che rimangono immutati. Per usarla servirà installare manualmente una successiva versione che la includa; nessuna nuova Release viene creata da questo passo.
 
 ## Quando si connette
 
-Il controllo è attivo di default nelle nuove installazioni del main; si spegne in Impostazioni → Aggiornamenti. La scelta è salvata localmente. Spento: nessuna richiesta né worker avviato per un controllo. Acceso: controllo all’avvio e ogni sei ore; il pulsante Controlla ora ripete il controllo. Disattivare interrompe il lavoro pendente e revoca il consenso precedente.
+Scelta del titolare del 23 novembre 2026: controlli spenti di default. Profilo nuovo, preferenza mancante o vecchio formato «attivo»: nessuna richiesta Node e nessuna connessione Chromium all’avvio. La preferenza nativa usa policy 2; il vecchio booleano non viene ereditato come consenso. Anche la vecchia preferenza dell’interfaccia viene migrata a spento.
+
+L’importazione delle impostazioni JSON conserva la scelta corrente sui periodici: non eredita un vecchio «attivo». Il messaggio lo spiega; per cambiare il consenso si usa l’interruttore nel pannello Aggiornamenti. Verificato nel browser e previsto anche nel test nativo del pacchetto.
+
+In Impostazioni → Aggiornamenti, «Controlla aggiornamenti ora» avvia una sola operazione. Clic duplicati mentre è pendente vengono accorpati. Il trasporto viene aperto per il controllo e l’eventuale download, poi chiuso automaticamente, anche su errore. «Annulla controllo» interrompe il lavoro, rimuove il temporaneo e ignora risposte tardive. Nessun controllo manuale abilita i periodici.
+
+L’interruttore periodico è mantenuto perché ha una funzione effettiva distinta: dopo scelta esplicita controlla ogni sei ore; mai all’avvio, neppure con consenso già salvato nel nuovo formato. Spento di default. Anche ogni operazione periodica chiude il trasporto al termine. Il testo vicino al pulsante indica se sono stati attivati periodici; altrimenti dice che l’app contatta GitHub solo alla pressione. Non è stata decisa una rimozione dell’interruttore.
 
 L’app legge l’elenco SHA256SUMS.txt della Release ordinaria latest, confronta la versione in locale e sceglie il pacchetto. Non invia la versione installata, diagnosi, preferenze, nomi, percorsi, documenti o identificativi. Le richieste sono GET senza corpo, cookie, autenticazione o referrer. Intestazioni applicative: User-Agent: CosmOffice e Accept-Encoding: identity; Host e gestione della connessione sono HTTP standard. Il nome del file richiesto identifica il pacchetto pubblico della piattaforma scelta.
 
@@ -25,7 +31,7 @@ Un file temporaneo esclusivo viene scaricato e confrontato con SHA-256. Un file 
 
 ## Installazione dopo conferma
 
-Windows NSIS: il pulsante Installa e chiudi apre una conferma con Annulla predefinito; dopo consenso e bozze salvate avvia l’installer interattivo, senza /S e senza shell. La chiusura normale dell’app non installa nulla. In sviluppo, versione portatile o directory non riconosciuta viene offerta la pagina di download.
+Windows NSIS: il pulsante Installa e chiudi apre una conferma con Annulla predefinito; dopo consenso e bozze salvate avvia l’installer interattivo, senza /S e senza shell. Il consenso all’installazione è separato dal permesso temporaneo di rete: la copia verificata resta installabile anche dopo lo spegnimento del trasporto. La chiusura normale dell’app non installa nulla. In sviluppo, versione portatile o directory non riconosciuta viene offerta la pagina di download. Solo il lavoro CI richiesto installa e disinstalla NSIS con /S nel runner; tale modalità non viene usata dall’updater dell’app.
 
 Linux AppImage: riconosce l’eseguibile CosmOffice dentro la sua APPDIR, per evitare di sostituire l’AppImage di un programma padre che abbia lasciato APPIMAGE nell’ambiente. Dopo conferma prepara una copia sorella, ne controlla hash e formato AppImage, conserva i permessi e la rinomina sul file originale. Se non riconosce il proprio pacchetto, offre il download manuale.
 
@@ -35,9 +41,13 @@ Rete assente/errore: “Aggiornamento non disponibile. Puoi continuare a lavorar
 
 ## Prove e limiti
 
+- Chi ha la 0.2.2 aggiorna manualmente una volta alla 0.2.3 quando il titolare ne autorizzerà la pubblicazione; poi usa il pulsante. Nessun tag o Release creati da questa preparazione, 0.2.2 immutata.
+- Informazioni legge LICENSE e THIRD_PARTY_NOTICES.txt da process.resourcesPath nel pacchetto (IPC con soli due nomi ammessi), dalla radice del repository in sviluppo. Nessun URL esterno. L’anteprima browser usa copie locali generate da scripts/legal-assets.mjs.
 - npm test: URL/redirect vietati prima del contatto, certificato richiesto, niente fallback HTTP, header minimi, byte/hash, limiti, parziali, revoca e consenso per versione.
 - node scripts/offline-smoke.mjs: controllo spento, documenti aperti, audit Node vuoto, NetLog Chromium senza connessioni.
-- node scripts/update-network-smoke.mjs e --package: controllo e download reali, SHA-256, audit Node limitato ai due host, dominio estraneo bloccato, dopo spegnimento nessuna nuova richiesta; Chromium senza TCP/UDP/QUIC/DNS o richieste HTTP.
+- node scripts/update-network-smoke.mjs e --package: due profili nuovi, uno con vecchio «attivo»; avvio senza richieste, clic manuale, spegnimento automatico, annullamento IPC e dominio estraneo bloccato. Audit Node limitato ai due host; Chromium senza connessioni. Poiché latest è ancora 0.2.2, non si simula una Release 0.2.3: il download reale e SHA-256 della 0.2.2 sono una prova separata del trasporto; il controllo normale non retrocede.
+- scripts/package-resources-check.mjs legge gli installer realmente costruiti (Windows NSIS, AppImage, due DMG), confronta LICENSE e attribuzioni con i sorgenti di quella build e verifica la licenza anche nell’ASAR. scripts/legal-smoke.mjs verifica la schermata nativa e il rifiuto di percorsi arbitrari.
+- Il nuovo lavoro windows-installed installa NSIS /S soltanto nel runner Windows, avvia l’eseguibile installato con finestra visibile, apre esempi reali e disinstalla davvero. Solo il ritorno del selettore file è automatizzato, non i motori. Script protetto contro esecuzione fuori dal runner. Esiti reali da controllare dopo il push; non simulati localmente.
 - node scripts/update-confirm-smoke.mjs: pacchetto Windows reale, riconoscimento installazione/versione simulati; Annulla e chiusura normale non installano, consenso esplicito richiesto. Lo spawn è sostituito da uno spy: nessun installer viene realmente eseguito.
 
 Installazione su computer puliti, UAC e completamento effettivo dell’installer, sostituzione di una vera AppImage mentre è in uso, hardware Mac e arresti improvvisi non sono certificati da questi test. Gli esiti effettivi, comprese prove fallite e ripetute, sono nel report. Fonti API consultate senza copia di codice: [worker_threads](https://nodejs.org/api/worker_threads.html) e [HTTPS](https://nodejs.org/api/https.html).

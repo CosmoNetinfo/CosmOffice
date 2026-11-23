@@ -1,5 +1,13 @@
 # Stato delle verifiche e limiti
 
+## Preparazione 0.2.3 — 23 novembre 2026
+
+Nuovi controlli per profilo senza preferenza e vecchio «attivo», clic unico/duplicato, trasporto chiuso dopo controllo, annullamento e opt-in periodico. Informazioni confronta testi con i file locali; IPC rifiuta nomi arbitrari. Ispezione dei pacchetti reali per LICENSE, attribuzioni e versione; non basta la configurazione.
+
+Due ispezioni Windows iniziali fallite sulla copia LICENSE dentro ASAR, benché le risorse esterne fossero corrette. Corretto il filtro di copia, mantenuta la verifica. Output e ripetizioni nel report del passo. Nessuna nuova dipendenza o modifica ai motori/condizioni della licenza. Diagnostica: solo versione browser aggiornata, filtri/formato/prove guidate intatti.
+
+Nuovo lavoro Windows installa e disinstalla davvero nel runner; esiti osservabili soltanto dopo il push. Non simulato localmente. Non prova SmartScreen, UAC con antivirus, utente normale, dialogo file OS o un PC pulito fisico; AppImage in uso e Mac fisico restano non provati. Nessuna Release/tag 0.2.3; la 0.2.2 pubblica non cambia.
+
 Aggiornamento dati del titolare: nome e recapito inseriti su indicazione dell’utente, Daniele Spalletti (danielespalletti@cosmonet.info). Nessuna modifica alle condizioni A, all’app o ai pacchetti; i report storici conservano lo stato precedente. La revisione professionale resta da eseguire. Esiti delle verifiche ripetute nel report del passo.
 
 Passo adozione A del 22 novembre 2026: LICENSE e documentazione aggiornati su istruzione esplicita, senza modificare app, preferenza aggiornamenti, packaging o Release. Audit statico dei quattro installer pubblici con SHA-256 verificati: nessun campo license nel package.json incorporato, nessun file della licenza propria nel payload, avvisi di terzi e lessico separato presenti. Copyright/author restano quelli storici “Cosmonet”. Incoerenze riportate, non corrette in silenzio. Prove reali e output nel report del passo; i dati del titolare ora forniti non costituiscono una verifica legale e la revisione professionale resta necessaria.

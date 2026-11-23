@@ -12,3 +12,4 @@ test-results/
 public/pdfjs/
 scripts/openxml-validator/bin/
 scripts/openxml-validator/obj/
+/public/legal/

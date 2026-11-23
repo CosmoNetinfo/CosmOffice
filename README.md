@@ -2,9 +2,9 @@
 
 Suite desktop gratuita, offline e in italiano di Cosmonet: **CosmoWrite**, **CosmoGrid** e **CosmoView**.
 
-**Stato: anteprima 0.2.2.** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Android e iOS sono pianificati, non implementati.
+**Stato del main: anteprima 0.2.3 in preparazione, non pubblicata.** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Android e iOS sono pianificati, non implementati.
 
-Gli installer pubblici **0.2.2** restano quelli del tag originale, con aggiornamento manuale. Il ramo main aggiunge il nuovo updater per una versione successiva: non viene inserito retroattivamente negli installer già scaricati. Le funzioni documentali continuano a lavorare senza Internet.
+Gli installer pubblici **0.2.2** restano quelli del tag originale, con aggiornamento manuale. La 0.2.3 si prepara su main per il collaudo su un PC Windows pulito: nessun tag o Release finché il titolare non decide. Non viene inserita retroattivamente negli installer già scaricati. Le funzioni documentali continuano a lavorare senza Internet.
 
 ![Loghi della suite](docs/preview/00-loghi.png)
 
@@ -27,10 +27,10 @@ Un controllo indipendente opzionale apre e risalva i campioni con LibreOffice (`
 - CosmoWrite: scrittura, font/dimensioni/colori/evidenziatore, titoli, allineamento, elenchi, tabelle, immagini con proporzioni conservate (incluso WebP convertito), annulla/ripristina, trova/sostituisci. Importazione DOCX/TXT/HTML, recupero dei principali stili OOXML, esportazione DOCX e PDF desktop, stampa, A4/Letter, orientamento, margini e interlinea.
 - CosmoGrid: XLSX, importazione/esportazione CSV e TSV con virgolette/testo multilinea/decimali italiani, 102 funzioni abilitate, riferimenti tra fogli (anche nomi con spazi), formule condizionali e ricerche, selezione con Shift+clic, copia/incolla di intervalli, annulla/ripristina, formati numerici, rinomina/duplica/elimina fogli. Grafici a barre, linee e torta da intervalli selezionati, aggiornati con i dati e salvati come grafici nativi XLSX. La rinomina aggiorna i riferimenti espliciti al foglio.
 - CosmoView: PDF offline, pagine, zoom, rotazione persistente della pagina selezionata, selezione testo, ricerca per pagine, password, ultima pagina ricordata e stampa delle pagine renderizzate. Senza modifiche la copia è identica all’originale. Non esegue script o azioni dei documenti.
-- Impostazioni complete: tema chiaro/scuro/sistema, accento anche HEX personalizzato, scala 80–150%, densità, barra laterale, preferenze degli editor, aggiornamenti, backup/ripristino dell’archivio, esportazione/importazione delle preferenze JSON e svuotamento con conferma. Nessuna voce è un controllo dimostrativo.
+- Impostazioni complete: tema chiaro/scuro/sistema, accento anche HEX personalizzato, scala 80–150%, densità, barra laterale, preferenze degli editor, aggiornamenti su richiesta, Informazioni con licenza locale, backup/ripristino dell’archivio, esportazione/importazione delle preferenze JSON e svuotamento con conferma. Nessuna voce è un controllo dimostrativo.
 - Bozze e file PDF conservati localmente in IndexedDB, riapertura dall’archivio, ricerca, rinomina ed eliminazione delle copie locali.
 - File originali conservati: l’esportazione chiede dove salvare la copia.
-- Nessun account o telemetria; font, decoder PDF e lessico italiano Morph-it! inclusi nel pacchetto. Nel main l’unica rete è il controllo aggiornamenti attivabile nelle impostazioni: solo Release del progetto e relativi file, tramite TLS Node. Disattivandolo nessuna richiesta; renderer e API generali Node/Electron restano bloccati. Il controllo ortografico italiano di CosmoWrite e CosmoGrid usa dati locali e parole personali; Hunspell nativo rimane disabilitato per impedirne i download automatici.
+- Nessun account o telemetria; font, decoder PDF e lessico italiano Morph-it! inclusi nel pacchetto. Nel main l’unica rete è il controllo aggiornamenti su richiesta dalle impostazioni, spento di default: solo Release del progetto e relativi file, tramite TLS Node. Disattivandolo nessuna richiesta; renderer e API generali Node/Electron restano bloccati. Il controllo ortografico italiano di CosmoWrite e CosmoGrid usa dati locali e parole personali; Hunspell nativo rimane disabilitato per impedirne i download automatici.
 
 Il dizionario italiano comprende 400.680 forme distinte derivate da Morph-it! 0.4.8 di Marco Baroni ed Eros Zanchetta, distribuite separatamente sotto CC BY-SA 2.0. Attribuzione, licenza completa, sorgente compresso e parole sono in `public/dictionaries/` e nel pacchetto. `node scripts/italian-dictionary.mjs` rigenera le parole dal sorgente incluso senza rete. Non offre grammatica, suggerimenti o altre lingue; termini validi assenti dal lessico possono essere sottolineati. Le parole personali restano in localStorage su questo dispositivo, separate dai documenti; non sono incluse nei backup dei documenti o nell'esportazione delle preferenze.
 
@@ -70,15 +70,17 @@ Per il controllo indipendente: `npm run test:interop`, con LibreOffice installat
 
 ## Ricerca e lavoro autorizzato
 
-### Aggiornamenti nel ramo main
+### Aggiornamenti della 0.2.3 in preparazione
 
-Nelle impostazioni, sezione Aggiornamenti, l’interruttore **Aggiornamenti automatici** permette di spegnere il controllo. In una nuova installazione del main è attivo: controlla all’avvio e ogni sei ore. La preferenza spenta viene rispettata anche all’avvio successivo, senza richieste.
+Nelle nuove installazioni e senza preferenza salvata i controlli sono **spenti**. All’avvio nessuna richiesta Node e nessuna connessione Chromium, anche se erano stati abilitati i controlli periodici. Le vecchie preferenze «attivo» dell’anteprima non valgono come consenso alla nuova modalità.
 
-Un worker Node effettua solo GET HTTPS verso **github.com**, limitato a `CosmoNetinfo/CosmOffice/releases`, e **release-assets.githubusercontent.com**, solo per i download del repository con identificativo `1466711071`. Ogni redirect è ricontrollato; altri host, HTTP, credenziali e repository vengono rifiutati. Chromium rimane senza connessioni. Si inviano soltanto le richieste dei file pubblici, con intestazioni minime: niente documenti, preferenze, diagnosi, identificativi o telemetria.
+In Impostazioni → Aggiornamenti premi **Controlla aggiornamenti ora**: l’app contatta GitHub per una sola operazione, poi spegne la rete. Puoi annullarla. Altrimenti non contatta nessuno. Se scegli esplicitamente l’interruttore periodico, controlla ogni sei ore senza farlo all’avvio; il testo accanto al pulsante segnala questa scelta. L’interruttore rimane perché svolge una funzione distinta e verificata.
 
-Windows con installer NSIS e Linux con la propria AppImage scaricano automaticamente la nuova versione. SHA-256 viene verificato sul download e di nuovo prima dell’installazione. **Si installa soltanto dopo il pulsante e la conferma esplicita**, salvando prima le bozze. Chiudere normalmente l’app non installa nulla; l’installer Windows rimane interattivo. Mac non firmato: soltanto avviso e pagina di download aperta su richiesta. Senza rete compare un messaggio breve e si può continuare a lavorare.
+Il worker Node usa solo GET HTTPS con certificato verificato verso **github.com**, limitato a CosmoNetinfo/CosmOffice/releases, e **release-assets.githubusercontent.com**, soltanto per il repository 1466711071. Ogni redirect è ricontrollato; nessun altro host, HTTP, cookie, credenziale, identificativo o dato dei documenti. Chromium resta senza connessioni.
 
-La prima versione dotata di updater dovrà essere installata manualmente: i pacchetti pubblici 0.2.2 non lo includono. [Comportamento, host e prove](docs/AGGIORNAMENTI.md), [decisione tecnica](docs/DECISIONI.md#implementazione-del-trasporto-tls-node). Installazione su sistemi puliti e sostituzione di una vera AppImage in uso restano da collaudare.
+Windows NSIS e la propria AppImage possono scaricare la versione nuova durante il controllo. SHA-256 sul download e prima dell’installazione; serve sempre il pulsante e la conferma esplicita, salvando prima le bozze. La chiusura normale non installa nulla e l’installer nell’app resta interattivo. Mac: avviso e download manuale, senza installazione automatica. Senza rete puoi continuare a lavorare.
+
+**Chi ha la 0.2.2 aggiorna a mano una volta**, quando il titolare pubblicherà la 0.2.3; poi usa il pulsante. La 0.2.2 pubblica non cambia. [Dettagli e prove](docs/AGGIORNAMENTI.md). Il collaudo su PC pulito, UAC/antivirus, AppImage in uso e Mac fisico resta necessario.
 
 ### Studio ArtCraft
 
@@ -86,13 +88,13 @@ La ricerca su WordCraft, GridCraft e craft-launcher è in [ARTCRAFT.md](docs/ric
 
 ## GitHub Actions
 
-Ogni push su `main` avvia test, un controllo indipendente con LibreOffice e crea gli installer di anteprima per Windows x64, Linux x64 e macOS Intel/Apple Silicon. Gli artefatti sono nella scheda **Actions**, disponibili per 14 giorni. Le build di anteprima non sono firmate e non attivano l’aggiornamento automatico.
+Ogni push su `main` avvia test, un controllo indipendente con LibreOffice e crea gli installer di anteprima per Windows x64, Linux x64 e macOS Intel/Apple Silicon. Gli artefatti sono nella scheda **Actions**, disponibili per 14 giorni. Un lavoro Windows separato installa davvero NSIS in modalità non interattiva soltanto nel runner, avvia l’app installata, apre tre esempi e disinstalla; non prova SmartScreen, UAC con antivirus o un utente normale e non sostituisce un PC reale. Le build di anteprima non sono firmate e non attivano l’aggiornamento automatico.
 
 Il workflow per tag `v*` controlla versione, build, test browser, Open XML SDK, offline e interoperabilità. Costruisce installer Windows x64, AppImage Linux x64 e DMG Mac Intel/Apple Silicon **senza firma**, carica gli asset in una bozza e la rende una **Release ordinaria pubblica** solo dopo gli upload. Le note derivano dalla sezione della versione nel CHANGELOG e dichiarano eventuali piattaforme fallite. Una build di piattaforma rossa non impedisce la pubblicazione delle altre; controlli comuni rossi bloccano tutte.
 
 Non servono certificati o segreti di firma: basta il GITHUB_TOKEN automatico del workflow con permesso contents: write nel solo lavoro di pubblicazione. Ogni installer ha un file .sha256; SHA256SUMS.txt li raccoglie. La pubblicazione si ferma se non c’è alcun installer, se un upload fallisce o se la Release è già pubblica: non sovrascrive automaticamente gli asset. In caso di bozza incompleta, controllarla prima di ripetere.
 
-Procedura: aggiornare package.json e la corrispondente sezione CHANGELOG, completare tutti i controlli, commit e push su main, poi creare e pubblicare il tag della stessa versione. Non spostare il tag v0.2.2 già pubblico. Seguire Actions e verificare senza account la pagina [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest), gli asset e i checksum. Gli installer 0.2.2 si aggiornano manualmente; il main prepara l’updater della versione successiva.
+Procedura: aggiornare package.json e la corrispondente sezione CHANGELOG, completare tutti i controlli, commit e push su main, poi creare e pubblicare il tag della stessa versione. Non spostare il tag v0.2.2 già pubblico. Seguire Actions e verificare senza account la pagina [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest), gli asset e i checksum. La 0.2.3 è soltanto preparata: non creare tag né pubblicare prima della prova del titolare su un PC Windows pulito. Gli installer 0.2.2 si aggiornano manualmente una volta alla prima versione dotata del pulsante.
 
 Windows può mostrare SmartScreen per l’autore non verificato: controllare origine e checksum; se disponibile scegliere “Ulteriori informazioni” e “Esegui comunque”. I criteri dei computer gestiti possono vietarlo: non disattivare la protezione del sistema. Su Linux rendere eseguibile l’AppImage; il supporto delle singole distribuzioni non è garantito dai soli test CI. Le installazioni su computer puliti non sono ancora collaudate.
 
@@ -111,39 +113,47 @@ Procedura basata sul [supporto Apple](https://support.apple.com/it-it/102445). [
 
 Schermate reali dell’interfaccia browser di sviluppo, generate automaticamente con esempi originali. Non sono immagini di un’installazione su computer pulito. Il rapporto contiene un solo evento simulato; la prova guidata conserva gli esiti “Non provato”. Nessun documento o dato personale è stato usato.
 
-**Home ed elenco documenti** — anteprima di sviluppo, versione 0.2.2.
+**Home ed elenco documenti** — anteprima di sviluppo, versione 0.2.3.
 
 ![Home di CosmOffice con l’elenco dei tre documenti di esempio](docs/images/home.png)
 
-**CosmoWrite: testo, tabella e illustrazione originale** — anteprima di sviluppo, versione 0.2.2.
+**CosmoWrite: testo, tabella e illustrazione originale** — anteprima di sviluppo, versione 0.2.3.
 
 ![CosmoWrite con il progetto di una biblioteca, una tabella e un’illustrazione originale](docs/images/write.png)
 
-**CosmoGrid: formule e grafico a barre** — anteprima di sviluppo, versione 0.2.2.
+**CosmoGrid: formule e grafico a barre** — anteprima di sviluppo, versione 0.2.3.
 
 ![CosmoGrid con dati di esempio, formula SOMMA e grafico a barre delle attività](docs/images/grid.png)
 
-**CosmoView: PDF di esempio** — anteprima di sviluppo, versione 0.2.2.
+**CosmoView: PDF di esempio** — anteprima di sviluppo, versione 0.2.3.
 
 ![CosmoView aperto sul PDF originale Una biblioteca per tutti](docs/images/view.png)
 
-**Impostazioni, tema chiaro** — anteprima di sviluppo, versione 0.2.2.
+**Impostazioni, tema chiaro** — anteprima di sviluppo, versione 0.2.3.
 
 ![Pagina delle impostazioni di CosmOffice nel tema chiaro](docs/images/impostazioni-chiaro.png)
 
-**Impostazioni, tema scuro** — anteprima di sviluppo, versione 0.2.2.
+**Impostazioni, tema scuro** — anteprima di sviluppo, versione 0.2.3.
 
 ![Pagina delle impostazioni di CosmOffice nel tema scuro](docs/images/impostazioni-scuro.png)
 
-**Prova guidata** — anteprima di sviluppo, versione 0.2.2.
+**Aggiornamenti spenti di default, controllo su richiesta** — anteprima di sviluppo, versione 0.2.3.
+
+![Impostazioni aggiornamenti con pulsante su richiesta e controlli periodici facoltativi](docs/images/aggiornamenti.png)
+
+**Informazioni e licenza A locale** — anteprima di sviluppo, versione 0.2.3.
+
+![Informazioni di CosmOffice con versione, titolare e testo della licenza letto dal file locale](docs/images/informazioni.png)
+
+**Prova guidata** — anteprima di sviluppo, versione 0.2.3.
 
 ![Prova guidata con otto prove e le scelte Ok, Problema e Non provato](docs/images/prova-guidata.png)
 
-**Segnala un problema, rapporto di esempio** — anteprima di sviluppo, versione 0.2.2.
+**Segnala un problema, rapporto di esempio** — anteprima di sviluppo, versione 0.2.3.
 
 ![Schermata Segnala un problema con un errore simulato e un rapporto senza dati personali](docs/images/segnala-problema.png)
 
-**Layout stretto, 390 px** — anteprima di sviluppo, versione 0.2.2.
+**Layout stretto, 390 px** — anteprima di sviluppo, versione 0.2.3.
 
 ![Home di CosmOffice nel layout stretto a 390 pixel](docs/images/layout-stretto.png)
 
@@ -155,7 +165,7 @@ CosmOffice è utilizzabile gratuitamente, anche per lavoro e su più computer, s
 
 Per condividerlo, usa il [link alle Release ufficiali](https://github.com/CosmoNetinfo/CosmOffice/releases/latest). Non viene concessa una licenza su marchio e loghi; puoi citare correttamente il prodotto. I tuoi documenti rimangono tuoi. Librerie di terzi e lessico italiano mantengono le proprie licenze separate, riportate in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt).
 
-Testo adottato: [LICENSE](LICENSE), opzione A; B non adottata. Titolare e recapito: Daniele Spalletti (danielespalletti@cosmonet.info). **Il testo definitivo deve essere rivisto da un professionista; questa stesura non è consulenza legale.** La 0.2.2 pubblicata conserva la licenza precedente e non viene modificata: gli installer non includono il file della licenza propria, come documentato nell’audit. L’adozione nel repository non aggiorna i pacchetti già pubblicati.
+Testo adottato: [LICENSE](LICENSE), opzione A; B non adottata. Titolare e recapito: Daniele Spalletti (danielespalletti@cosmonet.info). **Il testo definitivo deve essere rivisto da un professionista; questa stesura non è consulenza legale.** La 0.2.2 pubblicata conserva la licenza precedente e non viene modificata: gli installer non includono il file della licenza propria, come documentato nell’audit. L’adozione nel repository non aggiorna i pacchetti già pubblicati. Nei nuovi pacchetti 0.2.3 i due testi sono inclusi nelle risorse e si leggono offline in Impostazioni → Informazioni.
 
 ## Componenti e marchio
 

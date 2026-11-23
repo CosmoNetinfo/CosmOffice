@@ -9,7 +9,7 @@ await mkdir(cache,{recursive:true});await writeFile(ledger,JSON.stringify({calls
 const filename='CosmOffice-0.2.2-win-x64-Setup.exe',cached=resolve('test-results/public-release',filename);
 try{await link(cached,join(cache,filename));}catch{await copyFile(cached,join(cache,filename)).catch(()=>{});}
 async function start(answer){
-  await writeFile(join(profile,'updates.json'),JSON.stringify({enabled:false}));
+  await writeFile(join(profile,'updates.json'),JSON.stringify({policy:2,enabled:false}));
   const application=await electron.launch({executablePath:resolve('release/win-unpacked/CosmOffice.exe'),args:['--no-sandbox'],env:{...process.env,COSMO_TEST:'1',COSMO_TEST_PROFILE:profile}});
   try {
   const page=await application.firstWindow();await page.getByRole('heading',{name:'Il tuo spazio di lavoro.'}).waitFor();
@@ -22,9 +22,11 @@ async function start(answer){
   },{ledger,answer});
   await page.getByRole('button',{name:'Impostazioni',exact:true}).click();await page.getByRole('button',{name:'Aggiornamenti',exact:true}).click();
   await page.evaluate(()=>{window.consentPhases=[];window.cosmoffice.onUpdate(state=>window.consentPhases.push(state.phase));});
-  await page.getByRole('checkbox',{name:'Aggiornamenti automatici',exact:true}).check();
-  await page.waitForFunction(()=>['ready','error'].includes(window.consentPhases.at(-1)),undefined,{timeout:330000});
+  await page.getByRole('button',{name:'Controlla aggiornamenti ora',exact:true}).click();
+  await page.waitForFunction(()=>window.consentPhases.includes('ready')||window.consentPhases.includes('error'),undefined,{timeout:330000});
+  await page.waitForFunction(async()=>!(await window.cosmoffice.updateStatus()).networkActive,undefined,{timeout:30000});
   assert.equal((await page.evaluate(()=>window.cosmoffice.updateStatus())).phase,'ready');
+  assert.equal((await page.evaluate(()=>window.cosmoffice.updateStatus())).enabled,false);
   return {application,page};
   } catch(error) {await application.close();throw error;}
 }

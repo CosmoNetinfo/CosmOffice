@@ -25,7 +25,7 @@ export async function readDebug() {
     await window.cosmoffice.debugGuided(guided);
     return window.cosmoffice.debugReport();
   }
-  return [...guidedLines(guided), '', 'Esiti dichiarati dal tester, non verifiche automatiche.', '', 'Rapporto di debug CosmOffice — anteprima browser', 'Versione: 0.2.2',
+  return [...guidedLines(guided), '', 'Esiti dichiarati dal tester, non verifiche automatiche.', '', 'Rapporto di debug CosmOffice — anteprima browser', 'Versione: 0.2.3',
     'Sistema, architettura, Electron e Chromium: non disponibili nel browser.', 'Lingua: it',
     `App in uso: ${context.app}`, `Tipo file: ${context.type}`, `Dimensione approssimativa: ${context.size ?? 'non disponibile'} KB`,
     `Ortografia: ${context.spelling}`, `Aggiornamenti: assenti`, `Tema: ${context.theme}`, `Scala: ${context.scale}%`,

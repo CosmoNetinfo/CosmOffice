@@ -1,8 +1,18 @@
 # Roadmap CosmOffice
 
-Aggiornata al 22 novembre 2026. Priorità: affidabilità, compatibilità DOCX/XLSX/PDF, qualità, poi novità. **Le voci pianificate sono proposte: nessuna implementazione è autorizzata da questo studio.**
+## Passo corrente: 0.2.3 in preparazione (23 novembre 2026)
 
-Stati: **Fatto e provato** = evidenza nei test/report; **Parziale** = sottoinsieme con limiti; **In corso** = attività effettivamente aperta; **Pianificato** = da scegliere/autorizzare; **Non provato** = nessuna verifica sufficiente. Riferimento applicativo: 0.2.2; il recupero del validatore segue lo studio sul commit 3185603. Le priorità aggiornate autorizzate sono: verifica CI 5a493a4/9e3173e e rapporto breve per Facebook, prova guidata a otto esiti, aggiornamenti GitHub, DMG/guida Mac, Release ordinaria 0.2.2 e bozze di licenza. Le altre proposte restano sospese.
+- Implementati: aggiornamenti spenti di default, nessuna richiesta all’avvio, pulsante per singola operazione e chiusura automatica della rete; periodici soltanto opt-in, vecchio consenso non ereditato.
+- Implementati: Informazioni offline e inclusione delle licenze nelle risorse. Verifica reale del pacchetto Windows; controlli bloccanti per AppImage e DMG in CI. LIC-001 non viene esteso retroattivamente alla 0.2.2.
+- Nuovo lavoro Windows di installazione NSIS e disinstallazione reali, in runner separato: esito da verificare dopo il push, non presentato come già eseguito.
+- Screenshot di sviluppo aggiornati a 0.2.3, incluse Aggiornamenti e Informazioni.
+- Non provati: PC Windows fisico pulito, SmartScreen, UAC/antivirus e utente normale, AppImage in uso e Mac fisico. Dopo quel collaudo il titolare decide tag e Release: non pubblicati da questo passo.
+
+Il resto del documento conserva le tappe precedenti e le proposte sospese; nessun motore scelto o altra idea implementata.
+
+Aggiornata al 23 novembre 2026. Priorità: affidabilità, compatibilità DOCX/XLSX/PDF, qualità, poi novità. **Le voci pianificate sono proposte: nessuna implementazione è autorizzata da questo studio.**
+
+Stati: **Fatto e provato** = evidenza nei test/report; **Parziale** = sottoinsieme con limiti; **In corso** = attività effettivamente aperta; **Pianificato** = da scegliere/autorizzare; **Non provato** = nessuna verifica sufficiente. Riferimento applicativo: 0.2.3 in preparazione, Release pubblica 0.2.2; il recupero del validatore segue lo studio sul commit 3185603. Le priorità aggiornate autorizzate sono: verifica CI 5a493a4/9e3173e e rapporto breve per Facebook, prova guidata a otto esiti, aggiornamenti GitHub, DMG/guida Mac, Release ordinaria 0.2.2 e bozze di licenza. Le altre proposte restano sospese.
 
 ## Stato esistente
 
@@ -38,7 +48,7 @@ Aggiornamento di ricerca ArtCraft: [studio completato](ricerca/ARTCRAFT.md), con
 | 6 | Installer su sistemi puliti e accessibilità | Pianificato / non provato | Windows, Linux e Mac reali; tastiera e lettore schermo |
 | 7 | Rapporto per i tester copiabile e solo locale | Implementato; verifiche nel report corrente | Ultimi 50 eventi, messaggi controllati, tracce anonimizzate, copia esplicita e nessun invio |
 | 8 | Release pubblica, checksum e guide di primo avvio | Pubblicata 0.2.2 con quattro installer; download anonimi e SHA-256 verificati | Sistemi puliti e Mac fisici non collaudati |
-| 9 | Aggiornamenti automatici soltanto dalle Release autorizzate | Implementati nel main 06945c6, CI verde; non negli installer 0.2.2 | Audit Node, Chromium senza connessioni, consenso e hash provati; installazione reale da collaudare |
+| 9 | Aggiornamenti su richiesta dalle Release autorizzate | 0.2.3 in preparazione: spenti di default, periodici opt-in; prove locali nel report | Nessuna rete all’avvio, clic unico e spegnimento finale; nuova CI da verificare dopo il push |
 | 10 | Verifica finale delle licenze e distribuzione del dizionario sostituibile | Pianificato | Fonte, licenza e sostituibilità del pacchetto verificate, senza confondere dati e codice |
 | 11 | Backup del dizionario personale e anteprima di stampa | Proposta | Ripristino verificato e scala leggibile |
 
@@ -65,6 +75,6 @@ Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro
 3. Aggiornamenti da GitHub Releases: implementati nel main con trasporto TLS Node, host chiusi e conferma esplicita; audit/NetLog e prove del pacchetto nel report del passo. Non inclusi retroattivamente negli installer 0.2.2. Installazione su computer puliti e AppImage reale in uso non provate. Nessun altro motore o idea dello studio.
 4. Mac DMG non firmato e guida con titolo esatto: pubblicati entrambi e verificati con download anonimo/SHA-256, CI verde. Nessuna prova su computer fisici.
 5. Release ordinaria CosmOffice 0.2.2 (anteprima): pubblicata e verificata con download anonimo di Windows, Linux e due DMG Mac e SHA-256, dopo la correzione DIST-001. Checksum, limiti e domande ai tester inclusi nelle note dal CHANGELOG. Screenshot riproducibili e successivo updater nel main completati separatamente.
-6. Licenza utenti: A adottata in [LICENSE](../LICENSE) il 22 novembre 2026; B conservata in [LICENZA-BOZZE.md](LICENZA-BOZZE.md) e non adottata. Titolare e recapito forniti: Daniele Spalletti (danielespalletti@cosmonet.info). Restano revisione professionale e allineamento dei futuri pacchetti. Nessuna redistribuzione installer; link ufficiale condivisibile. Release 0.2.2 invariata, ancora con l’assetto precedente e senza il file della licenza propria nel payload.
+6. Licenza utenti: A adottata in [LICENSE](../LICENSE) il 22 novembre 2026; B conservata in [LICENZA-BOZZE.md](LICENZA-BOZZE.md) e non adottata. Titolare e recapito forniti: Daniele Spalletti (danielespalletti@cosmonet.info). Revisione professionale ancora necessaria; inclusione nei nuovi pacchetti 0.2.3 verificata su NSIS Windows e bloccante per AppImage/DMG in CI. Nessuna redistribuzione installer; link ufficiale condivisibile. Release 0.2.2 invariata, ancora con l’assetto precedente e senza il file della licenza propria nel payload.
 
 Le altre proposte rimangono sospese; nessun motore scelto.

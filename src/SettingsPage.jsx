@@ -5,8 +5,9 @@ import { PersonalDictionary } from './Spelling.jsx';
 import { exportBackup, importBackup } from './backups.mjs';
 import { clearDrafts, storeDrafts } from './storage.mjs';
 import { saveFile } from './files.mjs';
+import About from './About.jsx';
 
-const tabs = [['appearance', 'Aspetto', Palette], ['write', 'Documenti', FileText], ['grid', 'Fogli di calcolo', Grid2X2], ['pdf', 'PDF', BookOpen], ['data', 'Dati e backup', HardDrive], ['updates', 'Aggiornamenti', RefreshCw]];
+const tabs = [['appearance', 'Aspetto', Palette], ['write', 'Documenti', FileText], ['grid', 'Fogli di calcolo', Grid2X2], ['pdf', 'PDF', BookOpen], ['data', 'Dati e backup', HardDrive], ['updates', 'Aggiornamenti', RefreshCw], ['about', 'Informazioni', BookOpen]];
 const bytesLabel = bytes => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 function Row({ title, description, children }) { return <div className="setting-row"><div><strong>{title}</strong><p>{description}</p></div><div className="setting-control">{children}</div></div>; }
 function Group({ title, description, children }) { return <section className="settings-group"><div className="settings-group-title"><h2>{title}</h2>{description && <p>{description}</p>}</div><div className="settings-panel">{children}</div></section>; }
@@ -24,7 +25,7 @@ export default function SettingsPage({ documents, refresh, onBack, onReport, onG
   }
   async function importPreferences(event) {
     const file = event.target.files[0]; event.target.value = ''; if (!file) return;
-    await run(async () => { if (file.size > 100000) throw new Error('File di impostazioni troppo grande.'); const data = JSON.parse(await file.text()); if (data.format !== 'cosmoffice-preferences' || data.version !== 1 || !data.settings || typeof data.settings !== 'object') throw new Error('File di impostazioni non riconosciuto.'); importSettings(data.settings); setMessage('Impostazioni importate e applicate.'); });
+    await run(async () => { if (file.size > 100000) throw new Error('File di impostazioni troppo grande.'); const data = JSON.parse(await file.text()); if (data.format !== 'cosmoffice-preferences' || data.version !== 1 || !data.settings || typeof data.settings !== 'object') throw new Error('File di impostazioni non riconosciuto.'); importSettings(data.settings); setMessage('Impostazioni importate. Il consenso ai controlli periodici resta invariato: puoi cambiarlo in Aggiornamenti.'); });
   }
   const total = documents.reduce((sum, doc) => sum + (typeof doc.payload === 'string' ? new TextEncoder().encode(doc.payload).byteLength : doc.payload?.byteLength || 0), 0);
   return <div className="settings-page">
@@ -84,11 +85,13 @@ export default function SettingsPage({ documents, refresh, onBack, onReport, onG
     {tab === 'updates' && <>
       <div className="settings-about"><img src="./brand/suite.svg" alt=""/><div><h2>CosmOffice</h2><p>Versione {version} · Anteprima desktop</p></div></div>
       <Group title="Aggiornamenti da GitHub Releases">
-        <Row title="Controllo automatico" description="Controlla e scarica le versioni di CosmoNetinfo/CosmOffice. Disattivato: nessuna connessione. Documenti ed esiti non vengono inviati.">{toggle('automaticUpdates', 'Aggiornamenti automatici')}</Row>
-        <Row title="Stato aggiornamenti" description={update.message}><button className="button secondary" disabled={!window.cosmoffice?.checkUpdates || !settings.automaticUpdates || busy || ['checking', 'downloading'].includes(update.phase)} onClick={() => run(async () => { const result = await window.cosmoffice.checkUpdates(); setMessage(result.message); })}>Controlla ora</button></Row>
-        {['ready', 'available'].includes(update.phase) && <Row title="Nuova versione" description="Windows e AppImage: installazione soltanto dopo conferma esplicita e salvataggio. Mac non firmato: soltanto avviso e download manuale."><button className="button primary" disabled={!settings.automaticUpdates || busy} onClick={() => run(onInstallUpdate)}>{update.phase === 'ready' ? 'Installa e chiudi' : 'Apri pagina download'}</button></Row>}
+        <Row title="Controllo su richiesta" description={settings.automaticUpdates ? 'Hai attivato anche i controlli periodici: GitHub viene contattato ogni sei ore, oltre che quando premi il pulsante. Nessun controllo all’avvio.' : 'L’app contatta GitHub solo quando premi questo pulsante. Altrimenti non contatta nessuno. Finito il controllo, la rete si spegne da sola.'}><button className="button secondary" disabled={!window.cosmoffice?.checkUpdates || busy || update.networkActive} onClick={() => run(async () => { const result = await window.cosmoffice.checkUpdates(); setMessage(result.message); })}>Controlla aggiornamenti ora</button></Row>
+        <Row title="Stato aggiornamenti" description={update.message}>{update.networkActive && <button className="button secondary" onClick={() => window.cosmoffice.cancelUpdate().catch(() => onError('Impossibile annullare il controllo.'))}>Annulla controllo</button>}</Row>
+        <Row title="Controlli periodici facoltativi" description="Spenti di default. Se li attivi, l’app controlla e scarica le nuove versioni ogni sei ore; non all’avvio. Nessun documento o dato personale viene inviato.">{toggle('automaticUpdates', 'Aggiornamenti automatici')}</Row>
+        {['ready', 'available'].includes(update.phase) && <Row title="Nuova versione" description="Windows e AppImage: installazione soltanto dopo conferma esplicita e salvataggio. Mac non firmato: soltanto avviso e download manuale."><button className="button primary" disabled={busy || update.networkActive} onClick={() => run(onInstallUpdate)}>{update.phase === 'ready' ? 'Installa e chiudi' : 'Apri pagina download'}</button></Row>}
       </Group><div className="settings-explanation"><SlidersHorizontal size={18}/><p>Questa è l’unica rete consentita: le Release GitHub del progetto e i loro file. Nessun account o telemetria. L’app continua a funzionare senza Internet.</p></div>
     </>}
+    {tab === 'about' && <About version={version}/>}
     <Group title="Assistenza per l’anteprima"><Row title="Prova guidata" description="Otto prove con esiti locali, senza campi liberi o invio automatico."><button className="button secondary" onClick={onGuided}>Prova guidata</button></Row><Row title="Segnala un problema" description="Leggi e copia un rapporto locale senza contenuti o nomi dei documenti. Nessun invio automatico."><button className="button secondary" onClick={onReport}>Segnala un problema</button></Row></Group>
     <footer className="settings-footer"><span><Check size={13}/> {busy ? 'Operazione in corso…' : 'Le modifiche si applicano subito'}</span><span>Cosmonet · CosmOffice {version}</span></footer>
     </div></div></div>
