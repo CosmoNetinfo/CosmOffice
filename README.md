@@ -4,7 +4,7 @@ Suite desktop gratuita, offline e in italiano di Cosmonet: **CosmoWrite**, **Cos
 
 **CosmOffice 0.2.3 (anteprima).** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Android e iOS sono pianificati, non implementati.
 
-Installer ufficiali e checksum nella pagina [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest). La pubblicazione 0.2.3 è autorizzata dal titolare; esiti e disponibilità effettiva sono nel [report corrente](docs/report/ULTIMO.md). Gli installer 0.2.2 restano immutati. **Chi ha la 0.2.2 aggiorna manualmente una volta**; chi ha già una build di prova 0.2.3 deve installare a mano la Release dello stesso numero. Poi il pulsante degli aggiornamenti cerca le future versioni superiori pubblicate. Nessun collaudo su PC fisico pulito viene dedotto dall’autorizzazione al rilascio. Le funzioni documentali continuano a lavorare senza Internet.
+Installer ufficiali e checksum nella pagina [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest). La Release ordinaria 0.2.3 è pubblica per Windows x64, Linux x64 e Mac Intel/Apple Silicon; esiti e limiti sono nel [report corrente](docs/report/ULTIMO.md). Gli installer 0.2.2 restano immutati. **Chi ha la 0.2.2 aggiorna manualmente una volta**; chi ha già una build di prova 0.2.3 deve installare a mano la Release dello stesso numero. Poi il pulsante degli aggiornamenti cerca le future versioni superiori pubblicate. Nessun collaudo su PC fisico pulito viene dedotto dall’autorizzazione al rilascio. Le funzioni documentali continuano a lavorare senza Internet.
 
 ![Loghi della suite](docs/preview/00-loghi.png)
 

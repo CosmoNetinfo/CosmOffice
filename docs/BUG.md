@@ -124,3 +124,5 @@ Il generatore Release richiede la sezione «Cosa ti aspetti da CosmOffice?», in
 ### CI-MAC-001 — controllo DMG con matrice a singola architettura
 
 La pipeline tag produce un DMG per job, ma il controllo risorse introdotto per il job main (che costruisce entrambi) richiedeva sempre i due file. Rilevato dopo il tag 0.2.3, prima dei lavori pacchetti; correzione in main: selezione esplicita x64/arm64 nel job di Release, controllo predefinito sempre su entrambi. Completamento Mac sullo stesso tag con confronto dei sorgenti applicativi, checksum e nessuna sostituzione degli installer esistenti. Esito effettivo in CI e nel report: non si dichiarano verdi i job originali del tag.
+
+CI-MAC-001: correzione verificata nei due job DMG e nella pubblicazione della run 45608286513, tutti success. I job originali del tag restano rossi e sono documentati; nessun tag spostato. LIC-001: LICENSE e avvisi confrontati realmente nei due DMG durante il completamento, oltre alle verifiche Windows/AppImage della pipeline tag. Nessun collaudo fisico dedotto da questi risultati.

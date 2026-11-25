@@ -4,7 +4,7 @@
 
 Supporto richiesto: creazione e apertura .md UTF-8, sorgente e anteprima offline, esportazione e backup. Verifiche e limiti nel report corrente; nessuna scelta dei motori Office. La pubblicazione 0.2.3 è autorizzata dal titolare il 25 novembre 2026; verifica effettiva nel report corrente. Installazione Windows segnalata dall’utente, senza conferma di PC pulito o esito dei singoli formati.
 
-## Passo corrente: pubblicazione 0.2.3 autorizzata (25 novembre 2026)
+## Passo corrente: Release pubblica 0.2.3 (25 novembre 2026)
 
 - Implementati: aggiornamenti spenti di default, nessuna richiesta all’avvio, pulsante per singola operazione e chiusura automatica della rete; periodici soltanto opt-in, vecchio consenso non ereditato.
 - Implementati: Informazioni offline e inclusione delle licenze nelle risorse. Verifica reale del pacchetto Windows; controlli bloccanti per AppImage e DMG in CI. LIC-001 non viene esteso retroattivamente alla 0.2.2.
@@ -16,7 +16,7 @@ Il resto del documento conserva le tappe precedenti e le proposte sospese; nessu
 
 Aggiornata al 23 novembre 2026. Priorità: affidabilità, compatibilità DOCX/XLSX/PDF, qualità, poi novità. **Le voci pianificate sono proposte: nessuna implementazione è autorizzata da questo studio.**
 
-Stati: **Fatto e provato** = evidenza nei test/report; **Parziale** = sottoinsieme con limiti; **In corso** = attività effettivamente aperta; **Pianificato** = da scegliere/autorizzare; **Non provato** = nessuna verifica sufficiente. Riferimento applicativo: 0.2.3 in preparazione, Release pubblica 0.2.2; il recupero del validatore segue lo studio sul commit 3185603. Le priorità aggiornate autorizzate sono: verifica CI 5a493a4/9e3173e e rapporto breve per Facebook, prova guidata a otto esiti, aggiornamenti GitHub, DMG/guida Mac, Release ordinaria 0.2.2 e bozze di licenza. Le altre proposte restano sospese.
+Stati: **Fatto e provato** = evidenza nei test/report; **Parziale** = sottoinsieme con limiti; **In corso** = attività effettivamente aperta; **Pianificato** = da scegliere/autorizzare; **Non provato** = nessuna verifica sufficiente. Riferimento applicativo: Release pubblica 0.2.3, con la precedente 0.2.2 conservata; il recupero del validatore segue lo studio sul commit 3185603. Le priorità aggiornate autorizzate sono: verifica CI 5a493a4/9e3173e e rapporto breve per Facebook, prova guidata a otto esiti, aggiornamenti GitHub, DMG/guida Mac, Release ordinaria 0.2.2 e bozze di licenza. Le altre proposte restano sospese.
 
 ## Stato esistente
 
@@ -83,4 +83,4 @@ Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro
 
 Le altre proposte rimangono sospese; nessun motore scelto.
 
-Pubblicazione 0.2.3 del 25 novembre: Windows e Linux pubblici, main bbad3f6 con sei lavori CI verdi. Recupero DMG in corso dopo il difetto del controllo monoarchitettura, senza spostare il tag né cambiare l’app; verifica finale e prove fisiche restano distinte.
+Pubblicazione 0.2.3 del 25 novembre: Windows e Linux pubblici, main bbad3f6 con sei lavori CI verdi. Recupero DMG riuscito nella run 45608286513 dopo il difetto del controllo monoarchitettura, senza spostare il tag né cambiare l’app; audit dei file e prove fisiche restano distinti.

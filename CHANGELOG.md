@@ -8,6 +8,10 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 - Controllo risorse DMG: nei job con una sola architettura verifica il DMG di quella architettura; il controllo predefinito continua a richiederli entrambi. Pipeline di completamento Mac allineata al tag 0.2.3, senza sostituire installer esistenti.
 
+### Modificato
+
+- Documentati gli esiti della Release pubblica 0.2.3, il recupero dei DMG e le prove ancora mancanti. Nessuna modifica al codice dell’app o ai motori.
+
 Nessun’altra idea dello studio adottata.
 
 ## [0.2.3] - 2026-11-25

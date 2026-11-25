@@ -1,6 +1,6 @@
 # Aggiornamenti su richiesta — 0.2.3
 
-Implementazione inclusa nella 0.2.3, pubblicazione autorizzata dal titolare il 25 novembre 2026. **Non è nei pacchetti pubblici 0.2.2**, che restano immutati: quel primo passaggio è manuale. Anche chi ha già una build di prova chiamata 0.2.3 deve installare manualmente questa Release. Il confronto ammette soltanto numeri superiori; gli artefatti Actions e i nuovi commit non sono un feed di aggiornamento. Esiti effettivi della pubblicazione nel report corrente.
+Implementazione inclusa nella 0.2.3, pubblicazione autorizzata dal titolare il 25 novembre 2026. **Non è nei pacchetti pubblici 0.2.2**, che restano immutati: quel primo passaggio è manuale. Anche chi ha già una build di prova chiamata 0.2.3 deve installare manualmente questa Release. Il confronto ammette soltanto numeri superiori; gli artefatti Actions e i nuovi commit non sono un feed di aggiornamento. Release 0.2.3 pubblica con Windows, Linux e due DMG, manifesto e sidecar SHA-256. Esiti dell’audit pubblico e limiti nel report corrente.
 
 ## Quando si connette
 

@@ -214,3 +214,5 @@ Note generate dal CHANGELOG, completate con le quattro domande Facebook richiest
 ### Correzione del collaudo Mac dopo il tag
 
 Il tag 0.2.3 non viene spostato. La matrice del tag costruisce un solo DMG per job e il controllo risorse originario ne richiede due: aggiunta selezione esplicita dell’architettura, senza rimuovere alcun confronto delle licenze. La pipeline di completamento Mac costruisce dal main soltanto dopo aver verificato byte-identici al tag src/, electron/, public/ e manifesti npm. Completa solo file mancanti e rigenera il riepilogo dopo gli upload, conservando Windows/Linux. Attende la prima pubblicazione per evitare corse; errori HTTP inattesi o scadenza fanno fallire il lavoro. Per le future Release la matrice passa l’architettura al controllo.
+
+Esito osservato: Release ordinaria 0.2.3 id 458039039 pubblica su latest, nove asset; completamento Mac 45608286513 verde nei tre lavori, vecchia 0.2.2 invariata e checksum di tutti i nuovi file verificati dopo download anonimo. Nessun cambio di condizioni, app, motori o preferenze. L’autorizzazione non certifica collaudi fisici ancora mancanti.
