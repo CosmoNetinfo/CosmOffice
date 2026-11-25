@@ -1,4 +1,4 @@
-name: Completa DMG Mac della Release 0.2.2
+name: Completa DMG Mac della Release 0.2.3
 on:
   push:
     branches: [main]
@@ -17,7 +17,7 @@ jobs:
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
     steps:
       - uses: actions/checkout@v4
-      - run: git fetch origin tag v0.2.2 && git diff --exit-code v0.2.2 HEAD -- src electron public package.json package-lock.json
+      - run: git fetch origin tag v0.2.3 && git diff --exit-code v0.2.3 HEAD -- src electron public package.json package-lock.json
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -27,6 +27,9 @@ jobs:
       - run: npm run icons
       - run: node scripts/notices.mjs
       - run: npx electron-builder --config electron-builder.config.cjs --mac dmg --${{ matrix.arch }} --publish never
+      - run: node scripts/package-resources-check.mjs
+        env:
+          COSMO_PACKAGE_MAC_ARCH: ${{ matrix.arch }}
       - run: hdiutil verify release/*.dmg
       - name: Controlla architettura e identità assente
         shell: bash
@@ -61,6 +64,10 @@ jobs:
           pattern: DMG-*
           path: release-public
           merge-multiple: true
+      - name: Attendi la Release ordinaria del tag
+        run: node --input-type=module -e 'for(let i=0;i<45;i++){const r=await fetch("https://api.github.com/repos/CosmoNetinfo/CosmOffice/releases/tags/v0.2.3",{headers:{Authorization:"Bearer "+process.env.GH_TOKEN,Accept:"application/vnd.github+json"}});if(r.ok){const v=await r.json();if(!v.draft&&!v.prerelease){console.log("Release 0.2.3 pubblica, procedo con i soli DMG mancanti.");process.exit(0);}}else if(r.status!==404)throw Error("GitHub HTTP "+r.status);await new Promise(resolve=>setTimeout(resolve,20000));}throw Error("Release 0.2.3 non pubblicata entro 15 minuti.");'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: node scripts/complete-preview.mjs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -4,6 +4,7 @@ Verifica del 25 novembre 2026: aggiunta la run della preparazione 0.2.3; i risul
 
 | Commit | Build principale | Esito dei lavori |
 | --- | --- | --- |
+| bbad3f6, preparazione Release 0.2.3 | [45606070290](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45606070290) | 6/6 success, inclusa installazione/disinstallazione NSIS |
 | 1472135, Markdown | [45600226920](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45600226920) | checks, interop, Windows, Linux, Mac e NSIS installato: 6/6 success |
 | 6534f41, preparazione 0.2.3 | [45086811898](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45086811898) | checks, interop, Windows, Linux, Mac e installazione/disinstallazione NSIS: 6/6 success |
 | a9b754b, dati titolare | [45078553609](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45078553609) | checks, interop, Windows, Linux, Mac: 5/5 success |
@@ -29,3 +30,5 @@ Verifica del 25 novembre 2026: aggiunta la run della preparazione 0.2.3; i risul
 - Updater 06945c6: [45056887388](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45056887388), cinque lavori success verificati dopo il push. Non incluso nei pacchetti pubblici 0.2.2; nessun tag nuovo.
 
 Gli screenshot del README sono già stati verificati dopo il push: nove PNG HTTP 200, byte identici ai file locali, riferimenti presenti nella pagina GitHub pubblica. Nessun computer pulito o Mac fisico collaudato.
+
+Release v0.2.3, run [45606125748](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45606125748): controllo comune, Windows, Linux e pubblicazione riusciti; due job Mac falliti nel controllo risorse per file dell’altra architettura mancante. Release ordinaria Windows/Linux osservata su latest; completamento Mac in corso, non ancora dichiarato verde. Tag invariato.

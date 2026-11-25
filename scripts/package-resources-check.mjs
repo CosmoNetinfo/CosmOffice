@@ -27,7 +27,9 @@ else if(process.platform==='win32'){
  const name=`CosmOffice-${version}-linux-x86_64.AppImage`,file=path.resolve('release',name);fs.chmodSync(file,0o755);
  execFileSync(file,['--appimage-extract','resources/*'],{cwd:root,stdio:'pipe'});verify(path.join(root,'squashfs-root','resources'),name);
 }else if(process.platform==='darwin'){
- for(const arch of ['x64','arm64']){
+ const requestedArch=process.env.COSMO_PACKAGE_MAC_ARCH;
+ if(requestedArch&&!['x64','arm64'].includes(requestedArch))throw Error('Architettura Mac del controllo non valida.');
+ for(const arch of requestedArch?[requestedArch]:['x64','arm64']){
   const name=`CosmOffice-${version}-mac-${arch}.dmg`,file=path.resolve('release',name),mount=path.join(root,arch);fs.mkdirSync(mount);
   execFileSync('hdiutil',['attach','-readonly','-nobrowse','-mountpoint',mount,file],{stdio:'pipe'});
   try{verify(path.join(mount,'CosmOffice.app','Contents','Resources'),name);}finally{execFileSync('hdiutil',['detach',mount],{stdio:'pipe'});}

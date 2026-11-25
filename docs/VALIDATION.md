@@ -158,3 +158,5 @@ Esito definitivo locale: 17 comandi exit 0, 72 test unitari passati, browser/Ope
 ## Pubblicazione 0.2.3 — 25 novembre 2026
 
 Preparazione autorizzata dopo il commit 1472135, CI 45600226920 verde in tutti e sei i lavori, inclusa installazione/disinstallazione NSIS reale. Prima del tag si ripetono i controlli locali richiesti. La pipeline tag valida, ricostruisce e pubblica soltanto dopo gli upload; audit pubblico di download e SHA-256 dopo la pubblicazione, senza dichiarare esiti futuri. Nessun nuovo motore, dipendenza o modifica dell’app.
+
+Prima pipeline tag 45606125748: controllo comune e Linux verdi; i job Mac 139180581549 e 139180581749 falliscono con «hdiutil: attach failed - No such file or directory» cercando il DMG dell’altra architettura dopo la build. Correzione del selettore del controllo in main, default sempre su entrambi; completamento Mac da verificare senza spostare v0.2.3.

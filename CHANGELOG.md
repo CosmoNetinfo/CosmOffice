@@ -4,6 +4,10 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ## [Non rilasciato]
 
+### Corretto
+
+- Controllo risorse DMG: nei job con una sola architettura verifica il DMG di quella architettura; il controllo predefinito continua a richiederli entrambi. Pipeline di completamento Mac allineata al tag 0.2.3, senza sostituire installer esistenti.
+
 Nessun’altra idea dello studio adottata.
 
 ## [0.2.3] - 2026-11-25
@@ -24,6 +28,7 @@ Nessun’altra idea dello studio adottata.
 
 ### Corretto
 
+- Nota di costruzione Mac: i primi job del tag 0.2.3 hanno costruito i DMG ma sono falliti perché il controllo risorse cercava anche l’altra architettura. Il completamento Mac verifica i file singolarmente sugli stessi sorgenti del tag e conserva gli installer Windows/Linux già pubblicati. Nessun collaudo su Mac fisico.
 - LIC-001: distribuzione della licenza propria nei nuovi pacchetti con verifica reale dei file, non soltanto della configurazione. La 0.2.2 pubblica resta invariata e mantiene il precedente assetto.
 - Consenso d’installazione distinto dal permesso temporaneo di rete: il file verificato resta installabile solo dopo conferma anche quando il trasporto si è spento.
 

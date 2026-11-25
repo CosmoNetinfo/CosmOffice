@@ -82,3 +82,5 @@ Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro
 6. Licenza utenti: A adottata in [LICENSE](../LICENSE) il 22 novembre 2026; B conservata in [LICENZA-BOZZE.md](LICENZA-BOZZE.md) e non adottata. Titolare e recapito forniti: Daniele Spalletti (danielespalletti@cosmonet.info). Revisione professionale ancora necessaria; inclusione nei nuovi pacchetti 0.2.3 verificata su NSIS Windows e bloccante per AppImage/DMG in CI. Nessuna redistribuzione installer; link ufficiale condivisibile. Release 0.2.2 invariata, ancora con l’assetto precedente e senza il file della licenza propria nel payload.
 
 Le altre proposte rimangono sospese; nessun motore scelto.
+
+Pubblicazione 0.2.3 del 25 novembre: Windows e Linux pubblici, main bbad3f6 con sei lavori CI verdi. Recupero DMG in corso dopo il difetto del controllo monoarchitettura, senza spostare il tag né cambiare l’app; verifica finale e prove fisiche restano distinte.
