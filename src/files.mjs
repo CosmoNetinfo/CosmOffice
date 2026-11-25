@@ -29,7 +29,7 @@ export function safeHtml(html) {
 export async function chooseFile() {
   if (window.cosmoffice) return nativeFileOperation(() => window.cosmoffice.openFile());
   return new Promise(resolve => {
-    const input = document.createElement('input'); input.type = 'file'; input.accept = '.docx,.xlsx,.csv,.tsv,.pdf,.txt,.html';
+    const input = document.createElement('input'); input.type = 'file'; input.accept = '.docx,.xlsx,.csv,.tsv,.pdf,.txt,.html,.md';
     input.onchange = async () => { const file = input.files[0]; resolve(file ? { name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) } : null); };
     input.oncancel = () => resolve(null); input.click();
   });
@@ -41,5 +41,5 @@ export async function saveFile(name, bytes, type) {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
   return { name };
 }
-export function fileTitle(name) { return name.replace(/\.(docx|xlsx|csv|tsv|pdf|html|txt)$/i, ''); }
+export function fileTitle(name) { return name.replace(/\.(docx|xlsx|csv|tsv|pdf|html|txt|md)$/i, ''); }
 export function downloadName(title, ext) { return `${title.replace(/[<>:"/\\|?*\x00-\x1f]/g, '-').trim().slice(0, 120) || 'Senza titolo'}.${ext}`; }

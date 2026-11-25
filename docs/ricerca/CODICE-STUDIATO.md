@@ -211,3 +211,13 @@ Consultati i file locali node_modules/app-builder-lib/out/targets/nsis/NsisTarge
 Consultati localmente, app-builder-lib 26.18.0 MIT: out/fileMatcher.js, out/platformPackager.js, out/asar/asarUtil.js, out/util/appFileCopier.js, out/util/AppFileWalker.js, out/options/PlatformSpecificBuildOptions.d.ts; inoltre builder-util/out/fs.js e templates/nsis/include/installer.nsh, templates/nsis/multiUser.nsh di electron-builder. Materiale: codice compilato/template (e dichiarazioni API), ricerca di filtri e risorse; versioni identificate dal lockfile e licenze già incluse negli avvisi. Problema: extraResources esclude i sorgenti corrispondenti dall’ASAR; due verifiche reali hanno impedito di dichiarare una copia interna assente. Soluzione nostra: sorgenti distinti ma byte identici, controllati negli archivi, senza modificare il packager. Template NSIS consultato per installazione/disinstallazione currentuser /S solo nel runner. Nessun codice copiato o nuova libreria. Non sono stati letti motori copyleft concorrenti.
 
 Nel controllo finale consultati anche node_modules/@electron/asar/lib/filesystem.js, lib/asar.js e package.json: @electron/asar 3.4.1, MIT (codice compilato e metadati, versione nel lockfile). Problema: la verifica supplementare degli asset usava separatori non nativi su Windows; l’header conteneva il file ma extractFile non lo trovava nel percorso annidato. Il nostro helper usa path.join e mantiene il confronto byte per byte. Nessuna modifica alla libreria o copia del suo codice; nessuna nuova dipendenza o attribuzione necessaria.
+
+## Supporto Markdown richiesto — 25 novembre 2026
+
+| Fonte consultata | Natura e licenza | Uso |
+| --- | --- | --- |
+| `node_modules/marked/package.json`, distribuzione npm 18.3.0 [archivio esatto](https://registry.npmjs.org/marked/-/marked-18.3.0.tgz) | Metadati, MIT; non è attribuito un commit GitHub non verificato | Verificati versione, licenza e requisito Node >=20 |
+| `node_modules/marked/LICENSE`, stessa distribuzione | Testo legale: MIT per Marked, include anche avviso BSD per Markdown/John Gruber | Letto integralmente e incluso da scripts/notices.mjs in THIRD_PARTY_NOTICES.txt; nessun marchio o logo esterno usato |
+| [Using Advanced](https://marked.js.org/using_advanced), sezioni parse, Options e Old Options | Documentazione API pubblica di Marked, consultata senza copiare codice | Uso di parse/GFM locale e necessità di sanitizzare separatamente; componente, sicurezza, conservazione del sorgente e test scritti per CosmOffice |
+
+Libreria inclusa come dipendenza con attribuzione, comunicata al titolare prima dell’installazione. Nessun codice dei motori Office/PDF esterni studiato o copiato; nessuna nuova idea dello studio adottata.

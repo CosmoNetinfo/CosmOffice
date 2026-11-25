@@ -22,6 +22,12 @@ La 0.2.2 aggiunge la conservazione degli zeri iniziali e dei codici lunghi, il r
 
 Un controllo indipendente opzionale apre e risalva i campioni con LibreOffice (`DOCX → ODT → DOCX`, `XLSX → ODS → XLSX`) e verifica un PDF prodotto da quel motore. Non richiede LibreOffice per usare CosmOffice: serve solo ai test. La prova copre un corpus ristretto e non certifica Microsoft Office.
 
+## File Markdown (.md)
+
+Nel main 0.2.3, ancora non pubblicato, **Nuovo Markdown** crea appunti in CosmoWrite. **Apri un file** legge i `.md` UTF-8: testo sorgente modificabile e anteprima offline con titoli, enfasi, elenchi, tabelle e blocchi di codice. **Esporta MD** salva una copia; la bozza e i backup mantengono il formato Markdown. Ctrl+S esporta il file.
+
+L’anteprima non scarica immagini, non apre link e non esegue HTML attivo. Immagini e collegamenti restano nel sorgente, ma le immagini non sono mostrate; non ci sono conversione DOCX/PDF, ortografia o barra di formattazione per Markdown. Formule matematiche ed estensioni non interpretate restano nel file. Oltre 200.000 caratteri l’anteprima viene sospesa, mentre modifica e salvataggio restano disponibili, entro il limite di apertura di 50 MB. UTF-8 non valido viene rifiutato. Senza modifiche si conservano BOM e terminatori originali; dopo modifiche il campo di testo usa terminatori LF.
+
 ## Cosa funziona
 
 - CosmoWrite: scrittura, font/dimensioni/colori/evidenziatore, titoli, allineamento, elenchi, tabelle, immagini con proporzioni conservate (incluso WebP convertito), annulla/ripristina, trova/sostituisci. Importazione DOCX/TXT/HTML, recupero dei principali stili OOXML, esportazione DOCX e PDF desktop, stampa, A4/Letter, orientamento, margini e interlinea.

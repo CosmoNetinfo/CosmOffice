@@ -146,3 +146,11 @@ Unit test di URL/redirect/certificato/intestazioni/byte/cancellazione/consenso e
 Consenso nel pacchetto: Annulla e chiusura normale non avviano nulla; conferma per versione, bozze chiuse e nuovo controllo SHA prima dello spy interattivo. Nessun installer realmente eseguito. La prima attesa QA prematura è documentata nel report; i controlli finali e la CI del nuovo commit vengono riportati con esiti effettivi. I pacchetti pubblici 0.2.2 non contengono l’updater.
 
 Non provati installazione Windows completa su computer pulito, sostituzione di una vera AppImage in esecuzione, hardware Mac o arresti improvvisi. Il report per tester conserva messaggi a elenco chiuso: le tracce di rete dettagliate del QA non vengono inviate o incluse automaticamente nel rapporto copiato.
+
+## Markdown — 25 novembre 2026
+
+Due test UTF-8 (BOM/CRLF e rifiuto dei byte invalidi). Smoke browser: creazione, titoli/enfasi/tabelle/codice, sorgente originale in export .md, vuoto dopo rinomina, riapertura delle bozze dopo ricarica, backup, HTML ostile e rete esterna assente, anteprima sospesa oltre 200.000 caratteri, layout ed export a 390px. Smoke Electron e pacchetto Windows: apertura e salvataggio reali via IPC e filesystem, BOM/CRLF, verifiche sorgente/anteprima e audit main vuoti. Selettori file automatizzati; non prova dialoghi manuali Windows né associazioni nel sistema operativo. Controlli aggiunti alla CI main e futura release, senza tag o pubblicazione.
+
+Primi tentativi: contenitore Windows impediva download browser e avvio Electron per ACL del token AppContainer. Ripetuti fuori dal contenitore. Corretti due problemi dello smoke: attesa del montaggio editor dopo ricarica e ripristino viewport desktop dopo prova stretta. Etichetta accessibile esplicita aggiunta al pulsante export anche quando il testo è nascosto. Esiti definitivi nel report, senza ignorare gli errori iniziali.
+
+Esito definitivo locale: 17 comandi exit 0, 72 test unitari passati, browser/Open XML SDK/smoke Electron e pacchetto/NetLog/aggiornamenti/licenze/diagnostica/guida/YAML verdi. Installazione NSIS locale non eseguita; controllo di estrazione sul vero Setup.exe passato. CI del nuovo commit da verificare dopo il push.

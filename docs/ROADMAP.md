@@ -1,10 +1,14 @@
 # Roadmap CosmOffice
 
+## Markdown — 25 novembre 2026
+
+Supporto richiesto: creazione e apertura .md UTF-8, sorgente e anteprima offline, esportazione e backup. Verifiche e limiti nel report corrente; nessuna scelta dei motori Office. La pubblicazione 0.2.3 resta subordinata alla decisione del titolare. Installazione Windows segnalata dall’utente, senza conferma di PC pulito o esito dei singoli formati.
+
 ## Passo corrente: 0.2.3 in preparazione (23 novembre 2026)
 
 - Implementati: aggiornamenti spenti di default, nessuna richiesta all’avvio, pulsante per singola operazione e chiusura automatica della rete; periodici soltanto opt-in, vecchio consenso non ereditato.
 - Implementati: Informazioni offline e inclusione delle licenze nelle risorse. Verifica reale del pacchetto Windows; controlli bloccanti per AppImage e DMG in CI. LIC-001 non viene esteso retroattivamente alla 0.2.2.
-- Nuovo lavoro Windows di installazione NSIS e disinstallazione reali, in runner separato: esito da verificare dopo il push, non presentato come già eseguito.
+- Lavoro Windows di installazione NSIS e disinstallazione reali nel runner: riuscito nella CI 45086811898 del commit 6534f41, insieme agli altri cinque lavori. Non sostituisce il PC fisico.
 - Screenshot di sviluppo aggiornati a 0.2.3, incluse Aggiornamenti e Informazioni.
 - Non provati: PC Windows fisico pulito, SmartScreen, UAC/antivirus e utente normale, AppImage in uso e Mac fisico. Dopo quel collaudo il titolare decide tag e Release: non pubblicati da questo passo.
 

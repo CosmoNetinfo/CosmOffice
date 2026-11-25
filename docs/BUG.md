@@ -110,3 +110,9 @@ Distribuzione: il vecchio workflow richiedeva segreti di firma e creava soltanto
 Lo studio statico non riproduce nuovi bug applicativi e non chiude alcun bug di fedeltà. I limiti dichiarati dagli altri progetti non sono bug dimostrati di CosmOffice. Le sole letture e i blocchi di export restano in vigore. [Distinzioni e fonti](ricerca/ARTCRAFT.md).
 
 Blocco noto del precedente prototipo aggiornamenti, non incluso in main: NetLog con controllo attivo rilevava UDP verso [2001:4860:4860::8888]:443, non autorizzato. La nuova soluzione TLS Node è autorizzata ma non implementata o provata; il test del prototipo resta rosso, non un successo della versione corrente. Il main attuale deve continuare a superare offline-smoke senza alcuna connessione.
+
+## Markdown — limiti del passo 25 novembre 2026
+
+- MD-001 (P3, limite dichiarato): anteprima senza immagini, link attivi, formule matematiche, estensioni aggiuntive, ortografia e conversione Office/PDF. Il sorgente conserva la sintassi.
+- MD-002 (P3, limite dichiarato): dopo editing i terminatori vengono normalizzati a LF dal campo di testo; senza modifiche BOM/CRLF restano identici. Nessuna sostituzione silenziosa per UTF-8 invalido.
+- Verificato e prevenuto: i backup prima non distinguevano Markdown dall’HTML. Nuovi record e manifest ora mantengono `fileType: MD`; prova di esportazione/importazione con confronto del sorgente.

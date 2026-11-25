@@ -20,7 +20,7 @@ let applyingUpdate = false;
 let updateConsent;
 let quittingSafely = false;
 const MAX_FILE = 50 * 1024 * 1024;
-const supported = new Set(['.docx', '.xlsx', '.csv', '.tsv', '.pdf', '.txt', '.html', '.cosmoffice', '.json']);
+const supported = new Set(['.docx', '.xlsx', '.csv', '.tsv', '.pdf', '.txt', '.html', '.md', '.cosmoffice', '.json']);
 
 function trusted(event) {
   if (!window || event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame) throw new Error('Richiesta non autorizzata.');
@@ -88,7 +88,7 @@ app.whenReady().then(() => {
 
 ipcMain.handle('office:open', async event => {
   trusted(event);
-  const result = await dialog.showOpenDialog(window, { properties: ['openFile'], filters: [{ name: 'Documenti, fogli e PDF', extensions: ['docx', 'xlsx', 'csv', 'tsv', 'pdf', 'txt', 'html'] }] });
+  const result = await dialog.showOpenDialog(window, { properties: ['openFile'], filters: [{ name: 'Documenti, fogli e PDF', extensions: ['docx', 'xlsx', 'csv', 'tsv', 'pdf', 'txt', 'html', 'md'] }] });
   if (result.canceled) return null;
   const filename = result.filePaths[0];
   if (!supported.has(path.extname(filename).toLowerCase())) throw new Error('Formato non supportato.');

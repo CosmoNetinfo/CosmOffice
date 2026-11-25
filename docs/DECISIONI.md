@@ -196,3 +196,11 @@ Richiesta successiva dell’utente: testo copiabile nei commenti Facebook, senza
 ## Prova guidata — scelta esplicita dell’utente
 
 Otto chiavi fisse e tre valori ammessi, senza testo libero. Gli esiti sono salvati soltanto in localStorage; il processo principale riceve un dizionario nuovamente validato prima di generare il rapporto. Le prime otto righe sono esiti dichiarati dal tester, non verifiche automatiche. Nessuna deduzione automatica di un esito dalla presenza dell’app. Backup documenti e impostazioni non includono questi esiti. Non viene introdotto un servizio di raccolta.
+
+## 25 novembre 2026 — Markdown su richiesta del titolare
+
+Aggiunto il formato `.md` in CosmoWrite, senza cambiare motore DOCX/XLSX/PDF né scegliere una strada per la fedeltà Office. Sorgente UTF-8 autorevole, anteprima derivata e mai usata come sorgente di esportazione. Scartata la conversione Markdown → HTML modificabile → Markdown, perché potrebbe eliminare sintassi non supportata. Record `write` con `fileType: MD`; il backup versione 1 accetta la nuova estensione e conserva i vecchi HTML.
+
+Parser `marked` 18.3.0, licenza MIT verificata nel pacchetto `node_modules/marked/LICENSE`, incluso nel bundle lazy locale; attribuzione rigenerata da scripts/notices.mjs. Fonti: [distribuzione e licenza](https://registry.npmjs.org/marked/-/marked-18.3.0.tgz), [documentazione sicurezza](https://marked.js.org/using_advanced#options). Non copiato codice. DOMPurify rimuove attributi di rete, stili e immagini prima del passaggio a safeHtml; nessuna risorsa remota, collegamento attivo o script nell’anteprima. Il sorgente originale resta integro anche se contiene HTML.
+
+Anteprima sospesa oltre 200.000 caratteri per limitarne il costo; testo sempre modificabile/esportabile. UTF-8 invalido respinto anziché sostituire caratteri. BOM/CRLF conservati senza modifica; editing nel textarea normalizza a LF. Nessuna conversione da/a Office o PDF, nessuna dipendenza da servizi esterni. Nessun tag o Release; la pubblica 0.2.2 rimane invariata.

@@ -4,12 +4,13 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ## [Non rilasciato]
 
-Nessun’altra modifica pianificata adottata in questo passo.
+Nessun’altra idea dello studio adottata.
 
 ## [0.2.3] - In preparazione, non pubblicata
 
 ### Aggiunto
 
+- Lettura, creazione e modifica di file Markdown UTF-8 in CosmoWrite, anteprima locale protetta, esportazione .md senza conversione e conservazione nei backup. Parser `marked` 18.3.0 MIT incluso offline e attribuito. Test browser, Electron e pacchetto Windows aggiunti alla CI.
 - Pulsante «Controlla aggiornamenti ora»: una sola operazione su richiesta, HTTPS verificato, due host GitHub autorizzati, SHA-256 e conferma prima di installare. Rete spenta al termine o dopo annullamento.
 - Impostazioni → Informazioni: versione, titolare Daniele Spalletti, licenza A e attribuzioni lette dai file locali, senza rete.
 - LICENSE e THIRD_PARTY_NOTICES.txt nelle risorse dei pacchetti; controllo dei byte negli archivi Windows, AppImage e DMG in CI. Licenza propria anche nell’ASAR.
@@ -32,6 +33,7 @@ Nessun’altra modifica pianificata adottata in questo passo.
 
 ### Limiti noti
 
+- Markdown: solo UTF-8, anteprima senza immagini o link attivi, matematica, ortografia e conversione Office/PDF. Oltre 200.000 caratteri anteprima sospesa; dopo editing terminatori LF. Sorgente originale conservato nel file .md.
 - Anteprima con compatibilità DOCX/XLSX/PDF parziale; nessun nuovo motore o intervento sui motori in questa versione.
 - Pacchetti non firmati; Mac solo avviso/download manuale. Rete autorizzata esclusivamente a github.com e release-assets.githubusercontent.com per le Release CosmoNetinfo/CosmOffice.
 - La licenza deve essere rivista da un professionista. SHA-256 da GitHub HTTPS non equivale a firma indipendente.
