@@ -204,3 +204,9 @@ Aggiunto il formato `.md` in CosmoWrite, senza cambiare motore DOCX/XLSX/PDF né
 Parser `marked` 18.3.0, licenza MIT verificata nel pacchetto `node_modules/marked/LICENSE`, incluso nel bundle lazy locale; attribuzione rigenerata da scripts/notices.mjs. Fonti: [distribuzione e licenza](https://registry.npmjs.org/marked/-/marked-18.3.0.tgz), [documentazione sicurezza](https://marked.js.org/using_advanced#options). Non copiato codice. DOMPurify rimuove attributi di rete, stili e immagini prima del passaggio a safeHtml; nessuna risorsa remota, collegamento attivo o script nell’anteprima. Il sorgente originale resta integro anche se contiene HTML.
 
 Anteprima sospesa oltre 200.000 caratteri per limitarne il costo; testo sempre modificabile/esportabile. UTF-8 invalido respinto anziché sostituire caratteri. BOM/CRLF conservati senza modifica; editing nel textarea normalizza a LF. Nessuna conversione da/a Office o PDF, nessuna dipendenza da servizi esterni. Nessun tag o Release; la pubblica 0.2.2 rimane invariata.
+
+## 25 novembre 2026 — Pubblicazione 0.2.3 autorizzata
+
+Il titolare chiede esplicitamente di creare la Release pubblica aggiornata, revocando il precedente rinvio del tag. Versione già preparata: 0.2.3, Release ordinaria «CosmOffice 0.2.3 (anteprima)», latest, installer non firmati e checksum generati dalla CI esistente. Nessuna condizione di licenza, motore, dipendenza o impostazione cambiata. Prova fisica su PC pulito non confermata: resta tra le prove mancanti.
+
+Note generate dal CHANGELOG, completate con le quattro domande Facebook richieste. Il feed considera solo versioni pubbliche superiori: passaggio manuale iniziale dalla 0.2.2 e dalle build sperimentali già numerate 0.2.3. Tag immutabile sul commit di preparazione; non si riusano né si sostituiscono gli asset 0.2.2. Pubblicazione effettiva e audit successivo sono distinti dalla sola autorizzazione e saranno documentati nel report.

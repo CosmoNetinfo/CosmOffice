@@ -154,3 +154,7 @@ Due test UTF-8 (BOM/CRLF e rifiuto dei byte invalidi). Smoke browser: creazione,
 Primi tentativi: contenitore Windows impediva download browser e avvio Electron per ACL del token AppContainer. Ripetuti fuori dal contenitore. Corretti due problemi dello smoke: attesa del montaggio editor dopo ricarica e ripristino viewport desktop dopo prova stretta. Etichetta accessibile esplicita aggiunta al pulsante export anche quando il testo è nascosto. Esiti definitivi nel report, senza ignorare gli errori iniziali.
 
 Esito definitivo locale: 17 comandi exit 0, 72 test unitari passati, browser/Open XML SDK/smoke Electron e pacchetto/NetLog/aggiornamenti/licenze/diagnostica/guida/YAML verdi. Installazione NSIS locale non eseguita; controllo di estrazione sul vero Setup.exe passato. CI del nuovo commit da verificare dopo il push.
+
+## Pubblicazione 0.2.3 — 25 novembre 2026
+
+Preparazione autorizzata dopo il commit 1472135, CI 45600226920 verde in tutti e sei i lavori, inclusa installazione/disinstallazione NSIS reale. Prima del tag si ripetono i controlli locali richiesti. La pipeline tag valida, ricostruisce e pubblica soltanto dopo gli upload; audit pubblico di download e SHA-256 dopo la pubblicazione, senza dichiarare esiti futuri. Nessun nuovo motore, dipendenza o modifica dell’app.

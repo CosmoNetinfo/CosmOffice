@@ -1,6 +1,6 @@
-# Aggiornamenti su richiesta — 0.2.3 in preparazione
+# Aggiornamenti su richiesta — 0.2.3
 
-Questa implementazione segue l’autorizzazione esplicita dell’utente. **Non è dentro i pacchetti pubblici 0.2.2**, che rimangono immutati. Per usarla servirà installare manualmente una successiva versione che la includa; nessuna nuova Release viene creata da questo passo.
+Implementazione inclusa nella 0.2.3, pubblicazione autorizzata dal titolare il 25 novembre 2026. **Non è nei pacchetti pubblici 0.2.2**, che restano immutati: quel primo passaggio è manuale. Anche chi ha già una build di prova chiamata 0.2.3 deve installare manualmente questa Release. Il confronto ammette soltanto numeri superiori; gli artefatti Actions e i nuovi commit non sono un feed di aggiornamento. Esiti effettivi della pubblicazione nel report corrente.
 
 ## Quando si connette
 
@@ -41,13 +41,13 @@ Rete assente/errore: “Aggiornamento non disponibile. Puoi continuare a lavorar
 
 ## Prove e limiti
 
-- Chi ha la 0.2.2 aggiorna manualmente una volta alla 0.2.3 quando il titolare ne autorizzerà la pubblicazione; poi usa il pulsante. Nessun tag o Release creati da questa preparazione, 0.2.2 immutata.
+- Chi ha la 0.2.2 aggiorna manualmente una volta alla 0.2.3; poi usa il pulsante per le versioni superiori pubblicate. La 0.2.2 resta immutata.
 - Informazioni legge LICENSE e THIRD_PARTY_NOTICES.txt da process.resourcesPath nel pacchetto (IPC con soli due nomi ammessi), dalla radice del repository in sviluppo. Nessun URL esterno. L’anteprima browser usa copie locali generate da scripts/legal-assets.mjs.
 - npm test: URL/redirect vietati prima del contatto, certificato richiesto, niente fallback HTTP, header minimi, byte/hash, limiti, parziali, revoca e consenso per versione.
 - node scripts/offline-smoke.mjs: controllo spento, documenti aperti, audit Node vuoto, NetLog Chromium senza connessioni.
-- node scripts/update-network-smoke.mjs e --package: due profili nuovi, uno con vecchio «attivo»; avvio senza richieste, clic manuale, spegnimento automatico, annullamento IPC e dominio estraneo bloccato. Audit Node limitato ai due host; Chromium senza connessioni. Poiché latest è ancora 0.2.2, non si simula una Release 0.2.3: il download reale e SHA-256 della 0.2.2 sono una prova separata del trasporto; il controllo normale non retrocede.
+- node scripts/update-network-smoke.mjs e --package: due profili nuovi, uno con vecchio «attivo»; avvio senza richieste, clic manuale, spegnimento automatico, annullamento IPC e dominio estraneo bloccato. Audit Node limitato ai due host; Chromium senza connessioni. Il controllo normale non retrocede e non reinstalla la stessa versione. Il download separato usa il manifesto e i byte della Release latest effettiva, verifica SHA-256 e non installa nulla.
 - scripts/package-resources-check.mjs legge gli installer realmente costruiti (Windows NSIS, AppImage, due DMG), confronta LICENSE e attribuzioni con i sorgenti di quella build e verifica la licenza anche nell’ASAR. scripts/legal-smoke.mjs verifica la schermata nativa e il rifiuto di percorsi arbitrari.
-- Il nuovo lavoro windows-installed installa NSIS /S soltanto nel runner Windows, avvia l’eseguibile installato con finestra visibile, apre esempi reali e disinstalla davvero. Solo il ritorno del selettore file è automatizzato, non i motori. Script protetto contro esecuzione fuori dal runner. Esiti reali da controllare dopo il push; non simulati localmente.
+- Il nuovo lavoro windows-installed installa NSIS /S soltanto nel runner Windows, avvia l’eseguibile installato con finestra visibile, apre esempi reali e disinstalla davvero. Solo il ritorno del selettore file è automatizzato, non i motori. Script protetto contro esecuzione fuori dal runner. Già riuscito per 1472135 nella run 45600226920: installazione/disinstallazione exit 0, Home e tre documenti reali; non simula un PC fisico.
 - node scripts/update-confirm-smoke.mjs: pacchetto Windows reale, riconoscimento installazione/versione simulati; Annulla e chiusura normale non installano, consenso esplicito richiesto. Lo spawn è sostituito da uno spy: nessun installer viene realmente eseguito.
 
 Installazione su computer puliti, UAC e completamento effettivo dell’installer, sostituzione di una vera AppImage mentre è in uso, hardware Mac e arresti improvvisi non sono certificati da questi test. Gli esiti effettivi, comprese prove fallite e ripetute, sono nel report. Fonti API consultate senza copia di codice: [worker_threads](https://nodejs.org/api/worker_threads.html) e [HTTPS](https://nodejs.org/api/https.html).

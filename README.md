@@ -2,9 +2,9 @@
 
 Suite desktop gratuita, offline e in italiano di Cosmonet: **CosmoWrite**, **CosmoGrid** e **CosmoView**.
 
-**Stato del main: anteprima 0.2.3 in preparazione, non pubblicata.** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Android e iOS sono pianificati, non implementati.
+**CosmOffice 0.2.3 (anteprima).** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Android e iOS sono pianificati, non implementati.
 
-Gli installer pubblici **0.2.2** restano quelli del tag originale, con aggiornamento manuale. La 0.2.3 si prepara su main per il collaudo su un PC Windows pulito: nessun tag o Release finché il titolare non decide. Non viene inserita retroattivamente negli installer già scaricati. Le funzioni documentali continuano a lavorare senza Internet.
+Installer ufficiali e checksum nella pagina [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest). La pubblicazione 0.2.3 è autorizzata dal titolare; esiti e disponibilità effettiva sono nel [report corrente](docs/report/ULTIMO.md). Gli installer 0.2.2 restano immutati. **Chi ha la 0.2.2 aggiorna manualmente una volta**; chi ha già una build di prova 0.2.3 deve installare a mano la Release dello stesso numero. Poi il pulsante degli aggiornamenti cerca le future versioni superiori pubblicate. Nessun collaudo su PC fisico pulito viene dedotto dall’autorizzazione al rilascio. Le funzioni documentali continuano a lavorare senza Internet.
 
 ![Loghi della suite](docs/preview/00-loghi.png)
 
@@ -24,7 +24,7 @@ Un controllo indipendente opzionale apre e risalva i campioni con LibreOffice (`
 
 ## File Markdown (.md)
 
-Nel main 0.2.3, ancora non pubblicato, **Nuovo Markdown** crea appunti in CosmoWrite. **Apri un file** legge i `.md` UTF-8: testo sorgente modificabile e anteprima offline con titoli, enfasi, elenchi, tabelle e blocchi di codice. **Esporta MD** salva una copia; la bozza e i backup mantengono il formato Markdown. Ctrl+S esporta il file.
+Nella 0.2.3, **Nuovo Markdown** crea appunti in CosmoWrite. **Apri un file** legge i `.md` UTF-8: testo sorgente modificabile e anteprima offline con titoli, enfasi, elenchi, tabelle e blocchi di codice. **Esporta MD** salva una copia; la bozza e i backup mantengono il formato Markdown. Ctrl+S esporta il file.
 
 L’anteprima non scarica immagini, non apre link e non esegue HTML attivo. Immagini e collegamenti restano nel sorgente, ma le immagini non sono mostrate; non ci sono conversione DOCX/PDF, ortografia o barra di formattazione per Markdown. Formule matematiche ed estensioni non interpretate restano nel file. Oltre 200.000 caratteri l’anteprima viene sospesa, mentre modifica e salvataggio restano disponibili, entro il limite di apertura di 50 MB. UTF-8 non valido viene rifiutato. Senza modifiche si conservano BOM e terminatori originali; dopo modifiche il campo di testo usa terminatori LF.
 
@@ -76,7 +76,7 @@ Per il controllo indipendente: `npm run test:interop`, con LibreOffice installat
 
 ## Ricerca e lavoro autorizzato
 
-### Aggiornamenti della 0.2.3 in preparazione
+### Aggiornamenti dalla 0.2.3
 
 Nelle nuove installazioni e senza preferenza salvata i controlli sono **spenti**. All’avvio nessuna richiesta Node e nessuna connessione Chromium, anche se erano stati abilitati i controlli periodici. Le vecchie preferenze «attivo» dell’anteprima non valgono come consenso alla nuova modalità.
 
@@ -86,7 +86,7 @@ Il worker Node usa solo GET HTTPS con certificato verificato verso **github.com*
 
 Windows NSIS e la propria AppImage possono scaricare la versione nuova durante il controllo. SHA-256 sul download e prima dell’installazione; serve sempre il pulsante e la conferma esplicita, salvando prima le bozze. La chiusura normale non installa nulla e l’installer nell’app resta interattivo. Mac: avviso e download manuale, senza installazione automatica. Senza rete puoi continuare a lavorare.
 
-**Chi ha la 0.2.2 aggiorna a mano una volta**, quando il titolare pubblicherà la 0.2.3; poi usa il pulsante. La 0.2.2 pubblica non cambia. [Dettagli e prove](docs/AGGIORNAMENTI.md). Il collaudo su PC pulito, UAC/antivirus, AppImage in uso e Mac fisico resta necessario.
+**Chi ha la 0.2.2 aggiorna a mano una volta** alla 0.2.3; poi usa il pulsante per le versioni successive. La 0.2.2 pubblica non cambia. [Dettagli e prove](docs/AGGIORNAMENTI.md). Il collaudo su PC pulito, UAC/antivirus, AppImage in uso e Mac fisico resta necessario.
 
 ### Studio ArtCraft
 
@@ -94,13 +94,13 @@ La ricerca su WordCraft, GridCraft e craft-launcher è in [ARTCRAFT.md](docs/ric
 
 ## GitHub Actions
 
-Ogni push su `main` avvia test, un controllo indipendente con LibreOffice e crea gli installer di anteprima per Windows x64, Linux x64 e macOS Intel/Apple Silicon. Gli artefatti sono nella scheda **Actions**, disponibili per 14 giorni. Un lavoro Windows separato installa davvero NSIS in modalità non interattiva soltanto nel runner, avvia l’app installata, apre tre esempi e disinstalla; non prova SmartScreen, UAC con antivirus o un utente normale e non sostituisce un PC reale. Le build di anteprima non sono firmate e non attivano l’aggiornamento automatico.
+Ogni push su `main` avvia test, un controllo indipendente con LibreOffice e crea gli installer di anteprima per Windows x64, Linux x64 e macOS Intel/Apple Silicon. Gli artefatti sono nella scheda **Actions**, disponibili per 14 giorni. Un lavoro Windows separato installa davvero NSIS in modalità non interattiva soltanto nel runner, avvia l’app installata, apre tre esempi e disinstalla; non prova SmartScreen, UAC con antivirus o un utente normale e non sostituisce un PC reale. Le build non sono firmate. Gli artefatti Actions non vengono proposti dal feed degli aggiornamenti: il feed legge soltanto le Release pubbliche con numero superiore.
 
 Il workflow per tag `v*` controlla versione, build, test browser, Open XML SDK, offline e interoperabilità. Costruisce installer Windows x64, AppImage Linux x64 e DMG Mac Intel/Apple Silicon **senza firma**, carica gli asset in una bozza e la rende una **Release ordinaria pubblica** solo dopo gli upload. Le note derivano dalla sezione della versione nel CHANGELOG e dichiarano eventuali piattaforme fallite. Una build di piattaforma rossa non impedisce la pubblicazione delle altre; controlli comuni rossi bloccano tutte.
 
 Non servono certificati o segreti di firma: basta il GITHUB_TOKEN automatico del workflow con permesso contents: write nel solo lavoro di pubblicazione. Ogni installer ha un file .sha256; SHA256SUMS.txt li raccoglie. La pubblicazione si ferma se non c’è alcun installer, se un upload fallisce o se la Release è già pubblica: non sovrascrive automaticamente gli asset. In caso di bozza incompleta, controllarla prima di ripetere.
 
-Procedura: aggiornare package.json e la corrispondente sezione CHANGELOG, completare tutti i controlli, commit e push su main, poi creare e pubblicare il tag della stessa versione. Non spostare il tag v0.2.2 già pubblico. Seguire Actions e verificare senza account la pagina [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest), gli asset e i checksum. La 0.2.3 è soltanto preparata: non creare tag né pubblicare prima della prova del titolare su un PC Windows pulito. Gli installer 0.2.2 si aggiornano manualmente una volta alla prima versione dotata del pulsante.
+Procedura: aggiornare package.json e la corrispondente sezione CHANGELOG, completare tutti i controlli, commit e push su main, poi creare e pubblicare il tag della stessa versione. Non spostare il tag v0.2.2 già pubblico. Seguire Actions e verificare senza account la pagina [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest), gli asset e i checksum. La pubblicazione 0.2.3 è stata autorizzata dal titolare il 25 novembre 2026. I test su PC fisico pulito restano non confermati e devono essere dichiarati nelle note. Gli installer 0.2.2 si aggiornano manualmente una volta alla prima versione dotata del pulsante.
 
 Windows può mostrare SmartScreen per l’autore non verificato: controllare origine e checksum; se disponibile scegliere “Ulteriori informazioni” e “Esegui comunque”. I criteri dei computer gestiti possono vietarlo: non disattivare la protezione del sistema. Su Linux rendere eseguibile l’AppImage; il supporto delle singole distribuzioni non è garantito dai soli test CI. Le installazioni su computer puliti non sono ancora collaudate.
 

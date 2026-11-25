@@ -6,7 +6,7 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 Nessun’altra idea dello studio adottata.
 
-## [0.2.3] - In preparazione, non pubblicata
+## [0.2.3] - 2026-11-25
 
 ### Aggiunto
 
@@ -45,8 +45,19 @@ Nessun’altra idea dello studio adottata.
 
 ### Prossimi passi
 
-- Il titolare prova l’installer su un PC Windows pulito e decide se creare tag e pubblicare la Release. Nessun tag o Release 0.2.3 creati durante questa preparazione.
-- Quando sarà pubblicata, chi ha la 0.2.2 aggiorna a mano una volta alla 0.2.3, poi usa il pulsante «Controlla aggiornamenti ora».
+- Pubblicazione autorizzata dal titolare il 25 novembre 2026. Raccogliere prove su PC Windows pulito, SmartScreen/UAC/antivirus, AppImage in uso e Mac fisico; correggere prima i problemi di affidabilità segnalati.
+- Chi ha la 0.2.2 aggiorna a mano una volta alla 0.2.3, poi usa il pulsante «Controlla aggiornamenti ora» per le future versioni superiori. Chi ha una build di prova già chiamata 0.2.3 deve installare manualmente questa Release: lo stesso numero non viene proposto come aggiornamento.
+
+### Cosa ti aspetti da CosmOffice?
+
+Rispondi nei commenti del post Facebook di CosmOffice:
+
+1. Che documenti apri più spesso?
+2. Cosa ti aspetti da CosmOffice?
+3. Quale funzione ti manca?
+4. Che cosa ti ha bloccato durante la prova?
+
+Puoi incollare il rapporto da Impostazioni → Segnala un problema e gli esiti della Prova guidata. Non pubblicare documenti o dati personali. L’app non invia nulla da sola.
 
 ## [0.2.2] - 2026-11-22
 

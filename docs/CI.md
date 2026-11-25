@@ -4,6 +4,7 @@ Verifica del 25 novembre 2026: aggiunta la run della preparazione 0.2.3; i risul
 
 | Commit | Build principale | Esito dei lavori |
 | --- | --- | --- |
+| 1472135, Markdown | [45600226920](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45600226920) | checks, interop, Windows, Linux, Mac e NSIS installato: 6/6 success |
 | 6534f41, preparazione 0.2.3 | [45086811898](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45086811898) | checks, interop, Windows, Linux, Mac e installazione/disinstallazione NSIS: 6/6 success |
 | a9b754b, dati titolare | [45078553609](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45078553609) | checks, interop, Windows, Linux, Mac: 5/5 success |
 | 4180acd, adozione A | [45075768129](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45075768129) | checks, interop, Windows, Linux, Mac: 5/5 success |

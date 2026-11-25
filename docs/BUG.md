@@ -116,3 +116,7 @@ Blocco noto del precedente prototipo aggiornamenti, non incluso in main: NetLog 
 - MD-001 (P3, limite dichiarato): anteprima senza immagini, link attivi, formule matematiche, estensioni aggiuntive, ortografia e conversione Office/PDF. Il sorgente conserva la sintassi.
 - MD-002 (P3, limite dichiarato): dopo editing i terminatori vengono normalizzati a LF dal campo di testo; senza modifiche BOM/CRLF restano identici. Nessuna sostituzione silenziosa per UTF-8 invalido.
 - Verificato e prevenuto: i backup prima non distinguevano Markdown dall’HTML. Nuovi record e manifest ora mantengono `fileType: MD`; prova di esportazione/importazione con confronto del sorgente.
+
+## Pubblicazione 0.2.3 — verifica note
+
+Il generatore Release richiede la sezione «Cosa ti aspetti da CosmOffice?», inizialmente assente nella sezione 0.2.3 del CHANGELOG. Completata prima del tag, con test sul numero corrente del package.json per prevenire il blocco della pubblicazione; nessun difetto dell’app o motore corretto in questo passo. Restano tutti i limiti documentali, firma e collaudi fisici già elencati.

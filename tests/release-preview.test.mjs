@@ -9,6 +9,16 @@ import { completePreview } from '../scripts/complete-preview.mjs';
 import { createRequire } from 'node:module';
 
 const changelog = await readFile('CHANGELOG.md', 'utf8');
+test('Release corrente: note complete per la versione realmente distribuita', async () => {
+  const { version } = JSON.parse(await readFile('package.json', 'utf8'));
+  const names = Object.values(installerNames(version));
+  const notes = releaseNotes(changelog, version, names);
+  assert.ok(notes.startsWith(`# CosmOffice ${version} (anteprima)`));
+  assert.doesNotMatch(notes, /NON DISPONIBILE/);
+  assert.match(notes, /Cosa ti aspetti da CosmOffice\?/);
+  assert.match(notes, /commenti del post Facebook/);
+  for (const name of names) assert.ok(notes.includes(name));
+});
 test('Mac: anteprima senza identità, firma forzata o notarizzazione', () => {
   const config = createRequire(import.meta.url)('../electron-builder.config.cjs');
   assert.equal(config.mac.identity, null);
