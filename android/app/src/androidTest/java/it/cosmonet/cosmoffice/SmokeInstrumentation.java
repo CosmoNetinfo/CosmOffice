@@ -160,7 +160,19 @@ public final class SmokeInstrumentation extends Instrumentation {
                 open("android-grid-salvato.xlsx"); until("document.querySelector('[aria-label=\"Cella B2\"]')?.value==='701'&&document.querySelector('[aria-label=\"Cella B3\"]')?.value==='2'"); home();
             });
             step("PDF visualizza ruota salva riapri", () -> {
-                open("android-view.pdf"); until("document.querySelector('.pdf-paper canvas')?.width>0&&!document.querySelector('.pdf-loading')");
+                open("android-view.pdf");
+                until("document.querySelector('.pdf-paper canvas')||document.querySelector('.toast')?.textContent.startsWith('Impossibile aprire il file:')");
+                if (!"true".equals(js("Boolean(document.querySelector('.pdf-paper canvas'))"))) {
+                    // Test APK only: inspect the original, purpose-written fixture. No user document/log hook.
+                    String sample;
+                    try (java.io.InputStream stream = getContext().getAssets().open("fixtures/android-view.pdf")) {
+                        sample = android.util.Base64.encodeToString(stream.readAllBytes(), android.util.Base64.NO_WRAP);
+                    }
+                    js("window.__pdfDiagnostic=null;(async()=>{let task;try{const url=performance.getEntriesByType('resource').map(r=>r.name).find(u=>/\\/pdf-engine-[^/]+\\.js$/.test(u));if(!url)throw Error('Modulo PDF non caricato');const m=await import(url);task=m.createPdfTask(Uint8Array.from(atob(" + JSONObject.quote(sample) + "),c=>c.charCodeAt(0)));await task.promise;window.__pdfDiagnostic='PDF valido';}catch(e){window.__pdfDiagnostic=String(e?.stack||e).slice(0,1500);}finally{await task?.destroy();}})()");
+                    until("window.__pdfDiagnostic!==null");
+                    throw new AssertionError("PDF rifiutato; WebView " + WebView.getCurrentWebViewPackage().versionName + ": " + js("window.__pdfDiagnostic"));
+                }
+                until("document.querySelector('.pdf-paper canvas')?.width>0&&!document.querySelector('.pdf-loading')");
                 screenshot("view"); click("Ruota pagina PDF"); save("Salva copia PDF", "android-view-salvato.pdf"); home();
                 open("android-view-salvato.pdf"); until("document.querySelector('.pdf-paper canvas')?.width>0&&!document.querySelector('.pdf-loading')"); home();
             });

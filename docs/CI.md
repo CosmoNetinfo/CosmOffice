@@ -1,5 +1,9 @@
 # Stato delle ultime CI
 
+## 4912020 — settimo collaudo Android
+
+[Desktop 46056425321](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46056425321): tutti sei i lavori completed/success osservati, inclusa installazione/disinstallazione NSIS nel runner. [Android 46056425324](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46056425324): failure sul PDF, dopo Home/DOCX/XLSX PASS. Mammoth ed ExcelJS hanno verificato i due file effettivamente esportati. Nessun collaudo fisico dedotto.
+
 ## 7e9f9c7 — sesto collaudo Android
 
 [Android 46053874675](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46053874675) failure: DOCX round trip PASS, XLSX fermato al controllo B2. [Desktop 46053874698](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46053874698) tutti sei i lavori completed/success osservati, compresa NSIS nel runner. Non confondere il passaggio del DOCX con il collaudo di tutta la suite Android.

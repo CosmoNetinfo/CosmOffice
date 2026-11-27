@@ -17,6 +17,8 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Corretto
 
+- Collaudo Android: Word e fogli di calcolo verificati anche sui file esportati, con Mammoth ed ExcelJS. Aggiunta diagnostica del solo campione PDF nel test nativo: l’apertura resta bloccata e non viene dichiarata funzionante.
+
 - Driver Android per celle/Markdown: attesa della finestra pronta, immissione tramite tastiera e conferma; controllo di B2/B3 prima e dopo il salvataggio. Raccolta degli output parziali senza mascherare errori. DOCX round trip passato nella sesta run, resto del collaudo aperto.
 
 - Catture Android: attesa del disegno WebView prima degli screenshot dell’app, dopo aver rilevato una Home fotografata troppo presto. Collaudo completo ancora in corso.

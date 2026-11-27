@@ -1,5 +1,9 @@
 # Stato delle verifiche e limiti
 
+## Settimo collaudo Android — DOCX e XLSX passati, PDF non aperto
+
+4912020 / [46056425324](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46056425324): primi tre casi PASS, quarto fallito prima del rendering PDF. Artifact SHA-256 4230f30380658f4928873c8eb4bc2befbb22d7720548800230146e0f0bf5e8f6 uguale al digest GitHub. Sui file realmente esportati, Mammoth trova «Android verificato.» nel DOCX ed ExcelJS legge B2=701/B3=2 nello XLSX. PDF e Markdown non esportati; appunti/temi/assenza rete finale non raggiunti. Nessuna modifica degli editor per ottenere questi risultati. Il nuovo test diagnostica il rifiuto PDF usando esclusivamente il campione incluso nell’APK di test. Desktop 46056425321 osservata con tutti sei success, inclusa NSIS installata/disinstallata nel runner.
+
 ## Sesto collaudo Android — DOCX passato, XLSX da verificare
 
 [46053874675](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46053874675), 7e9f9c7: Home/permessi e DOCX apertura/modifica/salvataggio/riapertura PASS. XLSX non supera B2=701 dopo riapertura; file android-grid-salvato.xlsx realmente presente (6680 byte). Screenshot prima dell’export: selezione A1 e valori originali, quindi l’immissione del driver non risulta applicata. Nessuna perdita dati attribuita al prodotto senza prova. Driver ora usa tastiera nella finestra pronta e verifica i cambiamenti prima di esportare. La prossima raccolta conserva anche output parziali per analisi indipendente. PDF/MD/appunti non ancora raggiunti.

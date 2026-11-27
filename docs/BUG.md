@@ -1,5 +1,11 @@
 # Registro dei bug CosmOffice
 
+## AND-011 — PDF rifiutato prima dell’apertura su Android
+
+4912020 / [Android 46056425324](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46056425324): Home, DOCX e XLSX round trip PASS; attesa del canvas PDF scaduta. Screenshot finale nella Home, nessun PDF esportato. Causa non ancora dimostrata: aggiunta al solo APK di test una diagnosi diretta sul campione originale per leggere l’errore del caricamento, senza cambiare il motore o il rapporto dei tester. Android non è ancora collaudato completamente.
+
+AND-010 verificato nella stessa run: B2=701 e B3=2 prima/dopo salvataggio. File recuperati dall’artifact, letti con ExcelJS con gli stessi valori; Mammoth trova il testo aggiunto nel DOCX. Nessuna perdita di queste modifiche osservata. La verifica di tutti gli originali resta subordinata al completamento dell’intero smoke.
+
 ## AND-010 — immissione delle celle non applicata dal test
 
 7e9f9c7 / [Android 46053874675](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46053874675): DOCX round trip PASS. XLSX salvato e riaperto, ma controllo B2=701 fallisce. Screenshot prima dell’export mostra ancora A1 selezionata e i valori originali: il test non ha applicato l’immissione prevista, non è dimostrata una perdita nel salvataggio.
