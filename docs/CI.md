@@ -1,5 +1,9 @@
 # Stato delle ultime CI
 
+## Terzo collaudo Android — a57fed7
+
+[46014692576](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46014692576) failure nella copia dei campioni: nessun test nativo eseguito. AND-005 riaperto. CI desktop [46014692885](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46014692885) in verifica, esito aggiornato nel report prima del push. Per d3f9aef la CI desktop 46012068280 è stata poi osservata con tutti sei lavori success, inclusa installazione/disinstallazione NSIS.
+
 ## Android — verifica del 27 novembre 2026
 
 - 9421c6a: [CI desktop 46009717586](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46009717586) osservata con tutti sei lavori success, inclusa NSIS installata/disinstallata nel runner. [Android 46009717455](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46009717455) failure prima dell’installazione, adb push respinto.

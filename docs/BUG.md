@@ -1,5 +1,9 @@
 # Registro dei bug CosmOffice
 
+## AND-005 riaperto: preparazione non stabile al cold boot
+
+Commit a57fed7, [Android 46014692576](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46014692576): build/check APK passati, cp nella Download respinto prima dell’installazione. Il successo della preparazione su d3f9aef non era sufficiente a considerarla stabile: AND-005 riaperto. Diagnostica: shell UID 2000, Download presente con gruppo media_rw; comando diagnostico is-user-unlocked non disponibile. Non si afferma dimostrata una causa unica. Nuova preparazione: attendere fino a 90 secondi una scrittura e rilettura vere, copiare solo i byte senza metadati, confrontare SHA-256 prima di avviare l’app. AND-006/007 non ancora esercitati nel terzo tentativo. Nessuna simulazione o nuovo permesso.
+
 ## AND-005/006/007 — secondo collaudo Android
 
 - AND-005: **preparazione corretta e verificata** nella run 46012068702: i tre SHA-256 sono passati, APK installato e Home/permessi PASS. Non equivale al collaudo degli editor.

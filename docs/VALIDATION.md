@@ -1,5 +1,9 @@
 # Stato delle verifiche e limiti
 
+## Terza run Android: cold boot ancora instabile — 27 novembre 2026
+
+[46014692576](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46014692576), a57fed7: preparazione fallita di nuovo (cp: Operation not permitted), nessuna prova dell’app avviata. Artifact letto: storage-failure.log conferma lo stato della cartella ma non prova una causa definitiva. Is-user-unlocked non supportato: sostituito nel solo diagnostico con proprietà CE. Aggiunta verifica operativa della disponibilità storage, con limite 90 secondi, e copia di soli byte; da provare nella nuova CI. L’attesa non sostituisce i confronti SHA o il selettore reale.
+
 ## Seconda run Android: Home passa, DOCX incompleto — 27 novembre 2026
 
 Commit d3f9aef, [46012068702](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46012068702): staging/copia e SHA-256 passati, APK installato e avvio/permessi offline PASS. DOCX aperto e modificato, salvataggio arriva alla conferma, ma il test non trova il nome atteso per la riapertura. XLSX/PDF/MD/appunti non eseguiti in questa run. Artifact ispezionato: rapporto e lint presenti, screenshot assenti. Correzione del test: attendere DocumentsUI prima di cercare EditText, screenshot nei file privati con raccolta obbligatoria e lista Download. Nessun cambiamento al codice dell’app, nessun collaudo nativo completo dichiarato.

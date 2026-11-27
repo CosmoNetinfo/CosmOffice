@@ -14,7 +14,19 @@ assert.equal(run('shell', 'getprop', 'ro.kernel.qemu').trim(), '1');
 await mkdir('test-results/android/emulator', { recursive: true });
 run('shell', 'settings', 'put', 'global', 'airplane_mode_on', '1');
 run('shell', 'svc', 'wifi', 'disable'); run('shell', 'svc', 'data', 'disable');
-run('shell', 'mkdir', '-p', '/sdcard/Download');
+// sys.boot_completed can precede a writable shared-storage mount on a cold boot.
+// Verify real I/O instead of sleeping for an arbitrary fixed interval.
+const storageStarted = Date.now(); let storageReady = false, attempts = 0, lastStorageError = '';
+while (Date.now() - storageStarted < 90000) {
+  attempts++;
+  const check = spawnSync(adb, ['shell', 'mkdir -p /sdcard/Download && printf COSMO_STORAGE_READY > /sdcard/Download/cosmoffice-storage-probe.docx && cat /sdcard/Download/cosmoffice-storage-probe.docx'], { encoding: 'utf8', timeout: 5000, windowsHide: true });
+  if (check.status === 0 && check.stdout.trim() === 'COSMO_STORAGE_READY') { storageReady = true; break; }
+  lastStorageError = (check.stderr || '') + (check.error?.message || '');
+  await new Promise(resolve => setTimeout(resolve, 500));
+}
+await writeFile('test-results/android/storage-ready.json', JSON.stringify({ ready: storageReady, attempts, ms: Date.now() - storageStarted, lastError: lastStorageError }, null, 2));
+assert.ok(storageReady, 'Storage condiviso Android non scrivibile entro 90 secondi: nessuna prova dell’app avviata');
+run('shell', 'rm', '-f', '/sdcard/Download/cosmoffice-storage-probe.docx');
 // adbd's sync service and an Android shell have different storage contexts.
 // Stage outside shared storage, then copy as shell; do not grant the app storage permissions.
 run('shell', 'mkdir', '-p', '/data/local/tmp/cosmoffice-smoke');
@@ -22,9 +34,11 @@ const samples = [['01-testo-stili.docx', 'android-write.docx'], ['01-formule.xls
 for (const [name, target] of samples) {
   const staging = `/data/local/tmp/cosmoffice-smoke/${target}`, destination = `/sdcard/Download/${target}`;
   run('push', `tests/fixtures/${name}`, staging);
-  try { run('shell', 'cp', staging, destination); }
+  // Copy bytes only, without trying to preserve tmp-file metadata on shared storage.
+  // These paths come exclusively from the three constant sample names above.
+  try { run('shell', `cat ${staging} > ${destination}`); }
   catch (error) {
-    const details = ['id', 'ls -ld /sdcard /storage/emulated/0 /sdcard/Download', 'cmd user is-user-unlocked 0']
+    const details = ['id', 'ls -ld /sdcard /storage/emulated/0 /sdcard/Download', 'getprop sys.user.0.ce_available']
       .map(command => spawnSync(adb, ['shell', command], { encoding: 'utf8', windowsHide: true }));
     await writeFile('test-results/android/storage-failure.log', details.map(result => (result.stdout || '') + (result.stderr || '')).join('\n'));
     throw error;
