@@ -2,6 +2,8 @@
 
 ## Android — 27 novembre 2026
 
+- **Provato in emulatore**: DOCX e XLSX round trip, verificati anche sui file esportati. **In corso**: PDF rifiutato su WebView 124 per URL.parse assente; build di compatibilità della stessa versione PDF.js, da collaudare. Nessun cambio di motore.
+
 - **Implementato, collaudo in corso**: APK nativo senza permessi Internet, asset offline, selettore di sistema e salvataggio di copie, 10 MB; stessi motori senza modifica.
 - **Provato localmente**: compilazione APK debug/release e lint, controllo byte delle licenze nel release, firma e SHA-256 con chiave privata esterna a Git. Frontend simulato distinto dalle prove native.
 - **In corso**: otto prove native sul runner Android, apertura/modifica/salvataggio/riapertura, appunti e assenza del permesso Internet; esito effettivo solo nel report.

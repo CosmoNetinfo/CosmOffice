@@ -1,5 +1,9 @@
 # Stato delle verifiche e limiti
 
+## Diagnosi PDF Android — effae92
+
+[CI Android 46059522929](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46059522929) failure: WebView 124.0.6367.219, `URL.parse is not a function`. Build separata con API/worker legacy della stessa PDF.js 6.5.438. Primo controllo sugli asset di produzione, togliendo URL.parse nativo: PDF renderizzato, ruotato, esportato e riaperto, rotazione 90 verificata e zero richieste esterne. Porta simulata, non è il collaudo APK. Nuovo smoke nativo ancora necessario. Fallimento intermedio test:browser documentato nel report: rigenerazione e modifica dei file durante l’esecuzione hanno ricaricato la pagina del corpus; nessun test indebolito, suite ripetuta a sorgenti fermi.
+
 ## Settimo collaudo Android — DOCX e XLSX passati, PDF non aperto
 
 4912020 / [46056425324](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46056425324): primi tre casi PASS, quarto fallito prima del rendering PDF. Artifact SHA-256 4230f30380658f4928873c8eb4bc2befbb22d7720548800230146e0f0bf5e8f6 uguale al digest GitHub. Sui file realmente esportati, Mammoth trova «Android verificato.» nel DOCX ed ExcelJS legge B2=701/B3=2 nello XLSX. PDF e Markdown non esportati; appunti/temi/assenza rete finale non raggiunti. Nessuna modifica degli editor per ottenere questi risultati. Il nuovo test diagnostica il rifiuto PDF usando esclusivamente il campione incluso nell’APK di test. Desktop 46056425321 osservata con tutti sei success, inclusa NSIS installata/disinstallata nel runner.

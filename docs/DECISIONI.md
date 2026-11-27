@@ -1,5 +1,11 @@
 # Decisioni e alternative tecniche
 
+## Compatibilità PDF Android — 27 novembre 2026
+
+La CI 46059522929 ha riprodotto il rifiuto del campione PDF su WebView 124.0.6367.219: `URL.parse is not a function`. La distribuzione moderna PDF.js richiede anche altre API recenti. Scelta limitata alla piattaforma: build Vite Android separata, alias esatti per API e worker della distribuzione legacy **della stessa versione 6.5.438** già installata; desktop e file src/pdf-engine.mjs invariati. Non è una decisione sul motore Office. Scartata una correzione isolata di URL.parse: non coprirebbe coerentemente le altre API richieste, né il worker. Nessun codice esterno riscritto o copiato manualmente; libreria esistente usata tramite la sua distribuzione compatibile.
+
+core-js 3.51.0 incorporato upstream: licenza MIT verificata nel tag ufficiale, testo integrale in scripts/LICENSE-core-js.txt e generato da scripts/notices.mjs. Nessuna dipendenza npm aggiunta. Costi: circa 56 KB non compressi in più per API e altrettanti per worker, APK da ricompilare; compatibilità non dedotta dal solo build, occorre lo smoke nativo. Nessuna rete aggiunta, aggiornamenti desktop invariati.
+
 ## APK Android richiesto e chiave autorizzata — 27 novembre 2026
 
 Activity Java originale con Android WebView e frontend esistente: nessun nuovo motore o dipendenza runtime. Evitati un framework multipiattaforma e una riscrittura degli editor perché non richiesti e con costo/licenze ulteriori. API di piattaforma per file/appunti, messaggi al solo frame locale, origine riservata intercettata dagli asset, nessun permesso Internet o accesso generale allo storage. L’URL HTTPS locale non contatta un server. Backup Android disabilitato.

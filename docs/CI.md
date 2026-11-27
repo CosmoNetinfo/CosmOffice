@@ -1,5 +1,9 @@
 # Stato delle ultime CI
 
+## effae92 — diagnosi PDF Android
+
+[Android 46059522929](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46059522929) failure: WebView 124.0.6367.219, URL.parse assente nel caricamento PDF. La causa è confermata dalla diagnostica sul campione originale, non dedotta dal timeout. Desktop [46059522912](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46059522912) tutti sei i lavori completed/success osservati, inclusa installazione/disinstallazione NSIS. Nel passo successivo distribuzione PDF.js legacy della stessa versione per il solo Android, con regressione browser separata e gli otto casi nativi sempre obbligatori.
+
 ## 4912020 — settimo collaudo Android
 
 [Desktop 46056425321](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46056425321): tutti sei i lavori completed/success osservati, inclusa installazione/disinstallazione NSIS nel runner. [Android 46056425324](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46056425324): failure sul PDF, dopo Home/DOCX/XLSX PASS. Mammoth ed ExcelJS hanno verificato i due file effettivamente esportati. Nessun collaudo fisico dedotto.

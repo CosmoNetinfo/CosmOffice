@@ -224,6 +224,8 @@ Libreria inclusa come dipendenza con attribuzione, comunicata al titolare prima 
 
 ## Android nativo — 27 novembre 2026
 
+Aggiornamento successivo alla diagnosi effae92: consultati package.json PDF.js 6.5.438, intestazioni `legacy/build/pdf.mjs` e `legacy/build/pdf.worker.mjs`, metadati core-js incorporati e nomi delle API usate da `build/pdf.mjs` / `build/pdf.worker.mjs` (codice Apache-2.0; nessun algoritmo copiato). Versione core-js 3.51.0 identificata nel bundle. Letto integralmente [LICENSE del tag core-js v3.51.0](https://github.com/zloirock/core-js/blob/v3.51.0/LICENSE), testo legale MIT con copyright Denis Pushkarev/CoreJS Company. La build Android ora usa la distribuzione legacy dello stesso motore già installato, senza tradurre codice Rust/esterno né aggiungere dipendenze npm. Libreria incorporata con attribuzione integrale `scripts/LICENSE-core-js.txt`, inclusa da notices.mjs; desktop e motori invariati. Per questi pacchetti npm la versione della distribuzione è il riferimento esatto, non viene inventato un commit GitHub. Risolve l’API URL.parse assente confermata su WebView 124; difficoltà bassa, rischio altre differenze WebView da verificare con rendering/round trip reali. La precedente voce «legacy non adottato» descrive la fase di studio precedente, superata da questa correzione Android richiesta.
+
 Solo documentazione/API e metadati; nessun algoritmo esterno copiato o tradotto. Codice dell’integrazione originale Java/JavaScript. Nessuna nuova libreria runtime. Nessun sorgente GPL/AGPL consultato.
 
 | Materiale consultato | Tipo / riferimento | Licenza e uso | Problema / implementazione originale |

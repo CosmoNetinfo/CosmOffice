@@ -41,6 +41,8 @@ Impronta pubblica SHA-256 del certificato: `32e3b39b807a391a018c2183eee609ccf8c2
 
 ## Prove automatiche e limiti
 
+L’APK usa la distribuzione `legacy` della stessa versione PDF.js 6.5.438, con API e worker incorporati. WebView 124 nell’emulatore non dispone di `URL.parse`, richiesto dalla distribuzione moderna: errore confermato nella CI 46059522929. Non è un cambio di motore; il desktop mantiene la distribuzione corrente. Il componente core-js 3.51.0 incluso nel legacy ha licenza MIT, riportata integralmente nelle attribuzioni. Nessun nuovo pacchetto npm e nessun download nell’app. Il round trip con questa distribuzione deve essere verificato nella CI successiva.
+
 `npm run test:browser` include una regressione Android con porta nativa simulata: verifica byte, Markdown, apertura DOCX, tema, ritorno alle bozze, aggiornamenti assenti e rapporto senza dati privati. **Non è il collaudo dell’APK.**
 
 Con un emulatore già avviato, APK debug/test compilati, `adb` nel PATH e Poppler disponibile:

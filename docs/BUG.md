@@ -2,6 +2,8 @@
 
 ## AND-011 — PDF rifiutato prima dell’apertura su Android
 
+Diagnosi effae92 / [46059522929](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46059522929): WebView 124.0.6367.219, `TypeError: URL.parse is not a function`. Build Android separata con distribuzione legacy di PDF.js 6.5.438 (stessa versione/motore), API e worker locali; compatibilità core-js MIT inclusa upstream e ora attribuita. Non chiuso finché rendering e round trip non passano nella CI. Nessuna modifica del motore desktop.
+
 4912020 / [Android 46056425324](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46056425324): Home, DOCX e XLSX round trip PASS; attesa del canvas PDF scaduta. Screenshot finale nella Home, nessun PDF esportato. Causa non ancora dimostrata: aggiunta al solo APK di test una diagnosi diretta sul campione originale per leggere l’errore del caricamento, senza cambiare il motore o il rapporto dei tester. Android non è ancora collaudato completamente.
 
 AND-010 verificato nella stessa run: B2=701 e B3=2 prima/dopo salvataggio. File recuperati dall’artifact, letti con ExcelJS con gli stessi valori; Mammoth trova il testo aggiunto nel DOCX. Nessuna perdita di queste modifiche osservata. La verifica di tutti gli originali resta subordinata al completamento dell’intero smoke.

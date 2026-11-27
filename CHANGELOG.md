@@ -17,6 +17,8 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Corretto
 
+- Build Android: distribuzione di compatibilità della stessa versione PDF.js, dopo errore confermato `URL.parse is not a function` su WebView 124. API e worker locali; core-js MIT attribuito integralmente. Collaudo PDF completo ancora da osservare, desktop e motori invariati.
+
 - Collaudo Android: Word e fogli di calcolo verificati anche sui file esportati, con Mammoth ed ExcelJS. Aggiunta diagnostica del solo campione PDF nel test nativo: l’apertura resta bloccata e non viene dichiarata funzionante.
 
 - Driver Android per celle/Markdown: attesa della finestra pronta, immissione tramite tastiera e conferma; controllo di B2/B3 prima e dopo il salvataggio. Raccolta degli output parziali senza mascherare errori. DOCX round trip passato nella sesta run, resto del collaudo aperto.
