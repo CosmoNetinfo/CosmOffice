@@ -37,12 +37,17 @@ run('install', '-r', 'android/app/build/outputs/apk/androidTest/debug/app-debug-
 const test = spawnSync(adb, ['shell', 'am', 'instrument', '-w', '-r', 'it.cosmonet.cosmoffice.test/it.cosmonet.cosmoffice.SmokeInstrumentation'], { encoding: 'utf8', timeout: 12 * 60 * 1000, maxBuffer: 5 * 1024 * 1024, windowsHide: true });
 const output = (test.stdout || '') + (test.stderr || '');
 await writeFile('test-results/android/instrumentation.log', output); console.log(output);
+await writeFile('test-results/android/downloads.log', run('shell', 'ls', '-la', '/sdcard/Download'));
+const captures = [];
 for (const name of ['home', 'write', 'grid', 'view', 'informazioni', 'impostazioni-scure', 'segnala-problema', 'errore']) {
-  const image = spawnSync(adb, ['exec-out', 'run-as', 'it.cosmonet.cosmoffice', 'cat', `/sdcard/Android/data/it.cosmonet.cosmoffice/files/smoke/${name}.png`], { windowsHide: true, maxBuffer: 10 * 1024 * 1024 });
-  if (image.status === 0 && image.stdout.length > 8 && image.stdout.subarray(1, 4).toString() === 'PNG') await writeFile(`test-results/android/emulator/${name}.png`, image.stdout);
+  const image = spawnSync(adb, ['exec-out', 'run-as', 'it.cosmonet.cosmoffice', 'cat', `files/smoke/${name}.png`], { windowsHide: true, maxBuffer: 10 * 1024 * 1024 });
+  if (image.status === 0 && image.stdout.length > 8 && image.stdout.subarray(1, 4).toString() === 'PNG') {
+    await writeFile(`test-results/android/emulator/${name}.png`, image.stdout); captures.push(name);
+  }
 }
 assert.equal(test.status, 0, 'comando instrumentation non riuscito');
 assert.match(output, /INSTRUMENTATION_RESULT: cosmoffice=PASS/); assert.doesNotMatch(output, /INSTRUMENTATION_STATUS_CODE: -2|INSTRUMENTATION_FAILED|cosmoffice=FAIL/);
+assert.equal(captures.filter(name => name !== 'errore').length, 7, 'schermate native non raccolte correttamente');
 for (const name of ['android-write-salvato.docx', 'android-grid-salvato.xlsx', 'android-view-salvato.pdf', 'android-note-salvate.md']) run('pull', `/sdcard/Download/${name}`, `test-results/android/emulator/${name}`);
 const docx = await readFile('test-results/android/emulator/android-write-salvato.docx');
 assert.match((await mammoth.extractRawText({ buffer: docx })).value, /Android verificato\./);

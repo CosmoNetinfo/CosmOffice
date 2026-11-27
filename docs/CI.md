@@ -1,5 +1,13 @@
 # Stato delle ultime CI
 
+## Android — verifica del 27 novembre 2026
+
+- 9421c6a: [CI desktop 46009717586](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46009717586) osservata con tutti sei lavori success, inclusa NSIS installata/disinstallata nel runner. [Android 46009717455](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46009717455) failure prima dell’installazione, adb push respinto.
+- d3f9aef: [Android 46012068702](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46012068702) failure. Preparazione superata e Home/permessi PASS; DOCX fermato alla riapertura, nome atteso non trovato. [CI desktop 46012068280](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46012068280) tutti sei lavori completed/success osservati prima del push, inclusa NSIS nel runner.
+- In corso: attesa esplicita della finestra DocumentsUI nel test e raccolta screenshot da file privati. Nessun esito nativo completo dichiarato.
+
+Il report precedente elencava CI.md tra i modificati, ma quell’inserimento non era stato applicato per la differenza CRLF: questa sezione lo corregge esplicitamente.
+
 Verifica del 25 novembre 2026: aggiunta la run della preparazione 0.2.3; i risultati storici restano riferiti alle verifiche precedenti. I lavori delle run sotto sono stati interrogati su GitHub; verde non equivale a installazione fisica o fedeltà Office completa.
 
 | Commit | Build principale | Esito dei lavori |

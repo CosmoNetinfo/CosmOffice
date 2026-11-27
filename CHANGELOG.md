@@ -17,6 +17,8 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Corretto
 
+- Test nativo Android: attesa della finestra DocumentsUI prima del campo nome; screenshot da file privati e raccolta obbligatoria. Seconda CI con avvio PASS e DOCX incompleto; nessun successo complessivo dichiarato.
+
 - Preparazione campioni del test Android: passaggio tramite cartella temporanea e copia nella Download come shell, con SHA-256 verificato prima dell’avvio; nessun permesso aggiunto all’app. Prima CI interrotta su adb push, prova nativa non ancora riuscita.
 
 - Controllo risorse DMG: verifica dell’architettura del job singolo, mantenendo la richiesta di entrambi i DMG nel controllo predefinito.

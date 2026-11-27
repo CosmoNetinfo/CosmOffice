@@ -1,5 +1,9 @@
 # Stato delle verifiche e limiti
 
+## Seconda run Android: Home passa, DOCX incompleto — 27 novembre 2026
+
+Commit d3f9aef, [46012068702](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46012068702): staging/copia e SHA-256 passati, APK installato e avvio/permessi offline PASS. DOCX aperto e modificato, salvataggio arriva alla conferma, ma il test non trova il nome atteso per la riapertura. XLSX/PDF/MD/appunti non eseguiti in questa run. Artifact ispezionato: rapporto e lint presenti, screenshot assenti. Correzione del test: attendere DocumentsUI prima di cercare EditText, screenshot nei file privati con raccolta obbligatoria e lista Download. Nessun cambiamento al codice dell’app, nessun collaudo nativo completo dichiarato.
+
 ## Prima run Android: fallita nella preparazione — 27 novembre 2026
 
 [46009717455](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46009717455), commit 9421c6a355ccd335fcc1fe22ade4eed4de9a533b: build/lint/ispezione APK verdi; adb push in Download fallisce con Operation not permitted. Nessuna delle otto prove native avviata, nessun APK dichiarato collaudato. Variante di preparazione tramite staging e copia shell con confronto SHA-256; nessun controllo funzionale rimosso. Da verificare in CI. Hypervisor Windows presente ma HypervisorPlatform disabilitato: non attivato né modificato il PC.

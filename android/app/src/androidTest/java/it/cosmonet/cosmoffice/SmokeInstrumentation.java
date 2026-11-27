@@ -69,7 +69,13 @@ public final class SmokeInstrumentation extends Instrumentation {
     private AccessibilityNodeInfo node(String text, String className) throws Exception {
         long end = System.currentTimeMillis() + 30000;
         while (System.currentTimeMillis() < end) {
-            AccessibilityNodeInfo found = find(getUiAutomation().getRootInActiveWindow(), text, className);
+            AccessibilityNodeInfo root = getUiAutomation().getRootInActiveWindow();
+            String owner = root == null || root.getPackageName() == null ? "" : root.getPackageName().toString();
+            // Wait for the real system picker. The app also has EditText nodes (document title/cells).
+            if (!owner.equals("com.android.documentsui") && !owner.equals("com.google.android.documentsui")) {
+                Thread.sleep(200); continue;
+            }
+            AccessibilityNodeInfo found = find(root, text, className);
             if (found != null) return found;
             Thread.sleep(200);
         }
@@ -92,7 +98,7 @@ public final class SmokeInstrumentation extends Instrumentation {
     }
     private void screenshot(String name) throws Exception {
         Bitmap bitmap = getUiAutomation().takeScreenshot(); require(bitmap != null, "Screenshot non disponibile");
-        File directory = new File(getTargetContext().getExternalFilesDir(null), "smoke"); require(directory.exists() || directory.mkdirs(), "Cartella prove non disponibile");
+        File directory = new File(getTargetContext().getFilesDir(), "smoke"); require(directory.exists() || directory.mkdirs(), "Cartella prove non disponibile");
         try (FileOutputStream output = new FileOutputStream(new File(directory, name + ".png"))) { bitmap.compress(Bitmap.CompressFormat.PNG, 100, output); }
         bitmap.recycle();
     }

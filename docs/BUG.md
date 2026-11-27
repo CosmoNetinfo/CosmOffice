@@ -1,5 +1,11 @@
 # Registro dei bug CosmOffice
 
+## AND-005/006/007 — secondo collaudo Android
+
+- AND-005: **preparazione corretta e verificata** nella run 46012068702: i tre SHA-256 sono passati, APK installato e Home/permessi PASS. Non equivale al collaudo degli editor.
+- AND-006: il test non trova android-write-salvato.docx dopo il salvataggio. Nel codice, ricerca EditText non vincolata al selettore: può scegliere il titolo dell’app. Aggiunta attesa del pacchetto DocumentsUI; esito ancora da verificare, nessuna diagnosi di perdita dati affermata.
+- AND-007: artifact senza screenshot nonostante il salvataggio nella instrumentation. Raccolta spostata nei file interni dell’app e resa obbligatoria in caso di PASS; aggiunto elenco Download nel solo emulatore. Non ancora verificato nella CI.
+
 ## AND-005 — preparazione storage del runner
 
 CI Android [46009717455](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46009717455), commit 9421c6a: compilazione/lint/controllo APK passati, test fermato **prima dell’installazione** per adb push in Download: remote couldn't create file: Operation not permitted. Non prova un difetto degli editor né il loro funzionamento. Preparazione cambiata: staging in /data/local/tmp e copia tramite shell, SHA-256 prima dell’avvio; nessun root o permesso aggiunto all’app. Causa precisa del rifiuto adbd non dimostrata; correzione da verificare nella prossima run, non chiusa.
