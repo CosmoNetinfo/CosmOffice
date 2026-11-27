@@ -1,5 +1,9 @@
 # Stato delle ultime CI
 
+## f60184a — PDF Android passato, suite incompleta
+
+[Desktop 46061575262](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46061575262): sei lavori completed/success osservati. [Android 46061575296](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46061575296): tentativo 1 failure, ANR Pixel Launcher sopra il selettore; tentativo 2 failure al modello Markdown dopo Home/DOCX/XLSX/PDF PASS. Gli export veri superano SDK/lettori indipendenti, ma nessuna CI Android completa verde ancora osservata. Driver aggiornato sul titolo del modello, senza cambiare app o attese di salvataggio.
+
 ## effae92 — diagnosi PDF Android
 
 [Android 46059522929](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46059522929) failure: WebView 124.0.6367.219, URL.parse assente nel caricamento PDF. La causa è confermata dalla diagnostica sul campione originale, non dedotta dal timeout. Desktop [46059522912](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46059522912) tutti sei i lavori completed/success osservati, inclusa installazione/disinstallazione NSIS. Nel passo successivo distribuzione PDF.js legacy della stessa versione per il solo Android, con regressione browser separata e gli otto casi nativi sempre obbligatori.

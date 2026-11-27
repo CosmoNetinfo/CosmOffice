@@ -1,5 +1,13 @@
 # Registro dei bug CosmOffice
 
+## AND-012 — titolo del modello Markdown nel driver
+
+f60184a / [Android 46061575296, tentativo 2](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46061575296/attempts/2): Home, DOCX, XLSX e PDF round trip PASS; test fermato prima della creazione Markdown. Il pulsante contiene titolo «Nuovo Markdown» e didascalia «CosmoWrite · .md», mentre il driver confrontava tutto textContent con il solo titolo. Driver corretto: aria-label, altrimenti titolo strong, altrimenti testo completo; confronto sempre esatto. App invariata. Non ancora verificato nel nuovo smoke.
+
+AND-011 verificato sul PDF 01-testo.pdf: apertura/rendering, rotazione, salvataggio/riapertura nativi; pdfinfo 90° e confronto visivo pdftoppm PASS (differenza media sui pixel del contenuto 6.302, soglia esistente 25, allineamento -1/0). Altri campioni PDF non provati nell’APK. DOCX/XLSX della stessa run: SDK zero errori, Mammoth/ExcelJS confermano le modifiche.
+
+Primo tentativo f60184a: timeout del selettore perché un ANR «Pixel Launcher isn't responding» copriva DocumentsUI. Screenshot e file presenti verificati; secondo tentativo stesso codice senza nascondere l’ANR, avanzato fino al difetto del driver Markdown. Non attribuito a CosmOffice e non presentato come run verde.
+
 ## AND-011 — PDF rifiutato prima dell’apertura su Android
 
 Diagnosi effae92 / [46059522929](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46059522929): WebView 124.0.6367.219, `TypeError: URL.parse is not a function`. Build Android separata con distribuzione legacy di PDF.js 6.5.438 (stessa versione/motore), API e worker locali; compatibilità core-js MIT inclusa upstream e ora attribuita. Non chiuso finché rendering e round trip non passano nella CI. Nessuna modifica del motore desktop.

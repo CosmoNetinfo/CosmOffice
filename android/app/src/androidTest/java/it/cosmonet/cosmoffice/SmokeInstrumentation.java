@@ -52,8 +52,9 @@ public final class SmokeInstrumentation extends Instrumentation {
     }
     private void click(String label) throws Exception {
         String value = JSONObject.quote(label);
-        until("Array.from(document.querySelectorAll('button')).some(b=>(b.getAttribute('aria-label')||b.textContent.trim())===" + value + "&&!b.disabled)");
-        js("Array.from(document.querySelectorAll('button')).find(b=>(b.getAttribute('aria-label')||b.textContent.trim())===" + value + ").click()");
+        String title = "(b.getAttribute('aria-label')||b.querySelector('strong')?.textContent.trim()||b.textContent.trim())";
+        until("Array.from(document.querySelectorAll('button')).some(b=>" + title + "===" + value + "&&!b.disabled)");
+        js("Array.from(document.querySelectorAll('button')).find(b=>" + title + "===" + value + ").click()");
     }
     private void input(String label, String text) throws Exception {
         String q = "document.querySelector('[aria-label=\"" + label + "\"]')";

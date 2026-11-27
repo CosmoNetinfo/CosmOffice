@@ -2,6 +2,8 @@
 
 ## Android — 27 novembre 2026
 
+- **Provato in emulatore, f60184a tentativo 2**: anche PDF apertura/rendering/rotazione/salvataggio/riapertura; Poppler indipendente conserva il contenuto. DOCX/XLSX realmente esportati senza errori Open XML SDK. **In corso**: driver del pulsante Markdown, poi Informazioni/tema, appunti, rete e confronto finale degli originali.
+
 - **Provato in emulatore**: DOCX e XLSX round trip, verificati anche sui file esportati. **In corso**: PDF rifiutato su WebView 124 per URL.parse assente; build di compatibilità della stessa versione PDF.js, da collaudare. Nessun cambio di motore.
 
 - **Implementato, collaudo in corso**: APK nativo senza permessi Internet, asset offline, selettore di sistema e salvataggio di copie, 10 MB; stessi motori senza modifica.

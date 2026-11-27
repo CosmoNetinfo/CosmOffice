@@ -17,6 +17,8 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Corretto
 
+- Test nativo Android: riconoscimento del titolo dei pulsanti dei modelli separato dalla didascalia. PDF round trip passato nel secondo tentativo CI f60184a; DOCX/XLSX esportati senza errori SDK e PDF verificato con Poppler. Collaudo Markdown/appunti ancora aperto.
+
 - Build Android: distribuzione di compatibilità della stessa versione PDF.js, dopo errore confermato `URL.parse is not a function` su WebView 124. API e worker locali; core-js MIT attribuito integralmente. Collaudo PDF completo ancora da osservare, desktop e motori invariati.
 
 - Collaudo Android: Word e fogli di calcolo verificati anche sui file esportati, con Mammoth ed ExcelJS. Aggiunta diagnostica del solo campione PDF nel test nativo: l’apertura resta bloccata e non viene dichiarata funzionante.

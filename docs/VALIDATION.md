@@ -1,5 +1,9 @@
 # Stato delle verifiche e limiti
 
+## f60184a — PDF nativo e verifica degli export
+
+[Android 46061575296, tentativo 2](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46061575296/attempts/2): quattro casi PASS (Home/DOCX/XLSX/PDF), quinto fallito perché il selettore del pulsante Markdown non considera la didascalia. Artifact SHA-256 8135223feb397a7ae59ea24f0547d702952115923265d00148b3d28a04a1e9ce uguale a GitHub. Sui tre file effettivi: Mammoth testo aggiunto, ExcelJS B2=701/B3=2, Open XML SDK zero errori su entrambi; PDF-lib/pdfinfo 90°. Poppler pdftoppm e confronto visivo esistente PASS, differenza 6.302 <25. pdftotext locale assente, confronto testo non eseguito; usata la verifica visiva indipendente esistente. Tentativo 1 fallito per ANR Pixel Launcher sopra il selettore, screenshot verificato; nessuna prova saltata. [Desktop 46061575262](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46061575262): tutti sei i lavori completed/success, inclusa NSIS installata/disinstallata.
+
 ## Diagnosi PDF Android — effae92
 
 [CI Android 46059522929](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46059522929) failure: WebView 124.0.6367.219, `URL.parse is not a function`. Build separata con API/worker legacy della stessa PDF.js 6.5.438. Primo controllo sugli asset di produzione, togliendo URL.parse nativo: PDF renderizzato, ruotato, esportato e riaperto, rotazione 90 verificata e zero richieste esterne. Porta simulata, non è il collaudo APK. Nuovo smoke nativo ancora necessario. Fallimento intermedio test:browser documentato nel report: rigenerazione e modifica dei file durante l’esecuzione hanno ricaricato la pagina del corpus; nessun test indebolito, suite ripetuta a sorgenti fermi.
