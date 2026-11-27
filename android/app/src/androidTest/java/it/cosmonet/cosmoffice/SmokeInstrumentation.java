@@ -6,12 +6,9 @@ import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.view.InputDevice;
-import android.view.MotionEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.webkit.WebView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.File;
@@ -89,17 +86,9 @@ public final class SmokeInstrumentation extends Instrumentation {
         AccessibilityNodeInfo target = node(text, null);
         while (target != null && !target.isClickable()) target = target.getParent();
         require(target != null && target.isEnabled(), "Comando Android non attivabile: " + text);
-        Rect bounds = new Rect(); target.getBoundsInScreen(bounds);
-        require(!bounds.isEmpty(), "Controllo Android fuori schermo: " + text);
-        long time = SystemClock.uptimeMillis();
-        MotionEvent down = MotionEvent.obtain(time, time, MotionEvent.ACTION_DOWN, bounds.exactCenterX(), bounds.exactCenterY(), 0);
-        MotionEvent up = MotionEvent.obtain(time, time + 70, MotionEvent.ACTION_UP, bounds.exactCenterX(), bounds.exactCenterY(), 0);
-        down.setSource(InputDevice.SOURCE_TOUCHSCREEN); up.setSource(InputDevice.SOURCE_TOUCHSCREEN);
-        try {
-            require(getUiAutomation().injectInputEvent(down, true), "Tocco Android non ricevuto: " + text);
-            Thread.sleep(70);
-            require(getUiAutomation().injectInputEvent(up, true), "Rilascio Android non ricevuto: " + text);
-        } finally { down.recycle(); up.recycle(); }
+        // A picker can close before acknowledging ACTION_CLICK. The caller must
+        // verify the actual editor/export result; this return value is not success.
+        target.performAction(AccessibilityNodeInfo.ACTION_CLICK);
     }
     private void open(String file) throws Exception { click("Apri un file"); tap(file); }
     private void home() throws Exception { click("Torna alle bozze"); until("document.querySelector('h1')?.textContent==='Il tuo spazio di lavoro.'"); }
@@ -111,9 +100,22 @@ public final class SmokeInstrumentation extends Instrumentation {
         node(name, "android.widget.EditText");
         screenshot("selettore-salvataggio");
         tap("SAVE");
-        until("!document.querySelector('.busy')&&document.querySelector('.toast')?.textContent.includes('Copia esportata')");
+        until("!document.querySelector('.busy')&&document.querySelector('.toast')?.textContent.includes('Copia esportata')&&document.querySelector('.toast').textContent.includes(" + JSONObject.quote(name) + ")");
     }
     private void screenshot(String name) throws Exception {
+        getUiAutomation().waitForIdle(150, 5000);
+        CountDownLatch painted = new CountDownLatch(1);
+        runOnMainSync(() -> {
+            WebView view = activity.getWebView();
+            boolean external = name.equals("selettore-salvataggio") || name.equals("errore");
+            if (view == null || external && !activity.hasWindowFocus()) { painted.countDown(); return; }
+            view.postVisualStateCallback(System.nanoTime(), new WebView.VisualStateCallback() {
+                @Override public void onComplete(long request) {
+                    view.postOnAnimation(() -> view.postOnAnimation(painted::countDown));
+                }
+            });
+        });
+        require(painted.await(10, TimeUnit.SECONDS), "WebView non ha completato il frame della schermata");
         Bitmap bitmap = getUiAutomation().takeScreenshot(); require(bitmap != null, "Screenshot non disponibile");
         File directory = new File(getTargetContext().getFilesDir(), "smoke"); require(directory.exists() || directory.mkdirs(), "Cartella prove non disponibile");
         try (FileOutputStream output = new FileOutputStream(new File(directory, name + ".png"))) { bitmap.compress(Bitmap.CompressFormat.PNG, 100, output); }

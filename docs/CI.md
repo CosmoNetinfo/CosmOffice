@@ -1,5 +1,9 @@
 # Stato delle ultime CI
 
+## f48c5b9 — esiti osservati
+
+[Desktop 46051701838](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46051701838): tutti sei i lavori success, compresa NSIS installata/disinstallata. [Android 46051701831](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46051701831): failure durante l’apertura DOCX; il nuovo tocco del driver non apre il documento. Ripristino dell’azione di accessibilità e verifica sul risultato reale in corso; APK non collaudato completamente.
+
 ## Stato osservato dopo la ripresa — 27 novembre 2026
 
 - 427942b: [desktop 46016839517](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46016839517), tutti sei success inclusa NSIS; [Android 46016839526](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46016839526), failure su azione SAVE del test, storage/Home e screenshot provati.

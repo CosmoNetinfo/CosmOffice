@@ -1,5 +1,11 @@
 # Registro dei bug CosmOffice
 
+## AND-009 — regressione del driver a coordinate
+
+[f48c5b9 / Android 46051701831](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46051701831): Home/permessi passati, DOCX non aperto; screenshot mostra ancora DocumentsUI con i tre campioni. Il tocco a coordinate introdotto nel driver ha peggiorato il test, non è una correzione dell’app. Ripristinata ACTION_CLICK sul selettore reale, con controllo degli esiti effettivi. Il booleano restituito da un controllo che si chiude non determina PASS: servono export con nome esatto, riapertura e confronti di byte.
+
+Home PNG di questa run troppo precoce: DOM presente ma immagine bianca. Aggiunta attesa di stato visivo WebView e due frame prima delle catture dell’app; per il selettore si attende l’idle nativo. Da verificare nella prossima run. Nessuna immagine vuota usata come anteprima pubblica.
+
 ## AND-005/007 verificati nel quarto tentativo; AND-008 aperto
 
 Run [46016839526](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46016839526), commit 427942b: storage pronto al secondo tentativo in 1658 ms dopo un primo rifiuto reale; campioni SHA-256 e avvio passati. Artifact con Home/Write/errore PNG: recupero screenshot verificato. Non è un collaudo completo degli editor.

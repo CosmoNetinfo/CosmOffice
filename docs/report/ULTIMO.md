@@ -1,32 +1,19 @@
-# Test Android: tocco reale nel selettore
+# Android: verificare gli esiti del selettore e il disegno delle schermate
 
 ## 1. Obiettivo
 
-Correggere la guida del selettore Android senza simulare salvataggio e riapertura. Il collaudo precedente resta fallito: APK non dichiarato pronto per il telefono.
+Correggere la regressione introdotta nel driver del test e fotografare l’app solo dopo il disegno. Nessuna dichiarazione di salvataggio riuscito senza riapertura e confronto dei file.
 
 ## 2. Cosa hai fatto
 
-- SmokeInstrumentation.java: ricerca di controlli visibili/abilitati nel pacchetto DocumentsUI, conferma del nome inserito, screenshot del selettore, tocco tramite MotionEvent/UiAutomation invece dell’azione di accessibilità ACTION_CLICK.
-- scripts/android-smoke.mjs: raccolta anche dello screenshot del selettore; restano obbligatorie le sette schermate e tutte le verifiche sui file esportati e originali.
-- CHANGELOG.md, docs/BUG.md, VALIDATION.md, CI.md, questo report e ULTIMO.md. Nessuna nuova libreria o licenza; notices rigenerati invariati.
-- Non toccati: src/, electron/, codice/resources dell’app Android, motori, impostazioni aggiornamenti desktop, LICENSE, pacchetti pubblici o tag. Firma privata e APK locale invariati.
+- SmokeInstrumentation.java: ripristinate azioni di accessibilità sul vero DocumentsUI; il tocco a coordinate aggiunto nel passo precedente non selezionava il file in questo layout. È una regressione del mio test, non una modifica dell’app.
+- Il booleano immediato di ACTION_CLICK non determina il successo: dopo l’attivazione il test deve vedere editor o conferma di export con **nome esatto**, poi riaprire il file. Tutti i confronti finali restano obbligatori; nessun output atteso scritto dal test al posto dell’app.
+- Screenshot: idle nativo, VisualStateCallback WebView e due frame per le schermate dell’app; catture del selettore diagnostiche. La Home bianca osservata non viene pubblicata come anteprima.
+- CHANGELOG.md, docs/BUG.md, VALIDATION.md, CI.md, report e ULTIMO.md aggiornati. Nessuna modifica a src/, electron/, app Android/main/resources, motori, licenze, versione, chiave o Release. Nessuna dipendenza aggiunta; notices rigenerati invariati.
 
 ## 3. Esiti reali di build e test
 
-Commit 427942bf689be5b1cb9ecfa4805cc962ff1559e2: [desktop 46016839517](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46016839517), **sei lavori success osservati**, inclusa NSIS installata/disinstallata nel runner. [Android 46016839526](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46016839526), **failure** sul ritorno dell’azione SAVE, non sul confronto dei file (non raggiunto).
-
-La scrittura di prova ha realmente fallito una volta, poi è riuscita al secondo tentativo; successivamente i tre SHA dei campioni e Home/permessi sono passati. Dato reale:
-
-```json
-{
-  "ready": true,
-  "attempts": 2,
-  "ms": 1658,
-  "lastError": "/system/bin/sh: can't create /sdcard/Download/cosmoffice-storage-probe.docx: Operation not permitted\n"
-}
-```
-
-Estratto reale della instrumentation:
+[f48c5b9 / Android 46051701831](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46051701831): **failure**, primo DOCX non raggiunge document-page. Screenshot errore letto: DocumentsUI ancora aperto con i tre campioni; il tocco non ha attivato l’apertura. Home PNG letto: immagine bianca, pur con DOM disponibile. Quella cattura non prova la resa visiva della Home. Estratto reale:
 
 ```text
 INSTRUMENTATION_STATUS: class=it.cosmonet.cosmoffice.SmokeInstrumentation
@@ -51,22 +38,22 @@ INSTRUMENTATION_STATUS: class=it.cosmonet.cosmoffice.SmokeInstrumentation
 INSTRUMENTATION_STATUS: current=2
 INSTRUMENTATION_STATUS: id=CosmOfficeAndroid
 INSTRUMENTATION_STATUS: numtests=8
-INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Comando Android non attivabile: SAVE
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Attesa scaduta: document.querySelector('.document-page')
 INSTRUMENTATION_STATUS: test=DOCX apri modifica salva riapri
 INSTRUMENTATION_STATUS_CODE: -2
 INSTRUMENTATION_RESULT: cosmoffice=FAIL
 INSTRUMENTATION_RESULT: stream=
-FAIL Android: java.lang.AssertionError: Comando Android non attivabile: SAVE
+FAIL Android: java.lang.AssertionError: Attesa scaduta: document.querySelector('.document-page')
 
 INSTRUMENTATION_CODE: -1
 
 ```
 
-Artifact verificato SHA-256 72052f4532df1f675f262a111dbc477b5b7a5e61941980255ed6f3ee7ed92e8f, uguale a GitHub: Home, Write ed errore PNG presenti. Screenshot errore letto: dialogo già scomparso e app in elaborazione. Questo suggerisce un problema dell’acknowledgement del test o del momento del click, ma **non dimostra ancora un salvataggio riuscito**. Elenco Download contiene soltanto i tre originali; la prova è stata interrotta prima di attendere il risultato.
+Artifact ZIP SHA-256 4dc480a9164ab29c6cf467e8f412b897e421182ed6542258582e9ab83f137210 confrontato e coincidente con GitHub. File presenti: log, readiness, Downloads, Home/errore PNG, lint; niente screenshot Word in questa run.
 
-Storico CI: 9421c6a desktop 46009717586 e d3f9aef desktop 46012068280 osservate con tutti sei lavori success. a57fed7 desktop 46014692885 osservata cancelled dopo il push seguente, non verde; Android 46014692576 failure prima dell’installazione. Fallimenti conservati nei report precedenti.
+[Desktop dello stesso commit 46051701838](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46051701838): **sei lavori completed/success osservati**, inclusa NSIS installata/disinstallata nel runner. Anche 427942b/46016839517, d3f9aef/46012068280 e 9421c6a/46009717586 osservati con sei success. a57fed7 desktop 46014692885 cancelled, non verde.
 
-**16 controlli locali tutti exit 0**, 75 test unitari passati, più build Android/lint. Output integrali (ANSI, percorsi personali e spazi finali normalizzati):
+Nuovo passo: **16 controlli locali tutti exit 0**, 75 test unitari passati, più Gradle/lint Android. Questa correzione del driver deve ancora passare nella CI. Output integrali sotto (ANSI, percorsi personali e spazi finali normalizzati).
 
 ### Gradle APK debug/test/release e lint — exit 0
 
@@ -89,41 +76,33 @@ WARNING: platform-tools package is not installed. Please accept the installation
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
 > Task :app:packageDebugResources
-> Task :app:mergeDebugResources
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug
+> Task :app:mergeDebugResources
 > Task :app:parseDebugLocalResources
 > Task :app:processDebugMainManifest
 > Task :app:processDebugManifest
 > Task :app:mergeDebugShaders
-> Task :app:processDebugManifestForPackage
 > Task :app:compileDebugShaders NO-SOURCE
 > Task :app:generateDebugAssets UP-TO-DATE
 > Task :app:mergeDebugAssets
 > Task :app:desugarDebugFileDependencies
 > Task :app:processDebugJavaRes NO-SOURCE
 > Task :app:checkDebugDuplicateClasses
+> Task :app:processDebugManifestForPackage
+> Task :app:compressDebugAssets
+> Task :app:mergeDebugJavaResource
 > Task :app:mergeDebugJniLibFolders
 > Task :app:mergeDebugNativeLibs NO-SOURCE
 > Task :app:stripDebugDebugSymbols NO-SOURCE
 > Task :app:mergeExtDexDebug
 > Task :app:mergeLibDexDebug
-> Task :app:processDebugResources
-> Task :app:mergeDebugJavaResource
-> Task :app:compressDebugAssets
 > Task :app:validateSigningDebug
-
-> Task :app:compileDebugJavaWithJavac
-
-> Task :app:dexBuilderDebug
-> Task :app:mergeDebugGlobalSynthetics
 > Task :app:writeDebugAppMetadata
 > Task :app:writeDebugSigningConfigVersions
 > Task :app:preDebugAndroidTestBuild SKIPPED
 > Task :app:processDebugAndroidTestManifest
-> Task :app:mergeProjectDexDebug
 > Task :app:generateDebugAndroidTestBuildConfig
-> Task :app:bundleDebugClassesToCompileJar
 > Task :app:javaPreCompileDebugAndroidTest
 > Task :app:checkDebugAndroidTestAarMetadata
 > Task :app:processDebugAndroidTestNavigationResources
@@ -136,12 +115,19 @@ WARNING: platform-tools package is not installed. Please accept the installation
 > Task :app:compileDebugAndroidTestShaders NO-SOURCE
 > Task :app:generateDebugAndroidTestAssets UP-TO-DATE
 > Task :app:mergeDebugAndroidTestAssets
+> Task :app:processDebugResources
+> Task :app:compressDebugAndroidTestAssets
+> Task :app:processDebugAndroidTestResources
+
+> Task :app:compileDebugJavaWithJavac
+
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugGlobalSynthetics
 > Task :app:desugarDebugAndroidTestFileDependencies
 > Task :app:processDebugAndroidTestJavaRes NO-SOURCE
 > Task :app:checkDebugAndroidTestDuplicateClasses
-> Task :app:compressDebugAndroidTestAssets
-> Task :app:mergeDebugAndroidTestJniLibFolders
 > Task :app:mergeDebugAndroidTestJavaResource
+> Task :app:mergeDebugAndroidTestJniLibFolders
 > Task :app:mergeExtDexDebugAndroidTest
 > Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
 > Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
@@ -158,50 +144,43 @@ WARNING: platform-tools package is not installed. Please accept the installation
 > Task :app:generateReleaseBuildConfig
 > Task :app:javaPreCompileRelease
 > Task :app:checkReleaseAarMetadata
+> Task :app:mergeProjectDexDebug
+> Task :app:bundleDebugClassesToCompileJar
 > Task :app:processReleaseNavigationResources
-> Task :app:compileReleaseNavigationResources
-> Task :app:generateReleaseResValues
-> Task :app:mapReleaseSourceSetPaths
-> Task :app:generateReleaseResources
-> Task :app:packageReleaseResources
-> Task :app:createReleaseCompatibleScreenManifests
-> Task :app:extractDeepLinksRelease
-> Task :app:parseReleaseLocalResources
-> Task :app:processDebugAndroidTestResources
-> Task :app:processReleaseMainManifest
-> Task :app:mergeReleaseResources
 > Task :app:compileDebugAndroidTestJavaWithJavac
 > Task :app:dexBuilderDebugAndroidTest
 > Task :app:mergeDebugAndroidTestGlobalSynthetics
 > Task :app:packageDebug
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
+> Task :app:compileReleaseNavigationResources
+> Task :app:generateReleaseResValues
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseResources
+> Task :app:mergeProjectDexDebugAndroidTest
+> Task :app:packageReleaseResources
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :app:mergeReleaseResources
+> Task :app:processReleaseMainManifest
+> Task :app:parseReleaseLocalResources
 > Task :app:processReleaseManifest
 > Task :app:desugarReleaseFileDependencies
 > Task :app:mergeReleaseStartupProfile UP-TO-DATE
 > Task :app:mergeExtDexRelease
 > Task :app:mergeReleaseArtProfile UP-TO-DATE
-> Task :app:mergeProjectDexDebugAndroidTest
 > Task :app:mergeReleaseShaders
 > Task :app:compileReleaseShaders NO-SOURCE
 > Task :app:generateReleaseAssets UP-TO-DATE
 > Task :app:mergeReleaseAssets
-> Task :app:processReleaseManifestForPackage
-> Task :app:processReleaseResources
 > Task :app:extractReleaseVersionControlInfo
-
-> Task :app:compileReleaseJavaWithJavac
-
-> Task :app:compressReleaseAssets
-> Task :app:dexBuilderRelease
-> Task :app:mergeReleaseGlobalSynthetics
 > Task :app:extractProguardFiles
-> Task :app:mergeDexRelease
-> Task :app:generateReleaseLintVitalReportModel
-> Task :app:compileReleaseArtProfile
 > Task :app:processReleaseJavaRes NO-SOURCE
-> Task :app:mergeReleaseJavaResource
+> Task :app:packageDebugAndroidTest
+> Task :app:createDebugAndroidTestApkListingFileRedirect
+> Task :app:assembleDebugAndroidTest
 > Task :app:collectReleaseDependencies
+> Task :app:mergeReleaseJavaResource
 > Task :app:sdkReleaseDependencyData
 > Task :app:writeReleaseAppMetadata
 > Task :app:writeReleaseSigningConfigVersions
@@ -209,19 +188,27 @@ WARNING: platform-tools package is not installed. Please accept the installation
 > Task :app:generateDebugLintReportModel
 > Task :app:preDebugUnitTestBuild UP-TO-DATE
 > Task :app:generateDebugUnitTestLintModel
-> Task :app:packageDebugAndroidTest
-> Task :app:createDebugAndroidTestApkListingFileRedirect
-> Task :app:assembleDebugAndroidTest
+> Task :app:processReleaseManifestForPackage
+> Task :app:processReleaseResources
+> Task :app:compressReleaseAssets
+
+> Task :app:compileReleaseJavaWithJavac
+
+> Task :app:dexBuilderRelease
+> Task :app:mergeReleaseGlobalSynthetics
+> Task :app:generateReleaseLintVitalReportModel
+> Task :app:mergeDexRelease
+> Task :app:compileReleaseArtProfile
 > Task :app:optimizeReleaseResources
 > Task :app:lintAnalyzeDebugUnitTest
 > Task :app:lintAnalyzeDebugAndroidTest
 > Task :app:lintVitalAnalyzeRelease
 > Task :app:lintVitalReportRelease
 > Task :app:lintVitalRelease
+> Task :app:lintAnalyzeDebug
 > Task :app:packageRelease
 > Task :app:createReleaseApkListingFileRedirect
 > Task :app:assembleRelease
-> Task :app:lintAnalyzeDebug
 
 > Task :app:lintReportDebug
 Wrote HTML report to file:///<progetto>/android/app/build/reports/lint-results-debug.html
@@ -236,7 +223,7 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.13/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 54s
+BUILD SUCCESSFUL in 21s
 118 actionable tasks: 116 executed, 2 up-to-date
 Note: <progetto>\android\app\src\main\java\it\cosmonet\cosmoffice\MainActivity.java uses or overrides a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
@@ -286,7 +273,7 @@ dist/assets/index-C2WGQL4F.js             2,324.24 kB │ gzip: 697.27 kB
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 1.44s
+✓ built in 1.12s
 ```
 
 ### npm test — exit 0
@@ -296,82 +283,82 @@ dist/assets/index-C2WGQL4F.js             2,324.24 kB │ gzip: 697.27 kB
 > cosmoffice@0.2.3 test
 > node --test tests/*.test.mjs
 
-✔ Ponte Android: byte binari e UTF-8 conservati, file vuoto e limite verificati (12.6722ms)
-✔ Android: nessun permesso Internet, storage esteso o installazione pacchetti (3.7876ms)
-✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (83.2072ms)
-✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (79.4553ms)
-✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (127.7664ms)
-✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (189.6473ms)
-✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (23.1666ms)
-✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (30.8753ms)
-✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (25.7852ms)
-✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (21.1441ms)
-✔ Diagnostica: messaggi, nomi e percorsi arbitrari non entrano negli eventi (6.3546ms)
-✔ Diagnostica: il contesto ammette solo valori controllati, nessun campo libero (0.9032ms)
+✔ Ponte Android: byte binari e UTF-8 conservati, file vuoto e limite verificati (12.909ms)
+✔ Android: nessun permesso Internet, storage esteso o installazione pacchetti (4.1688ms)
+✔ Anteprima precedente: categorie diverse conservate, sola copia originale e foglio tecnico intatto (71.1124ms)
+✔ Nuovi grafici: categorie da celle vere, nessun foglio nascosto, metadati v2 e riapertura (69.2409ms)
+✔ Export grafici: pagina orizzontale e adattamento alla larghezza senza mutare l’originale (119.4082ms)
+✔ Grafici barre, linee e torta: dati vivi e parti native XLSX riaperte (171.7571ms)
+✔ Grafici esterni senza metadati verificabili: blocco export e originale conservato (27.3017ms)
+✔ Grafici e immagini condividono il disegno; titoli ed etichette XML sono escapati (35.1497ms)
+✔ Formule, più serie, vuoti e rinomina foglio restano collegati ai grafici (38.5901ms)
+✔ Disegno del grafico precede le tabelle secondo l’ordine OOXML (24.4875ms)
+✔ Diagnostica: messaggi, nomi e percorsi arbitrari non entrano negli eventi (5.9616ms)
+✔ Diagnostica: il contesto ammette solo valori controllati, nessun campo libero (0.7319ms)
 Rapporto con 50 eventi e ultima traccia: 4931 byte UTF-8 (limite 6144).
-✔ Registro locale: ultimi 50, persistenza sicura, riapertura e svuotamento (48.0333ms)
-✔ Registro non scrivibile: memoria disponibile e svuotamento non dichiarato riuscito (4.5409ms)
-✔ DOCX exports real text, bold marks and tables readable by another parser (112.5778ms)
-✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (95.3126ms)
-✔ unknown formulas retain their source without exporting a misleading cached number (14.7837ms)
-✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (4.5093ms)
-✔ cross-sheet formulas survive XLSX round trips and get calculated results (18.2134ms)
-✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (10.1741ms)
-✔ landscape DOCX uses a physically wider page with matching orientation (10.4555ms)
-✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (11.0048ms)
-✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (194.4811ms)
-✔ references, arithmetic, precedence and percentages (4.4775ms)
-✔ Italian aliases, absolute references, text and lazy IF (0.9323ms)
-✔ cycles, division by zero and unknown functions are visible and propagated (0.7749ms)
-✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (1.6721ms)
-✔ Excel address limits and column naming (3.1379ms)
-✔ conditional sums, lookups, text, dates and error handling (4.489ms)
-✔ quoted sheet names, absolute references and cycles across sheets (0.5395ms)
-✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.4044ms)
-✔ literal text resembling errors stays text while actual formula errors propagate (0.9793ms)
-✔ empty strings, blank cells and boolean predicates retain their separate types (1.8463ms)
-✔ Prova guidata: otto sole scelte controllate, nessun campo o valore libero (2.5168ms)
-✔ Markdown UTF-8 conserva BOM, CRLF, accenti e sintassi non interpretata (2.1993ms)
-✔ Markdown rifiuta UTF-8 invalido senza sostituire caratteri (0.8197ms)
-✔ Il processo principale carica l’interfaccia locale e non usa API di rete dirette (10.7708ms)
-✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (264.6905ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (34.3679ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (9.9693ms)
-✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (116.1988ms)
-✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (18.6926ms)
-✔ Release corrente: note complete per la versione realmente distribuita (10.4807ms)
-✔ Mac: anteprima senza identità, firma forzata o notarizzazione (6.097ms)
-✔ Release: completa Linux preservando Windows e rifiuta AppImage con nome inatteso (77.5876ms)
-✔ Release: note dal CHANGELOG e piattaforma mancante dichiarata, senza prerelease (1.8414ms)
-✔ Release: hash reali e pubblicazione soltanto dopo upload, nessun certificato necessario (48.2885ms)
-✔ Excel exports do not mutate the open workbook, even when exported concurrently (132.2159ms)
-✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (51.1661ms)
-✔ damaged files and mismatched Office extensions are rejected before import (11.8346ms)
-✔ unsupported parts produce specific warnings without changing the original file (38.3089ms)
-✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (12.7848ms)
-✔ XLSX caches keep literal error-like strings separate from actual error cells (12.5063ms)
-✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (872.1983ms)
-✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1868.5496ms)
-✔ TLS Node spento o URL iniziale estraneo: nessun worker, nessuna connessione (3.949ms)
-✔ TLS Node: certificato obbligatorio, intestazioni minime e CDN del solo repository (6.0706ms)
-✔ TLS Node: redirect ad altro host, HTTP o repository CDN bloccato prima del contatto (1.9085ms)
-✔ TLS Node: errore di certificato senza fallback (0.7552ms)
-✔ TLS Node: limite dei byte, originale preesistente preservato e parziale rimosso (20.4339ms)
-✔ TLS Node: disattivazione termina il worker e pulisce il temporaneo posseduto (3.5901ms)
-✔ Profilo nuovo e vecchia preferenza attivo: nessuna richiesta all’avvio e default spento (126.8878ms)
-✔ Un clic manuale, duplicati accorpati, rete spenta al termine senza abilitare i periodici (3.325ms)
-✔ Annullamento durante il controllo: risposta tardiva ignorata e trasporto chiuso (1.8964ms)
-✔ Periodici soltanto dopo consenso esplicito: abilitare non esegue un controllo immediato (151.7173ms)
-✔ Aggiornamenti: URL limitati al repository, rifiuto di credenziali, altri host e percorsi (2.1618ms)
-✔ Aggiornamenti: elenco SHA-256 rigoroso e confronto semantico delle versioni (0.9868ms)
-✔ Mac: notifica senza download del DMG; preferenza disattivata senza richieste (16.5978ms)
-✔ Windows: download verificato, installer alterato respinto prima dell’esecuzione (27.9077ms)
-✔ SHA errato: nessun installer pronto, nessun temporaneo e nessuna esecuzione (6.0375ms)
-✔ Disattivazione durante il controllo: risposta tardiva ignorata, nessun download (3.6018ms)
-✔ AppImage: sostituzione verificata; un documento con estensione AppImage rimane intatto (18.1635ms)
-✔ Installer Windows: interattivo dopo consenso, nessuna shell né opzione silenziosa (0.6887ms)
-✔ AppImage: solo la propria APPDIR, mai APPIMAGE ereditata da un altro programma (30.8492ms)
-✔ Disattivazione senza disco scrivibile: rete spenta subito e avviso di mancato salvataggio (5.3897ms)
+✔ Registro locale: ultimi 50, persistenza sicura, riapertura e svuotamento (39.1753ms)
+✔ Registro non scrivibile: memoria disponibile e svuotamento non dichiarato riuscito (4.7771ms)
+✔ DOCX exports real text, bold marks and tables readable by another parser (100.2912ms)
+✔ XLSX round trip retains sheets, styles, references and cells outside the UI viewport (77.3423ms)
+✔ unknown formulas retain their source without exporting a misleading cached number (13.1034ms)
+✔ CSV and TSV preserve quotes, multiline text, identifiers and decimal commas (3.9938ms)
+✔ cross-sheet formulas survive XLSX round trips and get calculated results (15.8569ms)
+✔ DOCX retains fonts, colours, sizes, page format and margins in OOXML (13.4494ms)
+✔ landscape DOCX uses a physically wider page with matching orientation (9.7031ms)
+✔ Italian formulas are saved in invariant XLSX syntax without losing absolute references (12.5713ms)
+✔ Il corpus contiene 5 DOCX, 5 XLSX e 3 PDF immutati (153.1637ms)
+✔ references, arithmetic, precedence and percentages (4.4572ms)
+✔ Italian aliases, absolute references, text and lazy IF (1.1533ms)
+✔ cycles, division by zero and unknown functions are visible and propagated (0.7506ms)
+✔ untrusted formulas cannot evaluate JavaScript, links or unlimited ranges (0.6587ms)
+✔ Excel address limits and column naming (1.2232ms)
+✔ conditional sums, lookups, text, dates and error handling (4.2049ms)
+✔ quoted sheet names, absolute references and cycles across sheets (0.517ms)
+✔ Italian decimal commas and separators coexist with invariant XLSX formula syntax (0.3644ms)
+✔ literal text resembling errors stays text while actual formula errors propagate (0.9031ms)
+✔ empty strings, blank cells and boolean predicates retain their separate types (0.986ms)
+✔ Prova guidata: otto sole scelte controllate, nessun campo o valore libero (2.2275ms)
+✔ Markdown UTF-8 conserva BOM, CRLF, accenti e sintassi non interpretata (2.2584ms)
+✔ Markdown rifiuta UTF-8 invalido senza sostituire caratteri (0.8358ms)
+✔ Il processo principale carica l’interfaccia locale e non usa API di rete dirette (8.5871ms)
+✔ Le API Node ed Electron sono bloccate prima di poter aprire connessioni (234.4772ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 01-testo.pdf (39.8566ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 02-scansione.pdf (9.8976ms)
+✔ Rotazione PDF conserva pagine e flussi originali: 03-venti-pagine.pdf (90.0522ms)
+✔ Rotazione rifiuta pagina inesistente, dati corrotti e marcatori di firma senza cambiare il sorgente (17.9429ms)
+✔ Release corrente: note complete per la versione realmente distribuita (9.2916ms)
+✔ Mac: anteprima senza identità, firma forzata o notarizzazione (3.2327ms)
+✔ Release: completa Linux preservando Windows e rifiuta AppImage con nome inatteso (56.0803ms)
+✔ Release: note dal CHANGELOG e piattaforma mancante dichiarata, senza prerelease (0.9512ms)
+✔ Release: hash reali e pubblicazione soltanto dopo upload, nessun certificato necessario (37.1903ms)
+✔ Excel exports do not mutate the open workbook, even when exported concurrently (114.0806ms)
+✔ shared formulas, dates, merges, links and embedded images survive the Excel working copy (38.5758ms)
+✔ damaged files and mismatched Office extensions are rejected before import (8.9184ms)
+✔ unsupported parts produce specific warnings without changing the original file (31.9099ms)
+✔ identifiers retain leading zeroes and all digits through typing, paste and XLSX export (14.5538ms)
+✔ XLSX caches keep literal error-like strings separate from actual error cells (14.9831ms)
+✔ Italiano incluso: forme flesse, accenti, elisioni ed errori distinti (837.3666ms)
+✔ Dizionario personale separato, validato e rimuovibile senza alterare il lessico (1797.5916ms)
+✔ TLS Node spento o URL iniziale estraneo: nessun worker, nessuna connessione (3.0753ms)
+✔ TLS Node: certificato obbligatorio, intestazioni minime e CDN del solo repository (4.6931ms)
+✔ TLS Node: redirect ad altro host, HTTP o repository CDN bloccato prima del contatto (1.8429ms)
+✔ TLS Node: errore di certificato senza fallback (0.6214ms)
+✔ TLS Node: limite dei byte, originale preesistente preservato e parziale rimosso (19.2127ms)
+✔ TLS Node: disattivazione termina il worker e pulisce il temporaneo posseduto (3.2755ms)
+✔ Profilo nuovo e vecchia preferenza attivo: nessuna richiesta all’avvio e default spento (122.6092ms)
+✔ Un clic manuale, duplicati accorpati, rete spenta al termine senza abilitare i periodici (3.1231ms)
+✔ Annullamento durante il controllo: risposta tardiva ignorata e trasporto chiuso (1.7812ms)
+✔ Periodici soltanto dopo consenso esplicito: abilitare non esegue un controllo immediato (150.8132ms)
+✔ Aggiornamenti: URL limitati al repository, rifiuto di credenziali, altri host e percorsi (2.3175ms)
+✔ Aggiornamenti: elenco SHA-256 rigoroso e confronto semantico delle versioni (1.1053ms)
+✔ Mac: notifica senza download del DMG; preferenza disattivata senza richieste (15.4708ms)
+✔ Windows: download verificato, installer alterato respinto prima dell’esecuzione (21.7033ms)
+✔ SHA errato: nessun installer pronto, nessun temporaneo e nessuna esecuzione (5.1642ms)
+✔ Disattivazione durante il controllo: risposta tardiva ignorata, nessun download (3.2183ms)
+✔ AppImage: sostituzione verificata; un documento con estensione AppImage rimane intatto (19.1757ms)
+✔ Installer Windows: interattivo dopo consenso, nessuna shell né opzione silenziosa (0.6084ms)
+✔ AppImage: solo la propria APPDIR, mai APPIMAGE ereditata da un altro programma (27.5266ms)
+✔ Disattivazione senza disco scrivibile: rete spenta subito e avviso di mancato salvataggio (4.1418ms)
 ℹ tests 75
 ℹ suites 0
 ℹ pass 75
@@ -379,7 +366,7 @@ Rapporto con 50 eventi e ultima traccia: 4931 byte UTF-8 (limite 6144).
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 3602.7752
+ℹ duration_ms 3087.5079
 ```
 
 ### npm run test:browser — exit 0
@@ -418,7 +405,7 @@ Rapporto con 50 eventi e ultima traccia: 4931 byte UTF-8 (limite 6144).
   ],
   "errors": []
 }
-19:34:36 [vite] (client) [console.warn] Warning: Indexing all PDF objects
+19:52:19 [vite] (client) [console.warn] Warning: Indexing all PDF objects
 {
   "result": "PASS",
   "scenarios": [
@@ -448,7 +435,7 @@ PASS grafici: categorie nelle celle, nuovi XLSX senza fogli nascosti, dati aggio
 PASS prova guidata nel browser: 24 radio, rapporto aggiornato e schermata acquisita.
 PASS Informazioni browser: versione 0.2.3, testi uguali ai file locali, attribuzioni, migrazione vecchio attivo e nessuna richiesta esterna.
 PASS Markdown browser: creazione, apertura UTF-8/BOM/CRLF, modifica, export identico, riapertura dopo ricarica, backup, vuoto, HTML ostile, file grande, 390px, nessuna rete esterna.
-19:36:37 [vite] (client) [Unhandled error] TypeError: CONTENUTO_PRIVATO_ANDROID
+19:54:17 [vite] (client) [Unhandled error] TypeError: CONTENUTO_PRIVATO_ANDROID
 
 PASS frontend Android con ponte simulato: bytes, apertura DOCX, Markdown, ritorno alle bozze, tema sistema, impostazioni offline, rapporto sicuro persistente e copia. Questa prova NON è il collaudo dell’APK.
 ```
@@ -473,7 +460,7 @@ Compilazione completata.
     Avvisi: 2
     Errori: 0
 
-Tempo trascorso 00:00:05.00
+Tempo trascorso 00:00:02.60
 PASS <progetto>\test-results\corpus\01-testo-stili.docx: 0 errori Open XML SDK
 PASS <progetto>\test-results\corpus\02-tabella.docx: 0 errori Open XML SDK
 PASS <progetto>\test-results\corpus\03-immagine.docx: 0 errori Open XML SDK
@@ -509,6 +496,49 @@ PASS rapporto tester: errori renderer/promise/main, privacy, menu e impostazioni
 
 ```text
 PASS prova guidata: 8 prove, 24 radio, nessun campo libero, esiti persistenti, otto righe iniziali, clipboard reale, valori arbitrari esclusi e nessuna rete.
+```
+
+### node scripts/legal-smoke.mjs --package — exit 0
+
+```text
+PASS Informazioni pacchetto: file locali identici, attribuzioni, percorso arbitrario respinto e zero richieste Node.
+```
+
+### node scripts/package-resources-check.mjs — exit 0
+
+```text
+{
+  "result": "PASS",
+  "checked": [
+    {
+      "package": "CosmOffice-0.2.3-win-x64-Setup.exe",
+      "version": "0.2.3",
+      "hashes": {
+        "LICENSE": "f2649c4c63c51b60799de533efbc3c09a71639df963f677492bbe5e865f9006f",
+        "THIRD_PARTY_NOTICES.txt": "8e5674f231a242ced415f0bdd5589f8a0abe2960ae0eeefbb8f3946a9ba5d6db"
+      },
+      "resources": "LICENSE e THIRD_PARTY_NOTICES.txt identici ai sorgenti",
+      "asarLicense": true
+    }
+  ],
+  "installed": false
+}
+```
+
+### node test-results/android/yaml-check.mjs — exit 0
+
+```text
+PASS YAML: android.yml
+PASS YAML: build.yml
+PASS YAML: release-linux.yml
+PASS YAML: release-mac.yml
+PASS YAML: release.yml
+```
+
+### node --check scripts/android-smoke.mjs — exit 0
+
+```text
+
 ```
 
 ### node scripts/update-network-smoke.mjs — exit 0
@@ -656,49 +686,6 @@ PASS prova guidata: 8 prove, 24 radio, nessun campo libero, esiti persistenti, o
   ],
   "errors": []
 }
-```
-
-### node scripts/legal-smoke.mjs --package — exit 0
-
-```text
-PASS Informazioni pacchetto: file locali identici, attribuzioni, percorso arbitrario respinto e zero richieste Node.
-```
-
-### node scripts/package-resources-check.mjs — exit 0
-
-```text
-{
-  "result": "PASS",
-  "checked": [
-    {
-      "package": "CosmOffice-0.2.3-win-x64-Setup.exe",
-      "version": "0.2.3",
-      "hashes": {
-        "LICENSE": "f2649c4c63c51b60799de533efbc3c09a71639df963f677492bbe5e865f9006f",
-        "THIRD_PARTY_NOTICES.txt": "8e5674f231a242ced415f0bdd5589f8a0abe2960ae0eeefbb8f3946a9ba5d6db"
-      },
-      "resources": "LICENSE e THIRD_PARTY_NOTICES.txt identici ai sorgenti",
-      "asarLicense": true
-    }
-  ],
-  "installed": false
-}
-```
-
-### node test-results/android/yaml-check.mjs — exit 0
-
-```text
-PASS YAML: android.yml
-PASS YAML: build.yml
-PASS YAML: release-linux.yml
-PASS YAML: release-mac.yml
-PASS YAML: release.yml
-```
-
-### node --check scripts/android-smoke.mjs — exit 0
-
-```text
-
 ```
 
 ### node scripts/update-network-smoke.mjs --package — exit 0
@@ -863,20 +850,20 @@ PASS consenso nel pacchetto Windows: Annulla non installa; chiusura normale non 
 
 ## 4. Cosa funziona (provato)
 
-Disponibilità storage misurata, tre campioni con hash esatti, installazione e Home offline nell’emulatore, apertura/modifica DOCX, screenshot reali recuperati. App e risorse non cambiano in questo passo: APK firmato SHA-256 07372fc9caaea80f50b95e96bb142cbacf206d20eb2854fb59cfc8e608471079, certificato 32e3b39b807a391a018c2183eee609ccf8c28c92b7243b12418c23f93351804e. Build e regressioni desktop verdi.
+Build e controlli locali sopra. Nelle run precedenti: attesa storage esercitata dopo un rifiuto reale, campioni con SHA corretti, APK installato e prima apertura/modifica DOCX con azione di accessibilità; screenshot Word reale recuperato. Nella quinta run non è stato aperto il documento. Firma release verificata localmente; codice app invariato, APK firmato SHA-256 07372fc9caaea80f50b95e96bb142cbacf206d20eb2854fb59cfc8e608471079.
 
 ## 5. Cosa NON funziona o non hai potuto provare
 
-Round trip DOCX e altri editor nativi non ancora completati; nuova guida del selettore da provare in CI. APK release firmato verificato con apksigner, ma prove emulatorie sulla build debug: non è una prova di installazione del release firmato sul telefono. Telefono/tablet, tastiera/gesti nell’editor, provider cloud, aggiornamento Android in luogo e memoria limitata non provati. Niente stampa/Word→PDF Android; nessuna pubblicazione o tag.
+Nuovo driver/esiti/frame non ancora osservati in CI. Round trip DOCX, XLSX/PDF/MD e appunti nativi ancora non dichiarati riusciti. Telefono/tablet fisico, tastiera/gesti dell’editor, installazione del release firmato sul telefono, aggiornamento in luogo e provider cloud non provati. Build emulatorie debug; release firmato controllato con apksigner, non installato sul dispositivo. Stampa e Word→PDF Android assenti. Nessun APK pubblico/tag.
 
 ## 6. Bug e dubbi
 
-AND-005/007 verificati soltanto nei casi documentati (attesa reale e recupero immagini). AND-008: falso esito del click o momento non corretto da chiarire con nuova run; non viene trattato come perdita dati dell’app senza prove. Il tocco reale non elimina attese o controlli: servono conferma dell’export, riapertura, parser indipendenti, hash originali e screenshot. Due warning lint e deprecazioni Java/Gradle restano, senza soppressioni. Chiave privata fuori repository e CI. Nessuna scelta del motore.
+AND-009: regressione del driver a coordinate, ripristino da verificare. AND-008: l’acknowledgement del click può non corrispondere all’esito; questa è un’inferenza coerente con screenshot precedente, non prova di un bug del prodotto. Il PASS richiede conferma nominativa, riapertura, parser, sette screenshot e originali SHA invariati. Nessun controllo di contenuto o integrità soppresso. Warning Java/Gradle e due warning lint restano. Nessuna scelta del motore; chiave fuori Git/CI.
 
 ## 7. Hash dei commit
 
-9421c6a355ccd335fcc1fe22ade4eed4de9a533b (APK); d3f9aefb46c261619e75eda4475a127f8e3560ca (staging); a57fed7a7361fe9ad72dd1c7485a50978d5d7a52 (selettore); 427942bf689be5b1cb9ecfa4805cc962ff1559e2 (attesa storage). Questo passo: git log -1 --format=%H -- docs/report/2026-11-27_1944_android-tocchi-selettore.md, hash comunicato dopo il push.
+APK: 9421c6a355ccd335fcc1fe22ade4eed4de9a533b. Preparazione e test successivi: d3f9aefb46c261619e75eda4475a127f8e3560ca, a57fed7a7361fe9ad72dd1c7485a50978d5d7a52, 427942bf689be5b1cb9ecfa4805cc962ff1559e2, f48c5b9eaa3434e1e2fb0a89bd890c88b32c30ef. Questo passo: git log -1 --format=%H -- docs/report/2026-11-27_2002_android-esito-selettore.md; hash dopo il push.
 
 ## 8. Prossimo passo
 
-Leggere il nuovo collaudo nativo. Prima di dichiarare l’APK provato devono passare tutti otto i casi e i confronti finali. Poi prova fisica e backup riservato della chiave. La Release desktop 0.2.3 resta immutata.
+Leggere il nuovo collaudo Android e completare gli otto casi con file realmente esportati e originali invariati. Solo allora consegnare l’APK come provato nell’emulatore, mantenendo esplicite le prove fisiche mancanti. Release desktop 0.2.3 immutata.

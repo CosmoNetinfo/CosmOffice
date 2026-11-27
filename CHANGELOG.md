@@ -17,7 +17,9 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Corretto
 
-- Driver di test Android: tocco sul selettore reale dopo conferma del nome, controlli visibili/abilitati e screenshot del dialogo. Quarta run interrotta sul ritorno dell’azione SAVE; nessun salvataggio dichiarato verificato.
+- Catture Android: attesa del disegno WebView prima degli screenshot dell’app, dopo aver rilevato una Home fotografata troppo presto. Collaudo completo ancora in corso.
+
+- Driver Android: selettore reale tramite azioni di accessibilità, conferma del nome e attesa dell’export/riapertura; il solo ritorno del click non determina successo. Corretto il tentativo a coordinate che non selezionava il file nel runner.
 
 - Test Android al cold boot: attesa limitata a 90 secondi per scrittura/rilettura reali nella Download, copia dei soli byte e verifica SHA-256. La precedente preparazione è tornata a fallire: bug riaperto, nessuna dichiarazione di collaudo completo.
 

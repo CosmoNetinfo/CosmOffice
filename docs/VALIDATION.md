@@ -1,5 +1,9 @@
 # Stato delle verifiche e limiti
 
+## Quinto collaudo Android — f48c5b9
+
+[46051701831](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46051701831) failure: attesa document-page scaduta durante la prima apertura DOCX. Artifact ispezionato: selettore ancora aperto, Home fotografata bianca prima del disegno. SHA-256 ZIP 4dc480a9164ab29c6cf467e8f412b897e421182ed6542258582e9ab83f137210 confrontato e coincidente con GitHub. L’esito DOM non viene presentato come prova visiva di quella cattura. Driver ripristinato su azioni di accessibilità con attesa esito/nome reale; screenshot sincronizzati con il disegno. Nessuna modifica all’app, nessun salvataggio Android dichiarato riuscito. CI desktop [46051701838](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46051701838): sei lavori completed/success osservati.
+
 ## Quarta run Android e correzione del click — 27 novembre 2026
 
 427942b: [Android 46016839526](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46016839526) failure su SAVE, dopo preparazione e avvio PASS. storage-ready.json: ready true, attempts 2, 1658 ms, primo tentativo Operation not permitted. Screenshot recuperati (Home/Word/errore), artifact ZIP SHA-256 72052f4532df1f675f262a111dbc477b5b7a5e61941980255ed6f3ee7ed92e8f coincidente con GitHub. L’immagine di errore mostra app in elaborazione, non il selettore. Nessun salvataggio dichiarato verificato. Nuovo driver attende nome/controllo disponibile e usa tocco reale; prove complete in attesa. [CI desktop 46016839517](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46016839517): sei lavori completed/success osservati, inclusa NSIS installata/disinstallata.
