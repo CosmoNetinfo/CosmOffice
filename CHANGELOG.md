@@ -17,6 +17,8 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Corretto
 
+- Driver Android per celle/Markdown: attesa della finestra pronta, immissione tramite tastiera e conferma; controllo di B2/B3 prima e dopo il salvataggio. Raccolta degli output parziali senza mascherare errori. DOCX round trip passato nella sesta run, resto del collaudo aperto.
+
 - Catture Android: attesa del disegno WebView prima degli screenshot dell’app, dopo aver rilevato una Home fotografata troppo presto. Collaudo completo ancora in corso.
 
 - Driver Android: selettore reale tramite azioni di accessibilità, conferma del nome e attesa dell’export/riapertura; il solo ritorno del click non determina successo. Corretto il tentativo a coordinate che non selezionava il file nel runner.

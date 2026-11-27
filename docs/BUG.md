@@ -1,5 +1,11 @@
 # Registro dei bug CosmOffice
 
+## AND-010 — immissione delle celle non applicata dal test
+
+7e9f9c7 / [Android 46053874675](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46053874675): DOCX round trip PASS. XLSX salvato e riaperto, ma controllo B2=701 fallisce. Screenshot prima dell’export mostra ancora A1 selezionata e i valori originali: il test non ha applicato l’immissione prevista, non è dimostrata una perdita nel salvataggio.
+
+Driver aggiornato: finestra in primo piano, focus reale del WebView, cella selezionata verificata, eventi di tastiera e Enter del normale handler; B2/B3 verificati prima e dopo il salvataggio. Parser host controlla entrambi. File esportati raccolti anche in caso di errore, senza dichiarare PASS; nella prova positiva tutti devono essere recuperati nella run corrente. Da verificare in CI.
+
 ## AND-009 — regressione del driver a coordinate
 
 [f48c5b9 / Android 46051701831](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46051701831): Home/permessi passati, DOCX non aperto; screenshot mostra ancora DocumentsUI con i tre campioni. Il tocco a coordinate introdotto nel driver ha peggiorato il test, non è una correzione dell’app. Ripristinata ACTION_CLICK sul selettore reale, con controllo degli esiti effettivi. Il booleano restituito da un controllo che si chiude non determina PASS: servono export con nome esatto, riapertura e confronti di byte.

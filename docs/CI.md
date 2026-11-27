@@ -1,5 +1,9 @@
 # Stato delle ultime CI
 
+## 7e9f9c7 — sesto collaudo Android
+
+[Android 46053874675](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46053874675) failure: DOCX round trip PASS, XLSX fermato al controllo B2. [Desktop 46053874698](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46053874698) tutti sei i lavori completed/success osservati, compresa NSIS nel runner. Non confondere il passaggio del DOCX con il collaudo di tutta la suite Android.
+
 ## f48c5b9 — esiti osservati
 
 [Desktop 46051701838](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46051701838): tutti sei i lavori success, compresa NSIS installata/disinstallata. [Android 46051701831](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46051701831): failure durante l’apertura DOCX; il nuovo tocco del driver non apre il documento. Ripristino dell’azione di accessibilità e verifica sul risultato reale in corso; APK non collaudato completamente.

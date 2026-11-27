@@ -58,7 +58,21 @@ public final class SmokeInstrumentation extends Instrumentation {
     private void input(String label, String text) throws Exception {
         String q = "document.querySelector('[aria-label=\"" + label + "\"]')";
         until(q);
-        js("(()=>{const e=" + q + ";e.focus();Object.getOwnPropertyDescriptor(e.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(e," + JSONObject.quote(text) + ");e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));})()");
+        long deadline = System.currentTimeMillis() + 10000;
+        AtomicReference<Boolean> focused = new AtomicReference<>(false);
+        do {
+            runOnMainSync(() -> focused.set(activity.hasWindowFocus() && activity.getWebView().requestFocusFromTouch()));
+            if (focused.get()) break;
+            Thread.sleep(100);
+        } while (System.currentTimeMillis() < deadline);
+        require(focused.get(), "Finestra Android non pronta per l’immissione");
+        js(q + ".focus()");
+        until("document.activeElement===" + q);
+        if (label.startsWith("Cella ")) until("document.querySelector('.cell-address')?.textContent===" + JSONObject.quote(label.substring(6)));
+        js(q + ".select()");
+        sendStringSync(text);
+        until(q + ".value===" + JSONObject.quote(text));
+        if (label.startsWith("Cella ")) sendKeyDownUpSync(66); // Enter commits through the editor's normal handler.
     }
     private AccessibilityNodeInfo find(AccessibilityNodeInfo root, String text, String className) {
         if (root == null) return null;
@@ -141,8 +155,9 @@ public final class SmokeInstrumentation extends Instrumentation {
             });
             step("XLSX apri modifica salva riapri", () -> {
                 open("android-grid.xlsx"); input("Cella B2", "701"); input("Cella B3", "2");
+                until("document.querySelector('[aria-label=\"Cella B2\"]')?.value==='701'&&document.querySelector('[aria-label=\"Cella B3\"]')?.value==='2'");
                 screenshot("grid"); save("Esporta XLSX", "android-grid-salvato.xlsx"); home();
-                open("android-grid-salvato.xlsx"); until("document.querySelector('[aria-label=\"Cella B2\"]')?.value==='701'"); home();
+                open("android-grid-salvato.xlsx"); until("document.querySelector('[aria-label=\"Cella B2\"]')?.value==='701'&&document.querySelector('[aria-label=\"Cella B3\"]')?.value==='2'"); home();
             });
             step("PDF visualizza ruota salva riapri", () -> {
                 open("android-view.pdf"); until("document.querySelector('.pdf-paper canvas')?.width>0&&!document.querySelector('.pdf-loading')");

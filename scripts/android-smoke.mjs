@@ -52,6 +52,12 @@ const test = spawnSync(adb, ['shell', 'am', 'instrument', '-w', '-r', 'it.cosmon
 const output = (test.stdout || '') + (test.stderr || '');
 await writeFile('test-results/android/instrumentation.log', output); console.log(output);
 await writeFile('test-results/android/downloads.log', run('shell', 'ls', '-la', '/sdcard/Download'));
+const exportedNames = ['android-write-salvato.docx', 'android-grid-salvato.xlsx', 'android-view-salvato.pdf', 'android-note-salvate.md'];
+const exported = exportedNames.map(name => {
+  const result = spawnSync(adb, ['pull', `/sdcard/Download/${name}`, `test-results/android/emulator/${name}`], { encoding: 'utf8', windowsHide: true, timeout: 90000 });
+  return { name, retrieved: result.status === 0 };
+});
+await writeFile('test-results/android/exported-files.json', JSON.stringify(exported, null, 2));
 const captures = [];
 for (const name of ['home', 'write', 'grid', 'view', 'informazioni', 'impostazioni-scure', 'segnala-problema', 'selettore-salvataggio', 'errore']) {
   const image = spawnSync(adb, ['exec-out', 'run-as', 'it.cosmonet.cosmoffice', 'cat', `files/smoke/${name}.png`], { windowsHide: true, maxBuffer: 10 * 1024 * 1024 });
@@ -62,11 +68,12 @@ for (const name of ['home', 'write', 'grid', 'view', 'informazioni', 'impostazio
 assert.equal(test.status, 0, 'comando instrumentation non riuscito');
 assert.match(output, /INSTRUMENTATION_RESULT: cosmoffice=PASS/); assert.doesNotMatch(output, /INSTRUMENTATION_STATUS_CODE: -2|INSTRUMENTATION_FAILED|cosmoffice=FAIL/);
 for (const name of ['home', 'write', 'grid', 'view', 'informazioni', 'impostazioni-scure', 'segnala-problema']) assert.ok(captures.includes(name), `Schermata nativa non raccolta: ${name}`);
-for (const name of ['android-write-salvato.docx', 'android-grid-salvato.xlsx', 'android-view-salvato.pdf', 'android-note-salvate.md']) run('pull', `/sdcard/Download/${name}`, `test-results/android/emulator/${name}`);
+assert.ok(exported.every(file => file.retrieved), 'file esportati non recuperati nella prova corrente');
 const docx = await readFile('test-results/android/emulator/android-write-salvato.docx');
 assert.match((await mammoth.extractRawText({ buffer: docx })).value, /Android verificato\./);
 const workbook = await openWorkbook(new Uint8Array(await readFile('test-results/android/emulator/android-grid-salvato.xlsx')));
 assert.equal(workbook.worksheets[0].getCell('B2').value, 701);
+assert.equal(workbook.worksheets[0].getCell('B3').value, 2);
 const pdf = await PDFDocument.load(await readFile('test-results/android/emulator/android-view-salvato.pdf'));
 assert.equal(pdf.getPages()[0].getRotation().angle, 90);
 const independent = execFileSync('pdfinfo', ['-f', '1', '-l', '1', 'test-results/android/emulator/android-view-salvato.pdf'], { encoding: 'utf8' });

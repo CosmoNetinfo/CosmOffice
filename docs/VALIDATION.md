@@ -1,5 +1,9 @@
 # Stato delle verifiche e limiti
 
+## Sesto collaudo Android — DOCX passato, XLSX da verificare
+
+[46053874675](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46053874675), 7e9f9c7: Home/permessi e DOCX apertura/modifica/salvataggio/riapertura PASS. XLSX non supera B2=701 dopo riapertura; file android-grid-salvato.xlsx realmente presente (6680 byte). Screenshot prima dell’export: selezione A1 e valori originali, quindi l’immissione del driver non risulta applicata. Nessuna perdita dati attribuita al prodotto senza prova. Driver ora usa tastiera nella finestra pronta e verifica i cambiamenti prima di esportare. La prossima raccolta conserva anche output parziali per analisi indipendente. PDF/MD/appunti non ancora raggiunti.
+
 ## Quinto collaudo Android — f48c5b9
 
 [46051701831](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46051701831) failure: attesa document-page scaduta durante la prima apertura DOCX. Artifact ispezionato: selettore ancora aperto, Home fotografata bianca prima del disegno. SHA-256 ZIP 4dc480a9164ab29c6cf467e8f412b897e421182ed6542258582e9ab83f137210 confrontato e coincidente con GitHub. L’esito DOM non viene presentato come prova visiva di quella cattura. Driver ripristinato su azioni di accessibilità con attesa esito/nome reale; screenshot sincronizzati con il disegno. Nessuna modifica all’app, nessun salvataggio Android dichiarato riuscito. CI desktop [46051701838](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46051701838): sei lavori completed/success osservati.
