@@ -1,5 +1,11 @@
 # Registro dei bug CosmOffice
 
+## AND-005/007 verificati nel quarto tentativo; AND-008 aperto
+
+Run [46016839526](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46016839526), commit 427942b: storage pronto al secondo tentativo in 1658 ms dopo un primo rifiuto reale; campioni SHA-256 e avvio passati. Artifact con Home/Write/errore PNG: recupero screenshot verificato. Non è un collaudo completo degli editor.
+
+AND-008: il test si ferma sul ritorno negativo dell’azione di accessibilità SAVE; nello screenshot il dialogo è già sparito e l’app elabora il file. Non dimostra da solo un difetto del salvataggio. Test aggiornato: controlli visibili e abilitati, nome confermato nel selettore, tocco tramite UiAutomation e attesa della vera esportazione/riapertura. Screenshot del selettore aggiunto; nessun controllo dei file rimosso. Da verificare in CI.
+
 ## AND-005 riaperto: preparazione non stabile al cold boot
 
 Commit a57fed7, [Android 46014692576](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46014692576): build/check APK passati, cp nella Download respinto prima dell’installazione. Il successo della preparazione su d3f9aef non era sufficiente a considerarla stabile: AND-005 riaperto. Diagnostica: shell UID 2000, Download presente con gruppo media_rw; comando diagnostico is-user-unlocked non disponibile. Non si afferma dimostrata una causa unica. Nuova preparazione: attendere fino a 90 secondi una scrittura e rilettura vere, copiare solo i byte senza metadati, confrontare SHA-256 prima di avviare l’app. AND-006/007 non ancora esercitati nel terzo tentativo. Nessuna simulazione o nuovo permesso.

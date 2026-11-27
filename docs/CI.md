@@ -1,5 +1,11 @@
 # Stato delle ultime CI
 
+## Stato osservato dopo la ripresa — 27 novembre 2026
+
+- 427942b: [desktop 46016839517](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46016839517), tutti sei success inclusa NSIS; [Android 46016839526](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46016839526), failure su azione SAVE del test, storage/Home e screenshot provati.
+- a57fed7: [desktop 46014692885](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46014692885) osservata cancelled dopo il push successivo, non verde. Android 46014692576 failure già documentata.
+- Correzione in corso: tocchi nel selettore reale con nome confermato; nuovo esito nativo ancora da osservare.
+
 ## Terzo collaudo Android — a57fed7
 
 [46014692576](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46014692576) failure nella copia dei campioni: nessun test nativo eseguito. AND-005 riaperto. CI desktop [46014692885](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46014692885) in verifica, esito aggiornato nel report prima del push. Per d3f9aef la CI desktop 46012068280 è stata poi osservata con tutti sei lavori success, inclusa installazione/disinstallazione NSIS.

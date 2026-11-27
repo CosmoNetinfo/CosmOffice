@@ -17,6 +17,8 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Corretto
 
+- Driver di test Android: tocco sul selettore reale dopo conferma del nome, controlli visibili/abilitati e screenshot del dialogo. Quarta run interrotta sul ritorno dell’azione SAVE; nessun salvataggio dichiarato verificato.
+
 - Test Android al cold boot: attesa limitata a 90 secondi per scrittura/rilettura reali nella Download, copia dei soli byte e verifica SHA-256. La precedente preparazione è tornata a fallire: bug riaperto, nessuna dichiarazione di collaudo completo.
 
 - Test nativo Android: attesa della finestra DocumentsUI prima del campo nome; screenshot da file privati e raccolta obbligatoria. Seconda CI con avvio PASS e DOCX incompleto; nessun successo complessivo dichiarato.

@@ -6,7 +6,11 @@ import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.view.InputDevice;
+import android.view.MotionEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -62,7 +66,7 @@ public final class SmokeInstrumentation extends Instrumentation {
     private AccessibilityNodeInfo find(AccessibilityNodeInfo root, String text, String className) {
         if (root == null) return null;
         boolean same = text == null || root.getText() != null && text.equalsIgnoreCase(root.getText().toString());
-        if (same && (className == null || className.contentEquals(root.getClassName()))) return root;
+        if (same && (className == null || className.contentEquals(root.getClassName())) && root.isVisibleToUser() && root.isEnabled()) return root;
         for (int i = 0; i < root.getChildCount(); i++) { AccessibilityNodeInfo found = find(root.getChild(i), text, className); if (found != null) return found; }
         return null;
     }
@@ -76,7 +80,7 @@ public final class SmokeInstrumentation extends Instrumentation {
                 Thread.sleep(200); continue;
             }
             AccessibilityNodeInfo found = find(root, text, className);
-            if (found != null) return found;
+            if (found != null && found.isVisibleToUser() && found.isEnabled()) return found;
             Thread.sleep(200);
         }
         throw new AssertionError("Controllo del selettore Android non trovato: " + text);
@@ -84,7 +88,18 @@ public final class SmokeInstrumentation extends Instrumentation {
     private void tap(String text) throws Exception {
         AccessibilityNodeInfo target = node(text, null);
         while (target != null && !target.isClickable()) target = target.getParent();
-        require(target != null && target.performAction(AccessibilityNodeInfo.ACTION_CLICK), "Comando Android non attivabile: " + text);
+        require(target != null && target.isEnabled(), "Comando Android non attivabile: " + text);
+        Rect bounds = new Rect(); target.getBoundsInScreen(bounds);
+        require(!bounds.isEmpty(), "Controllo Android fuori schermo: " + text);
+        long time = SystemClock.uptimeMillis();
+        MotionEvent down = MotionEvent.obtain(time, time, MotionEvent.ACTION_DOWN, bounds.exactCenterX(), bounds.exactCenterY(), 0);
+        MotionEvent up = MotionEvent.obtain(time, time + 70, MotionEvent.ACTION_UP, bounds.exactCenterX(), bounds.exactCenterY(), 0);
+        down.setSource(InputDevice.SOURCE_TOUCHSCREEN); up.setSource(InputDevice.SOURCE_TOUCHSCREEN);
+        try {
+            require(getUiAutomation().injectInputEvent(down, true), "Tocco Android non ricevuto: " + text);
+            Thread.sleep(70);
+            require(getUiAutomation().injectInputEvent(up, true), "Rilascio Android non ricevuto: " + text);
+        } finally { down.recycle(); up.recycle(); }
     }
     private void open(String file) throws Exception { click("Apri un file"); tap(file); }
     private void home() throws Exception { click("Torna alle bozze"); until("document.querySelector('h1')?.textContent==='Il tuo spazio di lavoro.'"); }
@@ -93,6 +108,8 @@ public final class SmokeInstrumentation extends Instrumentation {
         AccessibilityNodeInfo field = node(null, "android.widget.EditText");
         Bundle value = new Bundle(); value.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, name);
         require(field.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, value), "Nome del file non modificabile nel selettore");
+        node(name, "android.widget.EditText");
+        screenshot("selettore-salvataggio");
         tap("SAVE");
         until("!document.querySelector('.busy')&&document.querySelector('.toast')?.textContent.includes('Copia esportata')");
     }

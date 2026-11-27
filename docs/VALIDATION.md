@@ -1,5 +1,9 @@
 # Stato delle verifiche e limiti
 
+## Quarta run Android e correzione del click — 27 novembre 2026
+
+427942b: [Android 46016839526](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46016839526) failure su SAVE, dopo preparazione e avvio PASS. storage-ready.json: ready true, attempts 2, 1658 ms, primo tentativo Operation not permitted. Screenshot recuperati (Home/Word/errore), artifact ZIP SHA-256 72052f4532df1f675f262a111dbc477b5b7a5e61941980255ed6f3ee7ed92e8f coincidente con GitHub. L’immagine di errore mostra app in elaborazione, non il selettore. Nessun salvataggio dichiarato verificato. Nuovo driver attende nome/controllo disponibile e usa tocco reale; prove complete in attesa. [CI desktop 46016839517](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46016839517): sei lavori completed/success osservati, inclusa NSIS installata/disinstallata.
+
 ## Terza run Android: cold boot ancora instabile — 27 novembre 2026
 
 [46014692576](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46014692576), a57fed7: preparazione fallita di nuovo (cp: Operation not permitted), nessuna prova dell’app avviata. Artifact letto: storage-failure.log conferma lo stato della cartella ma non prova una causa definitiva. Is-user-unlocked non supportato: sostituito nel solo diagnostico con proprietà CE. Aggiunta verifica operativa della disponibilità storage, con limite 90 secondi, e copia di soli byte; da provare nella nuova CI. L’attesa non sostituisce i confronti SHA o il selettore reale.
