@@ -1,5 +1,13 @@
 # Roadmap CosmOffice
 
+## Android — 27 novembre 2026
+
+- **Implementato, collaudo in corso**: APK nativo senza permessi Internet, asset offline, selettore di sistema e salvataggio di copie, 10 MB; stessi motori senza modifica.
+- **Provato localmente**: compilazione APK debug/release e lint, controllo byte delle licenze nel release, firma e SHA-256 con chiave privata esterna a Git. Frontend simulato distinto dalle prove native.
+- **In corso**: otto prove native sul runner Android, apertura/modifica/salvataggio/riapertura, appunti e assenza del permesso Internet; esito effettivo solo nel report.
+- **Non provato**: telefono/tablet fisico, tastiera virtuale, prestazioni, provider cloud, aggiornamento in luogo su dispositivo reale.
+- **Non implementato**: iOS, stampa/PDF da Word su Android, aggiornamento automatico Android, pubblicazione APK. Nessuna scelta del motore o nuova idea dello studio.
+
 ## Markdown — 25 novembre 2026
 
 Supporto richiesto: creazione e apertura .md UTF-8, sorgente e anteprima offline, esportazione e backup. Verifiche e limiti nel report corrente; nessuna scelta dei motori Office. La pubblicazione 0.2.3 è autorizzata dal titolare il 25 novembre 2026; verifica effettiva nel report corrente. Installazione Windows segnalata dall’utente, senza conferma di PC pulito o esito dei singoli formati.

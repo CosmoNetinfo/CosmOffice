@@ -1,3 +1,4 @@
+import { isAndroid, androidOpen, androidSave } from './android.mjs';
 import DOMPurify from 'dompurify';
 
 async function nativeFileOperation(operation) {
@@ -27,6 +28,7 @@ export function safeHtml(html) {
   return parsed.body.innerHTML;
 }
 export async function chooseFile() {
+  if (isAndroid) return androidOpen();
   if (window.cosmoffice) return nativeFileOperation(() => window.cosmoffice.openFile());
   return new Promise(resolve => {
     const input = document.createElement('input'); input.type = 'file'; input.accept = '.docx,.xlsx,.csv,.tsv,.pdf,.txt,.html,.md';
@@ -35,6 +37,7 @@ export async function chooseFile() {
   });
 }
 export async function saveFile(name, bytes, type) {
+  if (isAndroid) return androidSave(name, bytes, type);
   if (window.cosmoffice) return nativeFileOperation(() => window.cosmoffice.saveFile(name, bytes));
   const url = URL.createObjectURL(new Blob([bytes], { type }));
   const link = document.createElement('a'); link.href = url; link.download = name; link.click();

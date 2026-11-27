@@ -1,3 +1,4 @@
+import { isAndroid } from './android.mjs';
 import React, { useEffect, useState } from 'react';
 
 export default function About({ version }) {
@@ -9,7 +10,7 @@ export default function About({ version }) {
     return () => { current = false; };
   }, [name]);
   return <section className="settings-group">
-    <div className="settings-group-title"><h2>Informazioni su CosmOffice</h2><p>Versione {version} · Anteprima desktop</p></div>
+    <div className="settings-group-title"><h2>Informazioni su CosmOffice</h2><p>Versione {version} · Anteprima {isAndroid ? 'Android' : 'desktop'}</p></div>
     <div className="settings-panel about-legal">
       <p><strong>Titolare:</strong> Daniele Spalletti · danielespalletti@cosmonet.info</p>
       <p>Licenza d’uso A: uso gratuito, codice e marchio riservati. Testi letti da file locali, senza Internet.</p>

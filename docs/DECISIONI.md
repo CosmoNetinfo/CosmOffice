@@ -1,5 +1,17 @@
 # Decisioni e alternative tecniche
 
+## APK Android richiesto e chiave autorizzata — 27 novembre 2026
+
+Activity Java originale con Android WebView e frontend esistente: nessun nuovo motore o dipendenza runtime. Evitati un framework multipiattaforma e una riscrittura degli editor perché non richiesti e con costo/licenze ulteriori. API di piattaforma per file/appunti, messaggi al solo frame locale, origine riservata intercettata dagli asset, nessun permesso Internet o accesso generale allo storage. L’URL HTTPS locale non contatta un server. Backup Android disabilitato.
+
+Android 10 minimo; target/compile 36, AGP 8.13.2, Gradle 8.13, Java 17. Il limite nativo di 10 MB contiene le copie Base64 in memoria; Android salva copie tramite ACTION_CREATE_DOCUMENT, mai il file aperto. Stampa e DOCX→PDF non sono implementati su Android: controllo disabilitato/nascosto con spiegazione. Rapporto usa gli stessi filtri a elenco chiuso e persistenza locale, non i messaggi arbitrari delle eccezioni. Desktop conserva updater TLS autorizzato e policy attuale.
+
+L’utente ha autorizzato una **nuova chiave privata**. PKCS#12 RSA-4096 creato fuori repository, protetto con ACL; password mai stampata. SHA-256 pubblico del certificato: 32e3b39b807a391a018c2183eee609ccf8c28c92b7243b12418c23f93351804e. Non caricato in GitHub Secrets. CI produce APK unsigned dopo test, firma solo locale: caricare la chiave in CI richiederebbe una decisione separata. Conservare stessa chiave per i futuri aggiornamenti.
+
+Nessun tag, nessuna modifica alla Release desktop 0.2.3 o al suo feed: l’APK non va aggiunto al manifest SHA256SUMS desktop senza una decisione specifica. Proposta non implementata: eventuale distribuzione Android pubblica separata e procedura riservata di backup della chiave.
+
+Otto test instrumentation originali con API Android (nessuna libreria test aggiunta) guidano il vero selettore e filesystem nell’emulatore; modifiche testo/celle tramite DOM. Non costituiscono prova della tastiera virtuale. Test frontend con porta simulata dichiarato separatamente. Chiavi private, build e campioni generati esclusi da Git.
+
 ## 0.2.3 su richiesta — scelta del titolare del 23 novembre 2026
 
 Aggiornamenti spenti di default e nessuna richiesta all’avvio: né Node né Chromium, anche con periodici già autorizzati. Vecchi «attivo» senza policy 2 non ereditati. Il pulsante «Controlla aggiornamenti ora» apre una sola operazione; clic duplicati accorpati, trasporto chiuso al termine/errore/annullamento. Il consenso all’installazione rimane distinto dal permesso temporaneo di rete, con SHA-256 e conferma esplicita.

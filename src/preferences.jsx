@@ -1,3 +1,4 @@
+import { isAndroid, androidDark } from './android.mjs';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export const DEFAULTS = Object.freeze({ theme: 'system', accent: 'blue', customAccent: '#2865d8', uiScale: 100, density: 'comfortable', compactSidebar: false, writerFont: 'Calibri', writerFontSize: 12, writerZoom: 100, writerPaper: 'A4', writerOrientation: 'portrait', writerMargin: 20, lineHeight: 1.65, spellcheck: true, gridLocale: 'it-IT', decimalPlaces: 2, gridRows: 40, gridCols: 12, gridLines: true, csvDelimiter: ';', pdfZoom: 110, rememberPdfPage: true, automaticUpdates: false });
@@ -24,8 +25,9 @@ export function PreferencesProvider({ children }) {
     try { localStorage.setItem(KEY, JSON.stringify({ ...settings, updatesPolicy: 2 })); setStorageError(false); } catch { setStorageError(true); }
     const root = document.documentElement;
     const media = matchMedia('(prefers-color-scheme: dark)');
-    const applyTheme = () => { root.dataset.theme = settings.theme === 'system' ? media.matches ? 'dark' : 'light' : settings.theme; };
+    const applyTheme = () => { root.dataset.theme = settings.theme === 'system' ? (isAndroid ? androidDark() : media.matches) ? 'dark' : 'light' : settings.theme; };
     applyTheme(); media.addEventListener('change', applyTheme);
+    if (isAndroid) window.addEventListener('cosmoffice:android-theme', applyTheme);
     root.dataset.accent = settings.accent; root.dataset.density = settings.density;
     root.dataset.compactSidebar = String(settings.compactSidebar);
     root.style.setProperty('--interface-scale', settings.uiScale / 100);
@@ -35,7 +37,7 @@ export function PreferencesProvider({ children }) {
       root.style.setProperty('--accent-hover', `color-mix(in srgb, ${settings.customAccent} 80%, #000)`);
       root.style.setProperty('--accent-soft', `color-mix(in srgb, ${settings.customAccent} 14%, var(--surface))`);
     }
-    return () => media.removeEventListener('change', applyTheme);
+    return () => { media.removeEventListener('change', applyTheme); if (isAndroid) window.removeEventListener('cosmoffice:android-theme', applyTheme); };
   }, [settings]);
   const value = { settings, storageError, setSetting: (key, next) => setSettings(previous => validatePreferences({ ...previous, [key]: next })), reset: () => setSettings({ ...DEFAULTS }), importSettings: next => setSettings(previous => validatePreferences({ ...next, automaticUpdates: previous.automaticUpdates })) };
   return <Context.Provider value={value}>{children}</Context.Provider>;

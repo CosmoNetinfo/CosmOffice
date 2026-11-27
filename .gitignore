@@ -13,3 +13,11 @@ public/pdfjs/
 scripts/openxml-validator/bin/
 scripts/openxml-validator/obj/
 /public/legal/
+
+*.jks
+*.keystore
+/android/.gradle/
+/android/local.properties
+/android/**/build/
+/android/app/src/main/assets/www/
+/android/app/src/androidTest/assets/fixtures/

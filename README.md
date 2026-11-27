@@ -2,7 +2,7 @@
 
 Suite desktop gratuita, offline e in italiano di Cosmonet: **CosmoWrite**, **CosmoGrid** e **CosmoView**.
 
-**CosmOffice 0.2.3 (anteprima).** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Android e iOS sono pianificati, non implementati.
+**CosmOffice 0.2.3 (anteprima).** È una prima implementazione funzionante, con un sottoinsieme delle funzioni Office. Non è ancora un sostituto completo di Microsoft Office. Il primo APK Android è in collaudo separato; iOS non è implementato.
 
 Installer ufficiali e checksum nella pagina [Release](https://github.com/CosmoNetinfo/CosmOffice/releases/latest). La Release ordinaria 0.2.3 è pubblica per Windows x64, Linux x64 e Mac Intel/Apple Silicon; esiti e limiti sono nel [report corrente](docs/report/ULTIMO.md). Gli installer 0.2.2 restano immutati. **Chi ha la 0.2.2 aggiorna manualmente una volta**; chi ha già una build di prova 0.2.3 deve installare a mano la Release dello stesso numero. Poi il pulsante degli aggiornamenti cerca le future versioni superiori pubblicate. Nessun collaudo su PC fisico pulito viene dedotto dall’autorizzazione al rilascio. Le funzioni documentali continuano a lavorare senza Internet.
 
@@ -21,6 +21,12 @@ La versione 0.2.1 consolida apertura, modifica essenziale e salvataggio di DOCX,
 La 0.2.2 aggiunge la conservazione degli zeri iniziali e dei codici lunghi, il rispetto delle celle in formato testo e la distinzione tra testo simile a errori (ad esempio `#N/A`) ed errori effettivi di calcolo. I valori fuori dalla precisione numerica supportata vengono conservati come testo invece di arrotondarli implicitamente. Il limite delle 15 cifre in Excel è documentato dal [supporto Microsoft](https://support.microsoft.com/en-us/excel/keeping-leading-zeros-and-large-numbers).
 
 Un controllo indipendente opzionale apre e risalva i campioni con LibreOffice (`DOCX → ODT → DOCX`, `XLSX → ODS → XLSX`) e verifica un PDF prodotto da quel motore. Non richiede LibreOffice per usare CosmOffice: serve solo ai test. La prova copre un corpus ristretto e non certifica Microsoft Office.
+
+## Android: prima anteprima in collaudo
+
+Progetto APK nativo per **Android 10 o successivo**, con gli stessi editor locali. Non è ancora una Release Android pubblica: i pacchetti desktop 0.2.3 restano invariati. [Guida Android, compilazione e limiti](docs/ANDROID.md).
+
+L’APK non richiede il permesso Internet: aggiornamento manuale, nessun account o invio di dati. Il selettore Android apre un file e salva una nuova copia (limite 10 MB). Stampa ed esportazione DOCX→PDF restano desktop. Le prove del frontend nel browser non sostituiscono il collaudo dell’APK o di un telefono fisico; consultare il report corrente per gli esiti effettivi.
 
 ## File Markdown (.md)
 

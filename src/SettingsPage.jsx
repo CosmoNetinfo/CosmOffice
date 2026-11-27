@@ -1,3 +1,4 @@
+import { isAndroid } from './android.mjs';
 import React, { useRef, useState } from 'react';
 import { Palette, FileText, Grid2X2, BookOpen, HardDrive, RefreshCw, Download, Upload, Trash2, Check, ArrowLeft, SlidersHorizontal } from 'lucide-react';
 import { usePreferences, DEFAULTS } from './preferences.jsx';
@@ -82,7 +83,8 @@ export default function SettingsPage({ documents, refresh, onBack, onReport, onG
       </Group>
       <Group title="Gestisci l’archivio locale"><Row title="Svuota l’archivio" description="Elimina le copie e le bozze salvate dentro CosmOffice. Esporta prima un backup. I file sul disco rimangono intatti."><button className="button danger-outline" disabled={busy || !documents.length} onClick={() => setConfirmClear(true)}><Trash2 size={16}/> Svuota archivio</button></Row></Group>
     </>}
-    {tab === 'updates' && <>
+    {tab === 'updates' && isAndroid && <Group title="Android offline"><Row title="Aggiornamenti dell’APK" description="Installa manualmente una nuova versione ufficiale firmata con la stessa chiave. L’app Android non ha il permesso Internet e non contatta nessun server."/><Row title="Limiti dell’anteprima Android" description="Apertura e salvataggio fino a 10 MB per file. Stampa ed esportazione dei documenti in PDF restano disponibili nell’app desktop; su Android puoi leggere, ruotare e salvare i PDF."/></Group>}
+    {tab === 'updates' && !isAndroid && <>
       <div className="settings-about"><img src="./brand/suite.svg" alt=""/><div><h2>CosmOffice</h2><p>Versione {version} · Anteprima desktop</p></div></div>
       <Group title="Aggiornamenti da GitHub Releases">
         <Row title="Controllo su richiesta" description={settings.automaticUpdates ? 'Hai attivato anche i controlli periodici: GitHub viene contattato ogni sei ore, oltre che quando premi il pulsante. Nessun controllo all’avvio.' : 'L’app contatta GitHub solo quando premi questo pulsante. Altrimenti non contatta nessuno. Finito il controllo, la rete si spegne da sola.'}><button className="button secondary" disabled={!window.cosmoffice?.checkUpdates || busy || update.networkActive} onClick={() => run(async () => { const result = await window.cosmoffice.checkUpdates(); setMessage(result.message); })}>Controlla aggiornamenti ora</button></Row>

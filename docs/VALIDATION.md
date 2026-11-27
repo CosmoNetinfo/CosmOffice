@@ -1,5 +1,13 @@
 # Stato delle verifiche e limiti
 
+## Android — 27 novembre 2026
+
+Compilazione reale locale debug, test APK e release unsigned con Gradle; lint bloccante. Ispezione del manifest compilato (zero permessi), identità byte LICENSE/THIRD_PARTY_NOTICES, dizionario, worker e decoder PDF; firma verificata da apksigner e SHA-256. Non dimostra l’apertura dell’APK. Test browser Android con porta simulata separato.
+
+Workflow Android dedicato: emulatore API 35 x86_64, rete guest disattivata prima dell’installazione, vero selettore Android e appunti; DOCX/XLSX/PDF/MD salvati e riaperti e originali confrontati SHA-256. Output indipendenti letti con Mammoth/ExcelJS/pdf-lib e rotazione verificata da Poppler. Questo è un piano automatizzato fino a osservazione della run: **esiti effettivi nel report**, mai dedotti dal YAML.
+
+Non provati: dispositivi fisici, Android 10/16 reali, processi terminati dal sistema, tastiera, orientamenti diversi, poco spazio/memoria e provider cloud. La Release desktop pubblica non cambia.
+
 ## Preparazione 0.2.3 — 23 novembre 2026
 
 Nuovi controlli per profilo senza preferenza e vecchio «attivo», clic unico/duplicato, trasporto chiuso dopo controllo, annullamento e opt-in periodico. Informazioni confronta testi con i file locali; IPC rifiuta nomi arbitrari. Ispezione dei pacchetti reali per LICENSE, attribuzioni e versione; non basta la configurazione.

@@ -4,15 +4,38 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ## [Non rilasciato]
 
-### Corretto
+### Aggiunto
 
-- Controllo risorse DMG: nei job con una sola architettura verifica il DMG di quella architettura; il controllo predefinito continua a richiederli entrambi. Pipeline di completamento Mac allineata al tag 0.2.3, senza sostituire installer esistenti.
+- Prima implementazione APK Android offline (Android 10+), Activity Java e WebView con asset incorporati; selettore di sistema per apertura e salvataggio di copie DOCX/XLSX/PDF/Markdown, limite 10 MB.
+- Compilazione APK, controllo permessi/licenze e prove native su emulatore nella CI Android separata; firma privata locale, checksum e verifica del certificato. Nessuna chiave in Git o nella CI.
 
 ### Modificato
 
-- Documentati gli esiti della Release pubblica 0.2.3, il recupero dei DMG e le prove ancora mancanti. Nessuna modifica al codice dell’app o ai motori.
+- Documentati gli esiti della Release pubblica desktop 0.2.3 e del completamento DMG; nessuna sostituzione dei pacchetti pubblici.
 
-Nessun’altra idea dello studio adottata.
+- Adattamenti della piattaforma Android: tasto Indietro, appunti del rapporto sicuro, tema sistema, Informazioni e aggiornamenti manuali dell’APK. Desktop invariato nella politica di rete.
+
+### Corretto
+
+- Controllo risorse DMG: verifica dell’architettura del job singolo, mantenendo la richiesta di entrambi i DMG nel controllo predefinito.
+
+- Gestione Indietro compatibile con il target Android recente e conferma del salvataggio solo dopo chiusura dello stream del provider.
+
+### Rimosso
+
+- Nessuna funzione desktop rimossa. Stampa/esportazione DOCX→PDF non disponibili nell’APK.
+
+### Limiti noti
+
+- Prima anteprima Android ancora da collaudare completamente; non equivalenza alle suite Office. Nessuna pubblicazione Android nelle Release desktop e nessun aggiornamento automatico Android. Limite 10 MB per trasferimento, inclusi backup.
+
+### Prove mancanti
+
+- Telefono/tablet fisico, tastiera virtuale e gesti, selettori di fornitori cloud, prestazioni su dispositivi con poca memoria. Esiti osservati dell’emulatore nel report corrente.
+
+### Prossimi passi
+
+- Completare e leggere le prove native, poi installare l’APK firmato su Android reale; conservare chiave e password fuori Git con backup riservato.
 
 ## [0.2.3] - 2026-11-25
 

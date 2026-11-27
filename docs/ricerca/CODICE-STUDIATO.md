@@ -221,3 +221,20 @@ Nel controllo finale consultati anche node_modules/@electron/asar/lib/filesystem
 | [Using Advanced](https://marked.js.org/using_advanced), sezioni parse, Options e Old Options | Documentazione API pubblica di Marked, consultata senza copiare codice | Uso di parse/GFM locale e necessità di sanitizzare separatamente; componente, sicurezza, conservazione del sorgente e test scritti per CosmOffice |
 
 Libreria inclusa come dipendenza con attribuzione, comunicata al titolare prima dell’installazione. Nessun codice dei motori Office/PDF esterni studiato o copiato; nessuna nuova idea dello studio adottata.
+
+## Android nativo — 27 novembre 2026
+
+Solo documentazione/API e metadati; nessun algoritmo esterno copiato o tradotto. Codice dell’integrazione originale Java/JavaScript. Nessuna nuova libreria runtime. Nessun sorgente GPL/AGPL consultato.
+
+| Materiale consultato | Tipo / riferimento | Licenza e uso | Problema / implementazione originale |
+| --- | --- | --- | --- |
+| [Caricare contenuti locali WebView](https://developer.android.com/develop/ui/views/layout/webapps/load-local-content) | Documentazione Android, consultata 27/11/2026 | Documentazione Google CC BY 4.0; esempi Apache-2.0, non copiati | Origine riservata e asset offline; nostro WebViewClient, senza AndroidX |
+| [WebView e WebMessagePort](https://developer.android.com/reference/android/webkit/WebView) | Riferimento API Android | Documentazione, nessun riuso di codice | Porta al solo frame locale, whitelist operazioni native |
+| [Storage Access Framework](https://developer.android.com/training/data-storage/shared/documents-files) | Documentazione Android | Documentazione CC BY 4.0 / esempi Apache-2.0 non copiati | Selettori di sistema, apertura esplicita e creazione copia; nessun permesso storage generale |
+| [Firma app](https://developer.android.com/studio/publish/app-signing), [apksigner](https://developer.android.com/tools/apksigner) | Documentazione e sintassi CLI | Documentazione, nessun codice riusato | Chiave esterna, zipalign prima della firma, verifica e SHA-256; script originale |
+| [Note AGP 8.13](https://developer.android.com/build/releases/agp-8-13-0-release-notes) | Documentazione, versione 8.13.2 | Tool AGP Apache-2.0, non incorporato nell’APK | Matrice Gradle 8.13 / Java 17 / build tools 35 / API 36 |
+| [README android-emulator-runner v2](https://github.com/ReactiveCircus/android-emulator-runner/tree/v2), [LICENSE](https://github.com/ReactiveCircus/android-emulator-runner/blob/v2/LICENSE) | Documentazione e licenza action, non algoritmo | Apache-2.0; eseguita soltanto nella CI, non distribuita nell’APK | Emulatore con KVM nel runner; test instrumentation originali con API di piattaforma |
+| [Repository SDK](https://dl.google.com/android/repository/repository2-3.xml), metadati Adoptium e checksum distribuzione Gradle 8.13 | Metadati di distribuzione | Strumenti di sviluppo, non copiati nel pacchetto; licenze proprie dei distributori | Download strumenti locali con confronto hash pubblicato, nessuna modifica globale |
+| node_modules/pdfjs-dist/package.json e legacy/build/pdf.mjs (intestazioni e metadati) | Metadati/header libreria esistente 6.5.438, non algoritmo | PDF.js Apache-2.0; intestazione core-js MIT individuata nel legacy | Studio di compatibilità WebView: **legacy non adottato**, motore corrente invariato, nessun codice o dipendenza nuova |
+
+Attribuzioni rigenerate con scripts/notices.mjs: nessuna nuova dipendenza runtime o codice di terzi redistribuito. Gli strumenti di build e la action rimangono esterni all’APK. Rischi/metodo scelto in DECISIONI.md; non è stata presa alcuna decisione sul motore Office.

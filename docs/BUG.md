@@ -1,5 +1,16 @@
 # Registro dei bug CosmOffice
 
+## Android — 27 novembre 2026
+
+| ID | Problema / limite | Stato e prova |
+| --- | --- | --- |
+| AND-001 | Target Android recente non accetta onBackPressed per la navigazione gestuale | Corretto con dispatcher API 33+ e tasto precedente sotto API 33; lint passato, interazione nativa ancora da osservare nel report |
+| AND-002 | Stampa e conversione Word→PDF non implementate in Android | Limite esplicito, controlli disabilitati/nascosti; desktop invariato |
+| AND-003 | Bridge con più copie Base64 in memoria | Limite esplicito 10 MB in lettura/scrittura, anche dimensione stream ignota; prestazioni su telefono non provate |
+| AND-004 | Ricompilazione incrementale dopo spostamento risorse icona: mipmap non trovato | Build pulita riuscita; nessun aggiramento del lint, vedi output nel report |
+
+Nessuna incompatibilità dei documenti già dichiarata viene considerata risolta dall’aggiunta dell’APK.
+
 Aggiornamento del 22 novembre 2026: scelta A adottata in LICENSE, con uso gratuito e riserva su codice e marchio. Nessun bug applicativo chiuso. Titolare e recapito forniti: Daniele Spalletti (danielespalletti@cosmonet.info). Restano revisione professionale e verifiche delle singole piattaforme; inclusione nel nuovo NSIS Windows 0.2.3 verificata realmente (LIC-001 sotto). La precedente lacuna sulla concessione d’uso nel repository è affrontata dal nuovo testo; non si dichiara risolta la coerenza con la 0.2.2 già pubblicata.
 
 Ordine: P1 (perdita o alterazione dati, crash, file corrotti), P2 (risultati o comportamento errati), P3 (limiti di impaginazione o usabilità). Uno stato risolto richiede una prova; le incompatibilità non ancora riprodotte non vengono dichiarate risolte.
