@@ -1,5 +1,9 @@
 # Stato delle verifiche e limiti
 
+## Prima run Android: fallita nella preparazione — 27 novembre 2026
+
+[46009717455](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46009717455), commit 9421c6a355ccd335fcc1fe22ade4eed4de9a533b: build/lint/ispezione APK verdi; adb push in Download fallisce con Operation not permitted. Nessuna delle otto prove native avviata, nessun APK dichiarato collaudato. Variante di preparazione tramite staging e copia shell con confronto SHA-256; nessun controllo funzionale rimosso. Da verificare in CI. Hypervisor Windows presente ma HypervisorPlatform disabilitato: non attivato né modificato il PC.
+
 ## Android — 27 novembre 2026
 
 Compilazione reale locale debug, test APK e release unsigned con Gradle; lint bloccante. Ispezione del manifest compilato (zero permessi), identità byte LICENSE/THIRD_PARTY_NOTICES, dizionario, worker e decoder PDF; firma verificata da apksigner e SHA-256. Non dimostra l’apertura dell’APK. Test browser Android con porta simulata separato.

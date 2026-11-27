@@ -1,5 +1,9 @@
 # Registro dei bug CosmOffice
 
+## AND-005 — preparazione storage del runner
+
+CI Android [46009717455](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46009717455), commit 9421c6a: compilazione/lint/controllo APK passati, test fermato **prima dell’installazione** per adb push in Download: remote couldn't create file: Operation not permitted. Non prova un difetto degli editor né il loro funzionamento. Preparazione cambiata: staging in /data/local/tmp e copia tramite shell, SHA-256 prima dell’avvio; nessun root o permesso aggiunto all’app. Causa precisa del rifiuto adbd non dimostrata; correzione da verificare nella prossima run, non chiusa.
+
 ## Android — 27 novembre 2026
 
 | ID | Problema / limite | Stato e prova |

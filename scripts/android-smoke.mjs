@@ -15,8 +15,23 @@ await mkdir('test-results/android/emulator', { recursive: true });
 run('shell', 'settings', 'put', 'global', 'airplane_mode_on', '1');
 run('shell', 'svc', 'wifi', 'disable'); run('shell', 'svc', 'data', 'disable');
 run('shell', 'mkdir', '-p', '/sdcard/Download');
+// adbd's sync service and an Android shell have different storage contexts.
+// Stage outside shared storage, then copy as shell; do not grant the app storage permissions.
+run('shell', 'mkdir', '-p', '/data/local/tmp/cosmoffice-smoke');
 const samples = [['01-testo-stili.docx', 'android-write.docx'], ['01-formule.xlsx', 'android-grid.xlsx'], ['01-testo.pdf', 'android-view.pdf']];
-for (const [name, target] of samples) run('push', `tests/fixtures/${name}`, `/sdcard/Download/${target}`);
+for (const [name, target] of samples) {
+  const staging = `/data/local/tmp/cosmoffice-smoke/${target}`, destination = `/sdcard/Download/${target}`;
+  run('push', `tests/fixtures/${name}`, staging);
+  try { run('shell', 'cp', staging, destination); }
+  catch (error) {
+    const details = ['id', 'ls -ld /sdcard /storage/emulated/0 /sdcard/Download', 'cmd user is-user-unlocked 0']
+      .map(command => spawnSync(adb, ['shell', command], { encoding: 'utf8', windowsHide: true }));
+    await writeFile('test-results/android/storage-failure.log', details.map(result => (result.stdout || '') + (result.stderr || '')).join('\n'));
+    throw error;
+  }
+  const expected = createHash('sha256').update(await readFile(`tests/fixtures/${name}`)).digest('hex');
+  assert.equal(run('shell', 'sha256sum', destination).trim().split(/\s+/)[0], expected, 'campione non preparato correttamente nel filesystem reale');
+}
 run('install', '-r', 'android/app/build/outputs/apk/debug/app-debug.apk');
 run('install', '-r', 'android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk');
 const test = spawnSync(adb, ['shell', 'am', 'instrument', '-w', '-r', 'it.cosmonet.cosmoffice.test/it.cosmonet.cosmoffice.SmokeInstrumentation'], { encoding: 'utf8', timeout: 12 * 60 * 1000, maxBuffer: 5 * 1024 * 1024, windowsHide: true });

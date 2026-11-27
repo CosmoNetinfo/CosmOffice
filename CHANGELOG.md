@@ -17,6 +17,8 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Corretto
 
+- Preparazione campioni del test Android: passaggio tramite cartella temporanea e copia nella Download come shell, con SHA-256 verificato prima dell’avvio; nessun permesso aggiunto all’app. Prima CI interrotta su adb push, prova nativa non ancora riuscita.
+
 - Controllo risorse DMG: verifica dell’architettura del job singolo, mantenendo la richiesta di entrambi i DMG nel controllo predefinito.
 
 - Gestione Indietro compatibile con il target Android recente e conferma del salvataggio solo dopo chiusura dello stream del provider.
