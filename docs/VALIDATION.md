@@ -1,5 +1,11 @@
 # Stato delle verifiche e limiti
 
+## Android completo — 7705967, 28 novembre 2026
+
+[CI Android 46110959197](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46110959197) completed/success, otto casi, selettori/filesystem/appunti reali e rete guest spenta. Artifact verifiche SHA-256 da47d09afbd336c0f07cf8e38b8e46d1638fec11cc7bd51ab6f61e5adcb8b561, uguale a GitHub. Recuperati e ricontrollati: DOCX testo aggiunto (Mammoth), XLSX B2=701/B3=2 (ExcelJS), PDF 90° (pdf-lib/Poppler e confronto visivo 6.302 <25), Markdown esatto; SHA-256 dei tre originali invariati. Open XML SDK zero errori sui due nuovi export Office. pdftotext locale assente: nessuna prova separata del testo PDF dichiarata.
+
+Release unsigned CI SHA-256 22fd42cf2736a7b06da2c30d0697a94d1aca395974db65c5a4169f176787dfbd identico alla fonte della firma locale; 240 file del payload identici, sole tre aggiunte META-INF di firma. APK firmato SHA-256 c40f3cf514cdab01be0f443d1dc9df2d80330e187401b96c03d3f0e630e58084, certificato verificato. Native prove sul debug, release verificato staticamente e con apksigner: nessuna installazione di quel release firmato su telefono. Sette PNG presenti ma alcune con frame precedenti, non certificano resa visiva completa (AND-014). Nessun telefono fisico o stabilità multi-dispositivo dedotti.
+
 ## 32232a6 — test input da stabilizzare
 
 [Android 46063967606](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46063967606): Home/DOCX PASS, B3 atteso 2 non ottenuto durante l’immissione, prima del salvataggio. Artifact SHA-256 66ad4177c286334a53f5f5768f13bebd4b3d28d581eddf64ba75108befec0192 uguale a GitHub; estrazione delle sole schermate emulator/ per evitare nomi uguali alle icone. Screenshot finale Home. Non è prova di perdita nel salvataggio. Nuova sequenza tastiera/selezione/cancellazione/blur da osservare, nessun cambiamento degli editor. [Desktop 46063967642](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46063967642) tutti sei i lavori completed/success, NSIS incluso. Restano validi i risultati sui veri export della precedente run PDF/DOCX/XLSX, non estesi a questa run fallita.

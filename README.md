@@ -22,9 +22,11 @@ La 0.2.2 aggiunge la conservazione degli zeri iniziali e dei codici lunghi, il r
 
 Un controllo indipendente opzionale apre e risalva i campioni con LibreOffice (`DOCX → ODT → DOCX`, `XLSX → ODS → XLSX`) e verifica un PDF prodotto da quel motore. Non richiede LibreOffice per usare CosmOffice: serve solo ai test. La prova copre un corpus ristretto e non certifica Microsoft Office.
 
-## Android: prima anteprima in collaudo
+## Android: prima anteprima di prova
 
 Progetto APK nativo per **Android 10 o successivo**, con gli stessi editor locali. Non è ancora una Release Android pubblica: i pacchetti desktop 0.2.3 restano invariati. [Guida Android, compilazione e limiti](docs/ANDROID.md).
+
+Otto casi funzionali passati nell’[emulatore della CI](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46110959197): apertura/modifica/salvataggio/riapertura DOCX e XLSX, PDF ruotato, creazione e riapertura Markdown, Informazioni/tema, appunti del rapporto e blocco rete. Export verificati indipendentemente, originali invariati. L’APK firmato è stato generato localmente; l’artifact della CI è unsigned, da firmare. Nessun telefono fisico collaudato; alcune catture dell’emulatore mostrano frame precedenti e non certificano la resa visiva completa.
 
 L’APK non richiede il permesso Internet: aggiornamento manuale, nessun account o invio di dati. Il selettore Android apre un file e salva una nuova copia (limite 10 MB). Stampa ed esportazione DOCX→PDF restano desktop. Le prove del frontend nel browser non sostituiscono il collaudo dell’APK o di un telefono fisico; consultare il report corrente per gli esiti effettivi.
 

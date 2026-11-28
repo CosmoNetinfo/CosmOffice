@@ -6,6 +6,8 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Aggiunto
 
+- Verifica Android completa nell’emulatore: otto casi funzionali, quattro export controllati indipendentemente, originali invariati; APK release firmato localmente e payload confrontato con la CI. Nessuna Release Android pubblica, telefono fisico e resa visiva completa ancora da collaudare.
+
 - Prima implementazione APK Android offline (Android 10+), Activity Java e WebView con asset incorporati; selettore di sistema per apertura e salvataggio di copie DOCX/XLSX/PDF/Markdown, limite 10 MB.
 - Compilazione APK, controllo permessi/licenze e prove native su emulatore nella CI Android separata; firma privata locale, checksum e verifica del certificato. Nessuna chiave in Git o nella CI.
 

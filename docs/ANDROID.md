@@ -41,7 +41,15 @@ Impronta pubblica SHA-256 del certificato: `32e3b39b807a391a018c2183eee609ccf8c2
 
 ## Prove automatiche e limiti
 
-L’APK usa la distribuzione `legacy` della stessa versione PDF.js 6.5.438, con API e worker incorporati. WebView 124 nell’emulatore non dispone di `URL.parse`, richiesto dalla distribuzione moderna: errore confermato nella CI 46059522929. Non è un cambio di motore; il desktop mantiene la distribuzione corrente. Il componente core-js 3.51.0 incluso nel legacy ha licenza MIT, riportata integralmente nelle attribuzioni. Nessun nuovo pacchetto npm e nessun download nell’app. Il round trip con questa distribuzione deve essere verificato nella CI successiva.
+### Esito effettivo del 28 novembre 2026
+
+Commit 7705967, [CI Android 46110959197](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46110959197) completed/success. Tutti otto i casi passati nell’emulatore API 35/WebView 124: Home/permessi, DOCX e XLSX modificati/salvati/riaperti, PDF renderizzato/ruotato/salvato/riaperto, Markdown creato/salvato/riaperto con ritorno nativo alla Home, Informazioni/licenza/tema scuro, copia del rapporto negli appunti Android, richiesta esterna bloccata. Originali byte-identici; quattro export letti sul computer. DOCX/XLSX esportati validi anche per Open XML SDK; PDF verificato con Poppler e confronto visivo, Markdown con byte esatti.
+
+Test nativi eseguiti sul debug. Il release unsigned della CI è byte-identico all’archivio usato dalla firma locale; tutti 240 i file del suo payload sono identici nel release firmato, con sole aggiunte dei file di firma. APK firmato: 8.761.580 byte, SHA-256 `c40f3cf514cdab01be0f443d1dc9df2d80330e187401b96c03d3f0e630e58084`. Chiave e password non caricate in GitHub, nessuna Release/tag Android creati. L’artifact CI unsigned richiede la firma prima dell’installazione; non presentarlo come installer pronto.
+
+Le sette catture sono state prodotte, ma alcune mostrano un frame precedente (Informazioni ancora in lettura, rapporto non ancora disegnato), nonostante i controlli DOM e gli appunti reali passino. Non vengono usate nel README come anteprime definitive e non certificano tutta la resa visiva. Da verificare sul dispositivo fisico, insieme a tastiera software/gesti, prestazioni, provider cloud e aggiornamento in luogo. Una sola esecuzione completa verde non dimostra stabilità su tutti i modelli/versioni Android.
+
+L’APK usa la distribuzione `legacy` della stessa versione PDF.js 6.5.438, con API e worker incorporati. WebView 124 nell’emulatore non dispone di `URL.parse`, richiesto dalla distribuzione moderna: errore confermato nella CI 46059522929. Non è un cambio di motore; il desktop mantiene la distribuzione corrente. Il componente core-js 3.51.0 incluso nel legacy ha licenza MIT, riportata integralmente nelle attribuzioni. Nessun nuovo pacchetto npm e nessun download nell’app. Il round trip sul campione PDF 01 è passato nella CI 46110959197, senza estendere il risultato a tutti i PDF reali.
 
 `npm run test:browser` include una regressione Android con porta nativa simulata: verifica byte, Markdown, apertura DOCX, tema, ritorno alle bozze, aggiornamenti assenti e rapporto senza dati privati. **Non è il collaudo dell’APK.**
 
@@ -51,6 +59,6 @@ Con un emulatore già avviato, APK debug/test compilati, `adb` nel PATH e Popple
 node scripts/android-smoke.mjs
 ```
 
-Il test rifiuta i telefoni fisici, spegne la rete guest prima di installare, apre i veri selettori Android e controlla otto passaggi: Home/permessi, DOCX, XLSX, PDF, Markdown, Informazioni/tema, appunti del rapporto, richiesta esterna bloccata. Salva e riapre i file; sul computer controlla i file esportati con lettori indipendenti e SHA-256 degli originali. Screenshot e log in `test-results/android/`. Le modifiche nell’editor sono guidate via DOM: non provano tastiera virtuale o gesti tattili. Nessun dato personale nei campioni.
+Il test rifiuta i telefoni fisici, spegne la rete guest prima di installare, apre i veri selettori Android e controlla otto passaggi: Home/permessi, DOCX, XLSX, PDF, Markdown, Informazioni/tema, appunti del rapporto, richiesta esterna bloccata. Salva e riapre i file; sul computer controlla i file esportati con lettori indipendenti e SHA-256 degli originali. Screenshot e log in `test-results/android/`. Word è modificato via DOM; celle e Markdown usano focus DOM, tasti Android verificati e normale blur. I comandi dell’app sono guidati via DOM, mentre selettori e appunti sono reali. Non provano tastiera virtuale o gesti tattili. Nessun dato personale nei campioni.
 
 Non provati finché dichiarato nel report: installazione e aggiornamento su telefono/tablet fisico, tastiera/gesti, Android 10/16, provider cloud, rotazioni dello schermo, risorse limitate e arresti forzati. Consultare sempre gli esiti reali della run, non dedurre successo dalla presenza del workflow.

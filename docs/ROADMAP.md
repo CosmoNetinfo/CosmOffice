@@ -1,14 +1,12 @@
 # Roadmap CosmOffice
 
-## Android — 27 novembre 2026
+## Android — stato del 28 novembre 2026
 
-- **Provato in emulatore, f60184a tentativo 2**: anche PDF apertura/rendering/rotazione/salvataggio/riapertura; Poppler indipendente conserva il contenuto. DOCX/XLSX realmente esportati senza errori Open XML SDK. **In corso**: driver del pulsante Markdown, poi Informazioni/tema, appunti, rete e confronto finale degli originali.
+- **Completato il primo collaudo funzionale in emulatore, 28 novembre**: tutti otto i casi della CI 46110959197, quattro export indipendenti e originali invariati; release firmato locale verificato contro il payload della CI. **Da collaudare**: telefono/tablet fisico, resa visiva completa (frame delle catture non sempre aggiornati), tastiera software/gesti, prestazioni, altre API/WebView, provider cloud e aggiornamento in luogo. Nessun APK pubblico/tag e nessun aggiornamento automatico Android.
 
-- **Provato in emulatore**: DOCX e XLSX round trip, verificati anche sui file esportati. **In corso**: PDF rifiutato su WebView 124 per URL.parse assente; build di compatibilità della stessa versione PDF.js, da collaudare. Nessun cambio di motore.
-
-- **Implementato, collaudo in corso**: APK nativo senza permessi Internet, asset offline, selettore di sistema e salvataggio di copie, 10 MB; stessi motori senza modifica.
+- **Implementato e provato sui campioni**: APK nativo senza permessi Internet, asset offline, selettore di sistema e salvataggio di copie, 10 MB; stessi motori. PDF.js della stessa versione nella distribuzione di compatibilità Android, problema URL.parse verificato sul campione PDF. Nessuna scelta del motore.
 - **Provato localmente**: compilazione APK debug/release e lint, controllo byte delle licenze nel release, firma e SHA-256 con chiave privata esterna a Git. Frontend simulato distinto dalle prove native.
-- **In corso**: otto prove native sul runner Android, apertura/modifica/salvataggio/riapertura, appunti e assenza del permesso Internet; esito effettivo solo nel report.
+- **Passato**: otto prove native sul runner Android, apertura/modifica/salvataggio/riapertura, appunti e assenza del permesso Internet; dettagli e fallimenti precedenti nel report.
 - **Non provato**: telefono/tablet fisico, tastiera virtuale, prestazioni, provider cloud, aggiornamento in luogo su dispositivo reale.
 - **Non implementato**: iOS, stampa/PDF da Word su Android, aggiornamento automatico Android, pubblicazione APK. Nessuna scelta del motore o nuova idea dello studio.
 

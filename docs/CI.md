@@ -1,5 +1,9 @@
 # Stato delle ultime CI
 
+## 7705967 — primo collaudo Android completo verde
+
+[Android 46110959197](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46110959197) completed/success: tutti otto i casi nativi, quattro export verificati indipendentemente, tre originali invariati, appunti reali e blocco rete. Release unsigned della CI identico alla fonte della firma locale; 240 file del payload identici dopo firma. Le sette PNG esistono ma alcune mostrano frame precedenti: non certificano il collaudo visivo completo e non diventano anteprime nel README. [Desktop 46110959196](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46110959196) tutti sei i lavori completed/success osservati, inclusa installazione/disinstallazione NSIS. I tentativi falliti restano documentati sotto.
+
 ## 32232a6 — immissione Android B3
 
 [Desktop 46063967642](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46063967642): tutti sei i lavori completed/success osservati, compresa installazione/disinstallazione NSIS. [Android 46063967606](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46063967606): failure durante input B3 prima dell’export; Home/DOCX PASS, schermata finale Home. Nessun esito PDF/MD dedotto da questa run. Artifact SHA-256 verificato, causa precisa dell’uscita dall’editor non dimostrata. Driver reso più verificabile, non ancora provato nella nuova CI.

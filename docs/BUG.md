@@ -1,5 +1,11 @@
 # Registro dei bug CosmOffice
 
+## Esito Android del 28 novembre — 7705967
+
+[CI 46110959197](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46110959197) completed/success: otto casi passati, quattro export verificati, originali identici. AND-011 PDF e AND-012 titolo Markdown verificati; AND-013 nuova sequenza selezione/cancellazione/digitazione/blur passata sui due valori e su Markdown, senza modificare il prodotto. Non è una prova del precedente percorso Enter o della tastiera software, né elimina statisticamente l’instabilità su ogni dispositivo. Le voci sottostanti documentano i tentativi precedenti, compresi i fallimenti.
+
+AND-014 — catture dell’emulatore non sempre aggiornate: alcune PNG mostrano frame precedenti, mentre stato DOM e appunti reali risultano corretti. Non si chiude il collaudo visivo completo e non si promuovono quelle catture nel README. Verifica su telefono fisico ancora necessaria; nessun fix dell’app dedotto da questa sola evidenza.
+
 ## AND-013 — immissione nativa del test ancora instabile
 
 32232a6 / [Android 46063967606](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46063967606): Home e DOCX PASS, controllo B3=2 scaduto durante input, prima dell’export XLSX. Screenshot finale nella Home, non nella cella; non basta per attribuire il difetto al salvataggio o dimostrarne una causa precisa. Gli stessi round trip XLSX e PDF erano passati nel tentativo precedente.
