@@ -17,6 +17,8 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Corretto
 
+- Driver Android: selezione/cancellazione confermate prima della digitazione e salvataggio della cella tramite il normale onBlur; aggiunti dati tecnici sul focus solo nel test. L’ultima run 32232a6 è tornata alla Home durante l’immissione B3: causa precisa ancora da isolare, nessuna perdita di dati dichiarata né modifica al prodotto.
+
 - Test nativo Android: riconoscimento del titolo dei pulsanti dei modelli separato dalla didascalia. PDF round trip passato nel secondo tentativo CI f60184a; DOCX/XLSX esportati senza errori SDK e PDF verificato con Poppler. Collaudo Markdown/appunti ancora aperto.
 
 - Build Android: distribuzione di compatibilità della stessa versione PDF.js, dopo errore confermato `URL.parse is not a function` su WebView 124. API e worker locali; core-js MIT attribuito integralmente. Collaudo PDF completo ancora da osservare, desktop e motori invariati.

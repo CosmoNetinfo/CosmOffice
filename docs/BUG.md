@@ -1,5 +1,11 @@
 # Registro dei bug CosmOffice
 
+## AND-013 — immissione nativa del test ancora instabile
+
+32232a6 / [Android 46063967606](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46063967606): Home e DOCX PASS, controllo B3=2 scaduto durante input, prima dell’export XLSX. Screenshot finale nella Home, non nella cella; non basta per attribuire il difetto al salvataggio o dimostrarne una causa precisa. Gli stessi round trip XLSX e PDF erano passati nel tentativo precedente.
+
+Driver aggiornato: Ctrl+A Android, selezione confermata, cancellazione confermata, digitazione e valore atteso, normale blur e nuovo controllo. Rimossi DOM select seguito immediatamente da tasti e spostamento tramite Enter. Restano B2/B3 pre/post e parser sugli export; nessuna modifica app o accesso diretto al modello. Diagnostica solo nell’APK di test con booleani della pagina, focus, tag e lunghezza/selezione, mai contenuto dei campi. Non chiuso prima del risultato nativo, tastiera reale/software ancora non collaudata.
+
 ## AND-012 — titolo del modello Markdown nel driver
 
 f60184a / [Android 46061575296, tentativo 2](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46061575296/attempts/2): Home, DOCX, XLSX e PDF round trip PASS; test fermato prima della creazione Markdown. Il pulsante contiene titolo «Nuovo Markdown» e didascalia «CosmoWrite · .md», mentre il driver confrontava tutto textContent con il solo titolo. Driver corretto: aria-label, altrimenti titolo strong, altrimenti testo completo; confronto sempre esatto. App invariata. Non ancora verificato nel nuovo smoke.

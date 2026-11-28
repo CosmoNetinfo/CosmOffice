@@ -1,5 +1,9 @@
 # Stato delle verifiche e limiti
 
+## 32232a6 — test input da stabilizzare
+
+[Android 46063967606](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46063967606): Home/DOCX PASS, B3 atteso 2 non ottenuto durante l’immissione, prima del salvataggio. Artifact SHA-256 66ad4177c286334a53f5f5768f13bebd4b3d28d581eddf64ba75108befec0192 uguale a GitHub; estrazione delle sole schermate emulator/ per evitare nomi uguali alle icone. Screenshot finale Home. Non è prova di perdita nel salvataggio. Nuova sequenza tastiera/selezione/cancellazione/blur da osservare, nessun cambiamento degli editor. [Desktop 46063967642](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46063967642) tutti sei i lavori completed/success, NSIS incluso. Restano validi i risultati sui veri export della precedente run PDF/DOCX/XLSX, non estesi a questa run fallita.
+
 ## f60184a — PDF nativo e verifica degli export
 
 [Android 46061575296, tentativo 2](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46061575296/attempts/2): quattro casi PASS (Home/DOCX/XLSX/PDF), quinto fallito perché il selettore del pulsante Markdown non considera la didascalia. Artifact SHA-256 8135223feb397a7ae59ea24f0547d702952115923265d00148b3d28a04a1e9ce uguale a GitHub. Sui tre file effettivi: Mammoth testo aggiunto, ExcelJS B2=701/B3=2, Open XML SDK zero errori su entrambi; PDF-lib/pdfinfo 90°. Poppler pdftoppm e confronto visivo esistente PASS, differenza 6.302 <25. pdftotext locale assente, confronto testo non eseguito; usata la verifica visiva indipendente esistente. Tentativo 1 fallito per ANR Pixel Launcher sopra il selettore, screenshot verificato; nessuna prova saltata. [Desktop 46061575262](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46061575262): tutti sei i lavori completed/success, inclusa NSIS installata/disinstallata.

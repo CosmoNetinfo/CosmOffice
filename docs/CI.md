@@ -1,5 +1,9 @@
 # Stato delle ultime CI
 
+## 32232a6 — immissione Android B3
+
+[Desktop 46063967642](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46063967642): tutti sei i lavori completed/success osservati, compresa installazione/disinstallazione NSIS. [Android 46063967606](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46063967606): failure durante input B3 prima dell’export; Home/DOCX PASS, schermata finale Home. Nessun esito PDF/MD dedotto da questa run. Artifact SHA-256 verificato, causa precisa dell’uscita dall’editor non dimostrata. Driver reso più verificabile, non ancora provato nella nuova CI.
+
 ## f60184a — PDF Android passato, suite incompleta
 
 [Desktop 46061575262](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46061575262): sei lavori completed/success osservati. [Android 46061575296](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46061575296): tentativo 1 failure, ANR Pixel Launcher sopra il selettore; tentativo 2 failure al modello Markdown dopo Home/DOCX/XLSX/PDF PASS. Gli export veri superano SDK/lettori indipendenti, ma nessuna CI Android completa verde ancora osservata. Driver aggiornato sul titolo del modello, senza cambiare app o attese di salvataggio.

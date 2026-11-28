@@ -70,10 +70,18 @@ public final class SmokeInstrumentation extends Instrumentation {
         js(q + ".focus()");
         until("document.activeElement===" + q);
         if (label.startsWith("Cella ")) until("document.querySelector('.cell-address')?.textContent===" + JSONObject.quote(label.substring(6)));
-        js(q + ".select()");
+        // Confirm selection through the Android input pipeline, not a DOM select
+        // immediately followed by native events whose focus can still be stale.
+        long stamp = android.os.SystemClock.uptimeMillis();
+        sendKeySync(new android.view.KeyEvent(stamp, stamp, android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_A, 0, android.view.KeyEvent.META_CTRL_ON));
+        sendKeySync(new android.view.KeyEvent(stamp, android.os.SystemClock.uptimeMillis(), android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_A, 0, android.view.KeyEvent.META_CTRL_ON));
+        until(q + ".selectionStart===0&&" + q + ".selectionEnd===" + q + ".value.length");
+        sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_DEL);
+        until(q + ".value===''");
         sendStringSync(text);
         until(q + ".value===" + JSONObject.quote(text));
-        if (label.startsWith("Cella ")) sendKeyDownUpSync(66); // Enter commits through the editor's normal handler.
+        js(q + ".blur()"); // Normal onBlur commits the cell, without moving focus via Enter.
+        until(q + ".value===" + JSONObject.quote(text));
     }
     private AccessibilityNodeInfo find(AccessibilityNodeInfo root, String text, String className) {
         if (root == null) return null;
@@ -200,13 +208,14 @@ public final class SmokeInstrumentation extends Instrumentation {
                 screenshot("segnala-problema");
             });
             step("Nessuna connessione esterna", () -> {
-                js("window.__cosmoNetworkResult=null;fetch('https://example.invalid/raccogli').then(()=>window.__cosmoNetworkResult='ERRORE',()=>window.__cosmoNetworkResult='BLOCCATO')");
+                js("window.__cosmoNetworkResult=null;fetch('https://example.invalid/raccogli').then(r=>window.__cosmoNetworkResult=r.status===403&&r.statusText==='Blocked'?'BLOCCATO':'ERRORE',()=>window.__cosmoNetworkResult='BLOCCATO')");
                 until("window.__cosmoNetworkResult==='BLOCCATO'");
             });
             result.putString("cosmoffice", "PASS"); result.putInt("prove", TOTAL);
             result.putString("stream", "\nPASS Android reale in emulatore: otto prove, selettore e filesystem reali, nessun permesso Internet.\n");
         } catch (Throwable error) {
             result.putString("cosmoffice", "FAIL"); result.putString("stream", "\nFAIL Android: " + error + "\n");
+            try { result.putString("ui", js("JSON.stringify({home:document.querySelector('h1')?.textContent==='Il tuo spazio di lavoro.',grid:!!document.querySelector('.grid-editor'),markdown:!!document.querySelector('.markdown-source'),pdf:!!document.querySelector('.pdf-paper'),focused:document.hasFocus(),activeTag:document.activeElement?.tagName,selectionStart:document.activeElement?.selectionStart,selectionEnd:document.activeElement?.selectionEnd,valueLength:document.activeElement?.value?.length})")); } catch (Exception ignored) {}
             try { screenshot("errore"); } catch (Exception ignored) {}
         }
         finish(Activity.RESULT_OK, result);
