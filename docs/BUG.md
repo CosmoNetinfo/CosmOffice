@@ -1,5 +1,11 @@
 # Registro dei bug CosmOffice
 
+## AND-015 — PDF rifiutati sul telefono: Promise.withResolvers assente
+
+28 novembre 2026: il titolare prova il primo APK su telefono fisico e mostra «Impossibile aprire il file: Promise.withResolvers is not a function». L’emulatore WebView 124 disponeva dell’API: gli otto casi verdi non coprivano questa variante. Versione precisa del WebView del telefono non nota; nessun documento dell’utente acquisito o pubblicato.
+
+Riprodotto lo stesso errore con i veri asset del vecchio APK e l’API rimossa. Build Android 2: supporto originale tramite il normale costruttore Promise, prima di tutti i chunk e del worker; implementazione nativa preservata quando disponibile. Tre PDF (testo/scansione/venti pagine) aperti, ruotati, salvati e riaperti senza API in pagina e worker reale, senza fake worker. Nuovo APK compilato e firmato con la stessa chiave, versionCode 2. La nuova prova sul telefono non è ancora stata eseguita: non dichiarare risolto su quel dispositivo prima della conferma.
+
 ## Esito Android del 28 novembre — 7705967
 
 [CI 46110959197](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46110959197) completed/success: otto casi passati, quattro export verificati, originali identici. AND-011 PDF e AND-012 titolo Markdown verificati; AND-013 nuova sequenza selezione/cancellazione/digitazione/blur passata sui due valori e su Markdown, senza modificare il prodotto. Non è una prova del precedente percorso Enter o della tastiera software, né elimina statisticamente l’instabilità su ogni dispositivo. Le voci sottostanti documentano i tentativi precedenti, compresi i fallimenti.

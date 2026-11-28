@@ -1,5 +1,11 @@
 # Decisioni e alternative tecniche
 
+## 28 novembre 2026 — Promise nei WebView Android meno recenti
+
+Il test sul telefono ha evidenziato `Promise.withResolvers` mancante anche nella distribuzione PDF.js legacy. Si aggiunge un supporto originale e piccolo, basato sul costruttore Promise standard, esclusivamente alla build Android: banner prima dei moduli e prefisso del worker. Nessun cambio di motore, versione PDF.js o dipendenza. API nativa mantenuta quando presente, costruttori generici/sottoclassi e rifiuti verificati. La sola patch alla pagina è scartata perché il worker ha un ambiente separato; chiedere un aggiornamento del WebView come unico rimedio è scartato perché non corregge il pacchetto già distribuito. Nessun codice esterno copiato.
+
+Versione desktop invariata 0.2.3, Android versionCode 2 e medesima firma/package/origine locale. È la preparazione di un aggiornamento sopra l’APK precedente, non una prova già riuscita dell’aggiornamento o dei PDF sul telefono del titolare. Nessun tag/Release o nuova chiave. Nessun cambiamento del formato delle bozze.
+
 ## Compatibilità PDF Android — 27 novembre 2026
 
 La CI 46059522929 ha riprodotto il rifiuto del campione PDF su WebView 124.0.6367.219: `URL.parse is not a function`. La distribuzione moderna PDF.js richiede anche altre API recenti. Scelta limitata alla piattaforma: build Vite Android separata, alias esatti per API e worker della distribuzione legacy **della stessa versione 6.5.438** già installata; desktop e file src/pdf-engine.mjs invariati. Non è una decisione sul motore Office. Scartata una correzione isolata di URL.parse: non coprirebbe coerentemente le altre API richieste, né il worker. Nessun codice esterno riscritto o copiato manualmente; libreria esistente usata tramite la sua distribuzione compatibile.

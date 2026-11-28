@@ -2,6 +2,8 @@
 
 ## Android — stato del 28 novembre 2026
 
+- **Correzione in verifica, build 2**: telefono del titolare segnala PDF bloccati per Promise.withResolvers assente. Difetto riprodotto, compatibilità originale in pagina/worker e tre PDF verificati senza API; APK con stessa firma e versionCode 2. **Da riprovare sullo stesso telefono** prima di chiudere AND-015; il precedente risultato dell’emulatore non lo copriva.
+
 - **Completato il primo collaudo funzionale in emulatore, 28 novembre**: tutti otto i casi della CI 46110959197, quattro export indipendenti e originali invariati; release firmato locale verificato contro il payload della CI. **Da collaudare**: telefono/tablet fisico, resa visiva completa (frame delle catture non sempre aggiornati), tastiera software/gesti, prestazioni, altre API/WebView, provider cloud e aggiornamento in luogo. Nessun APK pubblico/tag e nessun aggiornamento automatico Android.
 
 - **Implementato e provato sui campioni**: APK nativo senza permessi Internet, asset offline, selettore di sistema e salvataggio di copie, 10 MB; stessi motori. PDF.js della stessa versione nella distribuzione di compatibilità Android, problema URL.parse verificato sul campione PDF. Nessuna scelta del motore.

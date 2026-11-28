@@ -9,10 +9,17 @@ const root = await realpath(process.cwd());
 await mkdir(join(root, 'test-results/android/web'), { recursive: true });
 const webAssets = await realpath(join(root, 'test-results/android/web'));
 if (relative(root, webAssets).replaceAll('\\', '/') !== 'test-results/android/web') throw new Error('Destinazione della build Android non sicura.');
+await rm(webAssets, { recursive: true, force: true });
+await mkdir(webAssets, { recursive: true });
+const compatibility = await readFile(join(root, 'scripts/android-webview-compat.mjs'), 'utf8');
+const worker = join(webAssets, 'pdf.worker.compat.mjs');
+await writeFile(worker, compatibility + '\n' + await readFile(join(root, 'node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs'), 'utf8'));
 await build({ resolve: { alias: [
   { find: /^pdfjs-dist$/, replacement: join(root, 'node_modules/pdfjs-dist/legacy/build/pdf.mjs').replaceAll('\\', '/') },
-  { find: /^pdfjs-dist\/build\/pdf\.worker\.min\.mjs(\?url)?$/, replacement: join(root, 'node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs').replaceAll('\\', '/') + '?url' },
-] }, build: { outDir: webAssets } });
+  { find: /^pdfjs-dist\/build\/pdf\.worker\.min\.mjs(\?url)?$/, replacement: worker.replaceAll('\\', '/') + '?url' },
+] }, build: { outDir: webAssets, emptyOutDir: false, rolldownOptions: { output: { banner: compatibility } } } });
+// Input and output share only this generated directory; do not ship the extra input copy.
+await rm(worker);
 const parent = join(root, 'android/app/src/main/assets');
 await mkdir(parent, { recursive: true });
 const actual = await realpath(parent);

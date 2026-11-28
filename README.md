@@ -24,6 +24,8 @@ Un controllo indipendente opzionale apre e risalva i campioni con LibreOffice (`
 
 ## Android: prima anteprima di prova
 
+**Build Android 2 in verifica:** corretto nel pacchetto il supporto a `Promise.withResolvers`, assente nel WebView del telefono del titolare e responsabile del rifiuto dei PDF. Stessa versione 0.2.3 e stessa firma, versionCode 2 per aggiornamento. Tre PDF passano la regressione senza API in pagina/worker; nuova conferma sul telefono ancora necessaria. [Esiti e limiti](docs/report/ULTIMO.md).
+
 Progetto APK nativo per **Android 10 o successivo**, con gli stessi editor locali. Non è ancora una Release Android pubblica: i pacchetti desktop 0.2.3 restano invariati. [Guida Android, compilazione e limiti](docs/ANDROID.md).
 
 Otto casi funzionali passati nell’[emulatore della CI](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46110959197): apertura/modifica/salvataggio/riapertura DOCX e XLSX, PDF ruotato, creazione e riapertura Markdown, Informazioni/tema, appunti del rapporto e blocco rete. Export verificati indipendentemente, originali invariati. L’APK firmato è stato generato localmente; l’artifact della CI è unsigned, da firmare. Nessun telefono fisico collaudato; alcune catture dell’emulatore mostrano frame precedenti e non certificano la resa visiva completa.

@@ -19,6 +19,8 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Corretto
 
+- Android build 2: apertura PDF su WebView senza `Promise.withResolvers`, difetto segnalato dal titolare su telefono fisico. Compatibilità originale incorporata prima dei moduli e del worker PDF; prove senza API su tre campioni, nessuna nuova dipendenza. Stessa firma e package, `versionCode` incrementato per aggiornamento. Nuova prova sul telefono ancora da eseguire.
+
 - Driver Android: selezione/cancellazione confermate prima della digitazione e salvataggio della cella tramite il normale onBlur; aggiunti dati tecnici sul focus solo nel test. L’ultima run 32232a6 è tornata alla Home durante l’immissione B3: causa precisa ancora da isolare, nessuna perdita di dati dichiarata né modifica al prodotto.
 
 - Test nativo Android: riconoscimento del titolo dei pulsanti dei modelli separato dalla didascalia. PDF round trip passato nel secondo tentativo CI f60184a; DOCX/XLSX esportati senza errori SDK e PDF verificato con Poppler. Collaudo Markdown/appunti ancora aperto.

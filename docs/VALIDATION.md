@@ -1,5 +1,9 @@
 # Stato delle verifiche e limiti
 
+## Android build 2 — regressione Promise del telefono
+
+Il primo APK è stato provato dal titolare e ha rifiutato un PDF per `Promise.withResolvers is not a function`. Il nuovo controllo negativo riproduce esattamente quell’errore sui vecchi asset. Sul nuovo build, API rimossa dalla pagina e dal vero worker PDF: apertura/rendering/rotazione/export/riapertura di 01-testo.pdf, 02-scansione.pdf e 03-venti-pagine.pdf PASS; rotazione 90° verificata con pdf-lib, zero richieste esterne e nessun fake worker. Porta file simulata in questa regressione, non confonderla con l’APK reale. Cinque test unitari Android includono successo/rifiuto, sottoclassi, costruttori non validi e API esistente preservata. Nuovo collaudo nativo della build 2 ancora da osservare; telefono del titolare non ancora riprovato.
+
 ## Android completo — 7705967, 28 novembre 2026
 
 [CI Android 46110959197](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46110959197) completed/success, otto casi, selettori/filesystem/appunti reali e rete guest spenta. Artifact verifiche SHA-256 da47d09afbd336c0f07cf8e38b8e46d1638fec11cc7bd51ab6f61e5adcb8b561, uguale a GitHub. Recuperati e ricontrollati: DOCX testo aggiunto (Mammoth), XLSX B2=701/B3=2 (ExcelJS), PDF 90° (pdf-lib/Poppler e confronto visivo 6.302 <25), Markdown esatto; SHA-256 dei tre originali invariati. Open XML SDK zero errori sui due nuovi export Office. pdftotext locale assente: nessuna prova separata del testo PDF dichiarata.

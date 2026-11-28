@@ -41,6 +41,12 @@ Impronta pubblica SHA-256 del certificato: `32e3b39b807a391a018c2183eee609ccf8c2
 
 ## Prove automatiche e limiti
 
+### Correzione build 2: PDF sul telefono del titolare
+
+Il titolare ha trovato un errore reale nel primo APK: `Promise.withResolvers is not a function`. Il WebView del suo telefono non ha questa API; la versione precisa non è nota. Il precedente emulatore WebView 124 la possiede, quindi il risultato verde non certificava questa variante.
+
+Android versionCode passa a **2**, sempre versione 0.2.3, package e chiave identici. Supporto Promise originale incorporato prima dei moduli e nel worker; nessuna libreria nuova, motore o schema delle bozze cambiato. Tre PDF di esempio passano la regressione con API rimossa anche dal worker reale; il vecchio APK fallisce con lo stesso messaggio dello screenshot. Il nuovo pacchetto va installato come aggiornamento dell’app esistente. La conservazione dei dati durante l’aggiornamento e l’apertura sul telefono devono ancora essere provate: non dedurle dalla sola firma uguale. Nessuna disinstallazione richiesta per questa prova.
+
 ### Esito effettivo del 28 novembre 2026
 
 Commit 7705967, [CI Android 46110959197](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46110959197) completed/success. Tutti otto i casi passati nell’emulatore API 35/WebView 124: Home/permessi, DOCX e XLSX modificati/salvati/riaperti, PDF renderizzato/ruotato/salvato/riaperto, Markdown creato/salvato/riaperto con ritorno nativo alla Home, Informazioni/licenza/tema scuro, copia del rapporto negli appunti Android, richiesta esterna bloccata. Originali byte-identici; quattro export letti sul computer. DOCX/XLSX esportati validi anche per Open XML SDK; PDF verificato con Poppler e confronto visivo, Markdown con byte esatti.
