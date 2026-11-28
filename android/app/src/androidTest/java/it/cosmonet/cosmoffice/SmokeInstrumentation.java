@@ -84,17 +84,33 @@ public final class SmokeInstrumentation extends Instrumentation {
         js(q + ".blur()"); // Normal onBlur commits the cell, without moving focus via Enter.
         until(q + ".value===" + JSONObject.quote(text));
     }
-    private AccessibilityNodeInfo find(AccessibilityNodeInfo root, String text, String className) {
+    private static AccessibilityNodeInfo find(AccessibilityNodeInfo root, String text, String className) {
         if (root == null) return null;
         boolean same = text == null || root.getText() != null && text.equalsIgnoreCase(root.getText().toString());
         if (same && (className == null || className.contentEquals(root.getClassName())) && root.isVisibleToUser() && root.isEnabled()) return root;
         for (int i = 0; i < root.getChildCount(); i++) { AccessibilityNodeInfo found = find(root.getChild(i), text, className); if (found != null) return found; }
         return null;
     }
+    private static int externalAnrs;
+    static boolean dismissKnownEmulatorAnr(Instrumentation instrumentation, AccessibilityNodeInfo root) {
+        if (!(android.os.Build.HARDWARE.equals("ranchu") || android.os.Build.HARDWARE.equals("goldfish")) || root == null || root.getPackageName() == null || !"android".contentEquals(root.getPackageName())) return false;
+        String recognized = null;
+        for (String title : new String[]{"Pixel Launcher isn't responding", "Messages isn't responding"}) {
+            if (find(root, title, null) != null) { recognized = title; break; }
+        }
+        if (recognized == null) return false; // Never dismiss CosmOffice, DocumentsUI or an unknown crash.
+        if (++externalAnrs > 4) throw new AssertionError("Emulatore instabile: troppi ANR di app esterne");
+        AccessibilityNodeInfo close = find(root, "Close app", null);
+        while (close != null && !close.isClickable()) close = close.getParent();
+        if (close == null || !close.performAction(AccessibilityNodeInfo.ACTION_CLICK)) throw new AssertionError("ANR esterno non chiudibile");
+        Bundle evidence = new Bundle(); evidence.putString("externalEmulatorAnr", recognized); instrumentation.sendStatus(2, evidence);
+        return true;
+    }
     private AccessibilityNodeInfo node(String text, String className) throws Exception {
         long end = System.currentTimeMillis() + 30000;
         while (System.currentTimeMillis() < end) {
             AccessibilityNodeInfo root = getUiAutomation().getRootInActiveWindow();
+            if (dismissKnownEmulatorAnr(this, root)) { Thread.sleep(200); continue; }
             String owner = root == null || root.getPackageName() == null ? "" : root.getPackageName().toString();
             // Wait for the real system picker. The app also has EditText nodes (document title/cells).
             if (!owner.equals("com.android.documentsui") && !owner.equals("com.google.android.documentsui")) {

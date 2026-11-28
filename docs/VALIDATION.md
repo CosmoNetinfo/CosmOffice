@@ -230,3 +230,5 @@ Unitari: 80/80 passati; browser Android con ponte simulato passato dopo correzio
 Nuova CI prevista: nove casi nativi, peer di aggiornamento simulato per errori/hash/firma/timer/cancel; vero PackageInstaller 3→4 con consenso Android e bozze conservate; ultimo probe con Wi-Fi attivo, contatori UID invariati all’avvio e richiesta GitHub manuale. Queste prove non sono dichiarate riuscite prima di leggerne l’esito. Non sostituiscono telefono fisico/firma di distribuzione. Desktop, suite browser e Open XML continuano a essere richiesti.
 
 CI 46124354250 fallita dopo nove PASS: secondo instrumentation non registrato da AGP. Corretto test runner unico, ricompilato con lint; esito della nuova CI ancora da leggere. Installazione e rete live non dichiarate provate.
+
+Due ANR esterni verificati nell’emulatore e516616; test aggiornato per chiudere solo Pixel Launcher/Messages con titolo e package di sistema esatti, massimo quattro. Nessun errore dell’app ignorato. Sedici controlli locali passati; browser aveva un timeout Markdown, non riprodotto nel diagnostico e nella successiva suite completa, causa ancora sconosciuta.

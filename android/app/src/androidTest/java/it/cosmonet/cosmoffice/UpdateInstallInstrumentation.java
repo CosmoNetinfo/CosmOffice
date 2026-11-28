@@ -28,7 +28,7 @@ final class UpdateInstallInstrumentation {
     }
     private void tap(String text, boolean systemInstaller) throws Exception {
         long end=System.currentTimeMillis()+30000;
-        while(System.currentTimeMillis()<end){AccessibilityNodeInfo root=instrumentation.getUiAutomation().getRootInActiveWindow();String pkg=root==null||root.getPackageName()==null?"":root.getPackageName().toString();
+        while(System.currentTimeMillis()<end){AccessibilityNodeInfo root=instrumentation.getUiAutomation().getRootInActiveWindow();if(SmokeInstrumentation.dismissKnownEmulatorAnr(instrumentation,root)){Thread.sleep(100);continue;}String pkg=root==null||root.getPackageName()==null?"":root.getPackageName().toString();
             boolean owner=systemInstaller ? pkg.contains("packageinstaller")||pkg.contains("permissioncontroller") : pkg.equals("it.cosmonet.cosmoffice");
             AccessibilityNodeInfo node=owner?find(root,text):null;if(node!=null){while(node!=null&&!node.isClickable())node=node.getParent();if(node!=null){node.performAction(AccessibilityNodeInfo.ACTION_CLICK);return;}}Thread.sleep(100);
         }throw new AssertionError("Comando nativo assente: "+text);
