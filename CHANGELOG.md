@@ -13,6 +13,7 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ### Aggiunto
 
+- Release Android ordinaria pubblica android-v0.2.3-3: APK firmato, manifesto e checksum, cinque download anonimi verificati; latest desktop immutato. CI Android/desktop verdi; esiti dettagliati nel report.
 - Anteprima APK Android 10+, firmata con la chiave CosmOffice; pubblicazione separata dalla Release desktop, con SHA-256 e manifesto di aggiornamento. Nessun account o telemetria.
 - Aggiornamenti nativi da GitHub: pulsante «Controlla aggiornamenti ora», download verificato, conferma nell’app e nell’installatore Android. Facoltativi controlli ogni sei ore mentre l’app resta in primo piano, spenti di default.
 - Test di politica HTTPS, host, redirect, annullamento, hash e certificato. Prova CI dell’installatore Android con un APK futuro solo di test, verifica di quattro bozze e tema dopo l’aggiornamento e controllo live della rete. Gli esiti osservati sono nel report, non dedotti dalla presenza dei test.

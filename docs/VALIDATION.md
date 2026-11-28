@@ -232,3 +232,5 @@ Nuova CI prevista: nove casi nativi, peer di aggiornamento simulato per errori/h
 CI 46124354250 fallita dopo nove PASS: secondo instrumentation non registrato da AGP. Corretto test runner unico, ricompilato con lint; esito della nuova CI ancora da leggere. Installazione e rete live non dichiarate provate.
 
 Due ANR esterni verificati nell’emulatore e516616; test aggiornato per chiudere solo Pixel Launcher/Messages con titolo e package di sistema esatti, massimo quattro. Nessun errore dell’app ignorato. Sedici controlli locali passati; browser aveva un timeout Markdown, non riprodotto nel diagnostico e nella successiva suite completa, causa ancora sconosciuta.
+
+a1149df: CI Android 46148736951 success, nove casi e file indipendenti; vero aggiornamento debug 3→4 con consenso Android, quattro bozze e tema conservati, zero byte UID all’avvio con Wi-Fi e controllo HTTPS reale a github.com, trasporto poi spento. CI desktop 46148737111 sei success. Cinque asset Android pubblici scaricati senza login e confrontati con gli hash; latest desktop invariato. Non prova telefono/firma di distribuzione né futuro download APK nativo da CDN.

@@ -24,9 +24,9 @@ Un controllo indipendente opzionale apre e risalva i campioni con LibreOffice (`
 
 ## Android: anteprima build 3
 
-APK per **Android 10 o successivo**, versione 0.2.3 / codice 3, con gli stessi editor locali. Preparazione della [Release Android separata](https://github.com/CosmoNetinfo/CosmOffice/releases/tag/android-v0.2.3-3): la pubblicazione effettiva e i download anonimi vengono confermati nel [report corrente](docs/report/ULTIMO.md). La Release desktop e /releases/latest restano invariati.
+APK per **Android 10 o successivo**, versione 0.2.3 / codice 3, con gli stessi editor locali. [Release Android pubblica con APK e checksum](https://github.com/CosmoNetinfo/CosmOffice/releases/tag/android-v0.2.3-3), scaricabile senza accesso a GitHub. [Scarica APK build 3](https://github.com/CosmoNetinfo/CosmOffice/releases/download/android-v0.2.3-3/CosmOffice-0.2.3-android-3.apk). Esiti e download verificati nel [report corrente](docs/report/ULTIMO.md). La Release desktop e /releases/latest restano invariati.
 
-Inclusa la correzione PDF per WebView senza Promise.withResolvers. Tre PDF passano nel browser senza l’API, anche nel worker; la conferma sul telefono del problema resta necessaria. Le prove native precedenti coprono otto casi nell’[emulatore](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46119064203). Esiti dei nuovi test e limiti nella [guida Android](docs/ANDROID.md).
+Inclusa la correzione PDF per WebView senza Promise.withResolvers. Tre PDF passano nel browser senza l’API, anche nel worker; la conferma sul telefono del problema resta necessaria. La [CI Android verde](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46148736951) copre nove casi, installazione reale debug 3→4, quattro bozze/tema conservati e controllo GitHub reale con zero byte all’avvio. Esiti dei nuovi test e limiti nella [guida Android](docs/ANDROID.md).
 
 **Aggiornamenti spenti di default.** In Impostazioni premi «Controlla aggiornamenti ora» per una sola ricerca. Oppure attiva i controlli ogni sei ore mentre l’app resta in primo piano. La rete nativa è limitata a github.com e release-assets.githubusercontent.com, solo Release di CosmoNetinfo/CosmOffice. HTTPS verificato, SHA-256, stessa firma, codice superiore, conferma nell’app e nell’installatore Android. Nessun dato dei documenti inviato. Il WebView resta senza rete.
 

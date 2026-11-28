@@ -102,3 +102,5 @@ Pubblicazione 0.2.3 del 25 novembre: Windows e Linux pubblici, main bbad3f6 con 
 1. In verifica: updater nativo, default spento, manuale/periodico in primo piano, SHA-256/firma e installazione confermata. Pubblicazione separata dopo CI verde.
 2. Da provare: PDF corretto e aggiornamento sul telefono fisico, tastiera/gesti e varianti produttore. AND-014 aperto.
 3. Desktop 0.2.3 pubblico invariato. Nessuna nuova idea dello studio o scelta del motore implementata.
+
+Android build 3: pubblicata separatamente, con checksum e note; updater manuale/periodici opt-in in primo piano, SHA-256/firma/consenso, test emulatore e download anonimi passati. Priorità residua: PDF sul telefono segnalato, aggiornamento con firma di distribuzione su telefono, tastiera/gesti e AND-014. Nessuna nuova idea o motore adottato.

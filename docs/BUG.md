@@ -214,3 +214,5 @@ CI-MAC-001: correzione verificata nei due job DMG e nella pubblicazione della ru
 CI Android 6bcefd6: nove casi passati, fase installazione bloccata da runner aggiuntivo non registrato. Manifesto generato verificato, corretto inoltro delle modalità sul runner unico; prova installazione/live ancora da rieseguire. Nessuna pubblicazione con CI rossa.
 
 CI Android e516616: due tentativi falliti per ANR esterni, Pixel Launcher e Messages, confermati nelle catture. Recupero del solo test: chiusura dei due dialoghi esatti su hardware emulato, eventi registrati e limite quattro, nessun ANR CosmOffice/DialogsUI ignorato. Nuova CI da verificare. Timeout Markdown locale isolato non riprodotto; causa non accertata, output nel report.
+
+Pubblicazione Android build 3 verificata, updater/installatore provati nell’emulatore a1149df. Restano AND-014, conferma PDF sul telefono, aggiornamento con firma di distribuzione e instabilità ANR esterna intermittente. Recupero ANR del test non esercitato nella run verde. Timeout Markdown precedente non riprodotto e senza causa accertata; non dichiarato corretto.
