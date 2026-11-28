@@ -22,7 +22,8 @@ public final class SmokeInstrumentation extends Instrumentation {
     private MainActivity activity;
     private int current;
     private static final int TOTAL = 9;
-    @Override public void onCreate(Bundle args) { super.onCreate(args); start(); }
+    private String updateMode;
+    @Override public void onCreate(Bundle args) { updateMode = args == null ? null : args.getString("updateMode"); super.onCreate(args); start(); }
     private interface Check { void run() throws Exception; }
     private Bundle status(String name) {
         Bundle result = new Bundle(); result.putString("id", "CosmOfficeAndroid");
@@ -145,6 +146,7 @@ public final class SmokeInstrumentation extends Instrumentation {
         bitmap.recycle();
     }
     @Override public void onStart() {
+        if (updateMode != null) { new UpdateInstallInstrumentation(this, updateMode).run(); return; }
         Bundle result = new Bundle();
         try {
             Intent launch = new Intent(getTargetContext(), MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

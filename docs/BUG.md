@@ -210,3 +210,5 @@ CI-MAC-001: correzione verificata nei due job DMG e nella pubblicazione della ru
 - AND-014 resta aperto: catture native con frame precedente, nessuna certificazione visiva completa.
 - PDF Promise.withResolvers: regressione su pagina/worker passata; attesa conferma sul telefono interessato.
 - Aggiornamento fisico con chiave di distribuzione ancora non provato. CI nuova da osservare dopo push; nessun successo presunto.
+
+CI Android 6bcefd6: nove casi passati, fase installazione bloccata da runner aggiuntivo non registrato. Manifesto generato verificato, corretto inoltro delle modalità sul runner unico; prova installazione/live ancora da rieseguire. Nessuna pubblicazione con CI rossa.

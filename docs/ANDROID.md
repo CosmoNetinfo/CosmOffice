@@ -47,7 +47,7 @@ Il titolare ha trovato un errore reale nel primo APK: `Promise.withResolvers is 
 
 Android versionCode passa a **2**, sempre versione 0.2.3, package e chiave identici. Supporto Promise originale incorporato prima dei moduli e nel worker; nessuna libreria nuova, motore o schema delle bozze cambiato. Tre PDF di esempio passano la regressione con API rimossa anche dal worker reale; il vecchio APK fallisce con lo stesso messaggio dello screenshot. Il nuovo pacchetto va installato come aggiornamento dell’app esistente. La conservazione dei dati durante l’aggiornamento e l’apertura sul telefono devono ancora essere provate: non dedurle dalla sola firma uguale. Nessuna disinstallazione richiesta per questa prova.
 
-### Esito effettivo del 28 novembre 2026
+### Storico: primo APK, esito del 28 novembre 2026
 
 Commit 7705967, [CI Android 46110959197](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46110959197) completed/success. Tutti otto i casi passati nell’emulatore API 35/WebView 124: Home/permessi, DOCX e XLSX modificati/salvati/riaperti, PDF renderizzato/ruotato/salvato/riaperto, Markdown creato/salvato/riaperto con ritorno nativo alla Home, Informazioni/licenza/tema scuro, copia del rapporto negli appunti Android, richiesta esterna bloccata. Originali byte-identici; quattro export letti sul computer. DOCX/XLSX esportati validi anche per Open XML SDK; PDF verificato con Poppler e confronto visivo, Markdown con byte esatti.
 
@@ -57,7 +57,7 @@ Le sette catture sono state prodotte, ma alcune mostrano un frame precedente (In
 
 L’APK usa la distribuzione `legacy` della stessa versione PDF.js 6.5.438, con API e worker incorporati. WebView 124 nell’emulatore non dispone di `URL.parse`, richiesto dalla distribuzione moderna: errore confermato nella CI 46059522929. Non è un cambio di motore; il desktop mantiene la distribuzione corrente. Il componente core-js 3.51.0 incluso nel legacy ha licenza MIT, riportata integralmente nelle attribuzioni. Nessun nuovo pacchetto npm e nessun download nell’app. Il round trip sul campione PDF 01 è passato nella CI 46110959197, senza estendere il risultato a tutti i PDF reali.
 
-`npm run test:browser` include una regressione Android con porta nativa simulata: verifica byte, Markdown, apertura DOCX, tema, ritorno alle bozze, aggiornamenti assenti e rapporto senza dati privati. **Non è il collaudo dell’APK.**
+`npm run test:browser` include una regressione Android con porta nativa simulata: verifica byte, Markdown, apertura DOCX, tema, ritorno alle bozze, impostazioni aggiornamenti e rapporto senza dati privati. **Non è il collaudo dell’APK.**
 
 Con un emulatore già avviato, APK debug/test compilati, `adb` nel PATH e Poppler disponibile:
 
@@ -65,7 +65,7 @@ Con un emulatore già avviato, APK debug/test compilati, `adb` nel PATH e Popple
 node scripts/android-smoke.mjs
 ```
 
-Il test rifiuta i telefoni fisici, spegne la rete guest prima di installare, apre i veri selettori Android e controlla otto passaggi: Home/permessi, DOCX, XLSX, PDF, Markdown, Informazioni/tema, appunti del rapporto, richiesta esterna bloccata. Salva e riapre i file; sul computer controlla i file esportati con lettori indipendenti e SHA-256 degli originali. Screenshot e log in `test-results/android/`. Word è modificato via DOM; celle e Markdown usano focus DOM, tasti Android verificati e normale blur. I comandi dell’app sono guidati via DOM, mentre selettori e appunti sono reali. Non provano tastiera virtuale o gesti tattili. Nessun dato personale nei campioni.
+Il test rifiuta i telefoni fisici, spegne la rete guest prima di installare, apre i veri selettori Android e controlla nove passaggi: Home/permessi, DOCX, XLSX, PDF, Markdown, Informazioni/tema, appunti del rapporto, richiesta esterna bloccata e aggiornamenti (peer simulato). Salva e riapre i file; sul computer controlla gli export con lettori indipendenti e SHA-256 degli originali. Poi prova il vero installatore e riapre le bozze; soltanto nell’ultima fase abilita il Wi-Fi per il probe GitHub. Screenshot e log in `test-results/android/`. Word è modificato via DOM; celle e Markdown usano focus DOM, tasti Android verificati e normale blur. I comandi dell’app sono guidati via DOM, mentre selettori e appunti sono reali. Non provano tastiera virtuale o gesti tattili. Nessun dato personale nei campioni.
 
 Non provati finché dichiarato nel report: installazione e aggiornamento su telefono/tablet fisico, tastiera/gesti, Android 10/16, provider cloud, rotazioni dello schermo, risorse limitate e arresti forzati. Consultare sempre gli esiti reali della run, non dedurre successo dalla presenza del workflow.
 

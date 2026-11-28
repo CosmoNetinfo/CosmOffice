@@ -9,15 +9,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-/** Extra test-only entry point; the installed application has no fixture/transport switch. */
-public final class UpdateInstallInstrumentation extends Instrumentation {
+/** Upgrade/online phases dispatched by the registered runner; no switch in the application. */
+final class UpdateInstallInstrumentation {
+    private final Instrumentation instrumentation;
     private MainActivity activity;
     private boolean verify;
     private boolean online;
-    @Override public void onCreate(Bundle args) { verify = args != null && "verify".equals(args.getString("mode")); online = args != null && "online".equals(args.getString("mode")); super.onCreate(args); start(); }
+    UpdateInstallInstrumentation(Instrumentation instrumentation, String mode) { this.instrumentation = instrumentation; verify = "verify".equals(mode); online = "online".equals(mode); }
     private String js(String expression) throws Exception {
         CountDownLatch latch = new CountDownLatch(1); AtomicReference<String> value = new AtomicReference<>();
-        runOnMainSync(() -> activity.getWebView().evaluateJavascript(expression, result -> { value.set(result); latch.countDown(); }));
+        instrumentation.runOnMainSync(() -> activity.getWebView().evaluateJavascript(expression, result -> { value.set(result); latch.countDown(); }));
         UpdateChecks.require(latch.await(10, TimeUnit.SECONDS), "WebView non risponde"); return value.get();
     }
     private void until(String condition) throws Exception { long end = System.currentTimeMillis()+60000; while(System.currentTimeMillis()<end){if("true".equals(js("Boolean("+condition+")")))return;Thread.sleep(100);}throw new AssertionError("Attesa: "+condition); }
@@ -27,7 +28,7 @@ public final class UpdateInstallInstrumentation extends Instrumentation {
     }
     private void tap(String text, boolean systemInstaller) throws Exception {
         long end=System.currentTimeMillis()+30000;
-        while(System.currentTimeMillis()<end){AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();String pkg=root==null||root.getPackageName()==null?"":root.getPackageName().toString();
+        while(System.currentTimeMillis()<end){AccessibilityNodeInfo root=instrumentation.getUiAutomation().getRootInActiveWindow();String pkg=root==null||root.getPackageName()==null?"":root.getPackageName().toString();
             boolean owner=systemInstaller ? pkg.contains("packageinstaller")||pkg.contains("permissioncontroller") : pkg.equals("it.cosmonet.cosmoffice");
             AccessibilityNodeInfo node=owner?find(root,text):null;if(node!=null){while(node!=null&&!node.isClickable())node=node.getParent();if(node!=null){node.performAction(AccessibilityNodeInfo.ACTION_CLICK);return;}}Thread.sleep(100);
         }throw new AssertionError("Comando nativo assente: "+text);
@@ -37,11 +38,11 @@ public final class UpdateInstallInstrumentation extends Instrumentation {
         until("Array.from(document.querySelectorAll('.file-name')).some(e=>e.textContent.includes("+JSONObject.quote(name)+"))");
         js("Array.from(document.querySelectorAll('.file-name')).find(e=>e.textContent.includes("+JSONObject.quote(name)+")).click()");
     }
-    @Override public void onStart() {
+    public void run() {
         Bundle result=new Bundle();
         try {
             long beforeTx=android.net.TrafficStats.getUidTxBytes(android.os.Process.myUid()),beforeRx=android.net.TrafficStats.getUidRxBytes(android.os.Process.myUid());
-            activity=(MainActivity)startActivitySync(new Intent(getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            activity=(MainActivity)instrumentation.startActivitySync(new Intent(instrumentation.getTargetContext(),MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             until("document.querySelector('h1')?.textContent==='Il tuo spazio di lavoro.'");
             if(online){
                 Thread.sleep(5000);
@@ -53,7 +54,7 @@ public final class UpdateInstallInstrumentation extends Instrumentation {
                 JSONObject status=activity.getUpdater().status();UpdateChecks.require(!status.getBoolean("networkActive")&&!"error".equals(status.getString("phase")),"Controllo live GitHub non riuscito: "+status);
                 org.json.JSONArray audit=activity.getUpdater().audit();UpdateChecks.require(audit.length()>0,"Nessuna richiesta manuale");
                 for(int n=0;n<audit.length();n++){String host=audit.getJSONObject(n).getString("host");UpdateChecks.require(host.equals("github.com")||host.equals("release-assets.githubusercontent.com"),"Host non consentito");}
-                result.putString("online","PASS");result.putString("audit",audit.toString());result.putString("stream","PASS rete reale: zero byte UID all’avvio, controllo HTTPS GitHub manuale e trasporto spento al termine.\n");finish(Activity.RESULT_OK,result);return;
+                result.putString("online","PASS");result.putString("audit",audit.toString());result.putString("stream","PASS rete reale: zero byte UID all’avvio, controllo HTTPS GitHub manuale e trasporto spento al termine.\n");instrumentation.finish(Activity.RESULT_OK,result);return;
             }
             if(verify){
                 UpdateChecks.require(activity.getPackageManager().getPackageInfo(activity.getPackageName(),0).getLongVersionCode()==4,"Nuovo APK non installato");
@@ -63,19 +64,19 @@ public final class UpdateInstallInstrumentation extends Instrumentation {
                 draft("android-grid-salvato");until("document.querySelector('[aria-label=\"Cella B2\"]')?.value==='701'&&document.querySelector('[aria-label=\"Cella B3\"]')?.value==='2'");home();
                 draft("android-view-salvato");until("document.querySelector('.pdf-paper canvas')?.width>document.querySelector('.pdf-paper canvas')?.height&&!document.querySelector('.pdf-loading')");home();
                 draft("android-note-salvate");until("document.querySelector('.markdown-preview h1')?.textContent==='Android verificato'");
-                result.putString("upgrade","PASS");result.putString("stream","PASS aggiornamento reale con consenso Android: quattro bozze e tema mantenuti, versione 4, nessuna richiesta all’avvio.\n");finish(Activity.RESULT_OK,result);return;
+                result.putString("upgrade","PASS");result.putString("stream","PASS aggiornamento reale con consenso Android: quattro bozze e tema mantenuti, versione 4, nessuna richiesta all’avvio.\n");instrumentation.finish(Activity.RESULT_OK,result);return;
             }
-            byte[] fixture;try(java.io.InputStream input=getContext().getAssets().open("updates/future.apk")){fixture=input.readAllBytes();}
+            byte[] fixture;try(java.io.InputStream input=instrumentation.getContext().getAssets().open("updates/future.apk")){fixture=input.readAllBytes();}
             AndroidUpdater updater=new AndroidUpdater(activity,state->{},UpdateChecks.peer(fixture,UpdateChecks.release(activity,fixture),new java.util.concurrent.atomic.AtomicInteger()));
             updater.check();UpdateChecks.waitPhase(updater,"ready");
-            runOnMainSync(updater::install);tap("Annulla",false);
+            instrumentation.runOnMainSync(updater::install);tap("Annulla",false);
             UpdateChecks.require(activity.getPackageManager().getPackageInfo(activity.getPackageName(),0).getLongVersionCode()==3,"Annulla ha installato");
-            runOnMainSync(updater::install);tap("Continua",false);
+            instrumentation.runOnMainSync(updater::install);tap("Continua",false);
             // The action is performed on the real Android package-installer UI.
-            Bundle marker=new Bundle();marker.putString("phase","USER_CONFIRMATION_REQUIRED");sendStatus(2,marker);
+            Bundle marker=new Bundle();marker.putString("phase","USER_CONFIRMATION_REQUIRED");instrumentation.sendStatus(2,marker);
             tap("Update",true);
             // Updating our own package terminates this instrumentation process.
             Thread.sleep(30000);throw new AssertionError("Aggiornamento non ha sostituito il processo");
-        }catch(Throwable error){result.putString("upgrade","FAIL");result.putString("stream",error.toString());finish(Activity.RESULT_OK,result);}
+        }catch(Throwable error){result.putString("upgrade","FAIL");result.putString("stream",error.toString());instrumentation.finish(Activity.RESULT_OK,result);}
     }
 }

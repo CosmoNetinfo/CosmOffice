@@ -83,3 +83,5 @@ Release v0.2.3, run [45606125748](https://github.com/CosmoNetinfo/CosmOffice/act
 ## CI osservata prima dell’updater Android build 3
 
 Commit 045cea6: [desktop 46119064190](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46119064190), sei lavori success. [Android 46119064203](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46119064203), tentativo 1 fallito per ANR del Pixel Launcher sopra DocumentsUI; tentativo 2 success con otto casi. L’ANR è stato controllato nella cattura, non nascosto. Nuovo commit updater: run ancora da avviare al momento della scrittura; esito sarà registrato dopo osservazione.
+
+[Android 46124354250](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46124354250), commit 6bcefd6: failure. Nove casi passati; Unable to find instrumentation info nella fase upgrade. Manifesto generato ha un solo runner; correzione nelle sole modalità del test. [Desktop 46124354242](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46124354242): sei lavori completed/success, compresa installazione NSIS nel runner.

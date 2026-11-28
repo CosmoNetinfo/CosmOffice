@@ -4,7 +4,9 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ## [Non rilasciato]
 
-Nessuna ulteriore novità pianificata in questa modifica.
+### Corretto
+
+- CI Android: prove di installazione e rete inoltrate al runner realmente registrato da Gradle, dopo nove casi nativi passati e fallimento del secondo punto d’ingresso. Nessuna modifica all’APK distribuito; esiti effettivi nel report.
 
 ## [0.2.3-android.3] - 2026-11-28
 

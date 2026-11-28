@@ -228,3 +228,5 @@ Audit completo: quattro installer scaricati senza account, SHA-256 identici a ma
 Unitari: 80/80 passati; browser Android con ponte simulato passato dopo correzione interruttore/attesa ACK. Politica Java eseguita su JVM: HTTPS, host, repository, redirect e TLS. Gradle assembla debug/test/release e lint; APK reale controllato e firmato con medesimo certificato. Tre PDF senza API pagina/worker passano. Output integrali nel report.
 
 Nuova CI prevista: nove casi nativi, peer di aggiornamento simulato per errori/hash/firma/timer/cancel; vero PackageInstaller 3→4 con consenso Android e bozze conservate; ultimo probe con Wi-Fi attivo, contatori UID invariati all’avvio e richiesta GitHub manuale. Queste prove non sono dichiarate riuscite prima di leggerne l’esito. Non sostituiscono telefono fisico/firma di distribuzione. Desktop, suite browser e Open XML continuano a essere richiesti.
+
+CI 46124354250 fallita dopo nove PASS: secondo instrumentation non registrato da AGP. Corretto test runner unico, ricompilato con lint; esito della nuova CI ancora da leggere. Installazione e rete live non dichiarate provate.
