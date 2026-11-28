@@ -242,3 +242,8 @@ Solo documentazione/API e metadati; nessun algoritmo esterno copiato o tradotto.
 | node_modules/pdfjs-dist/package.json e legacy/build/pdf.mjs (intestazioni e metadati) | Metadati/header libreria esistente 6.5.438, non algoritmo | PDF.js Apache-2.0; intestazione core-js MIT individuata nel legacy | Studio di compatibilità WebView: **legacy non adottato**, motore corrente invariato, nessun codice o dipendenza nuova |
 
 Attribuzioni rigenerate con scripts/notices.mjs: nessuna nuova dipendenza runtime o codice di terzi redistribuito. Gli strumenti di build e la action rimangono esterni all’APK. Rischi/metodo scelto in DECISIONI.md; non è stata presa alcuna decisione sul motore Office.
+
+## 28 novembre — API aggiornamento Android e Release
+
+- [PackageInstaller.SessionParams](https://developer.android.com/reference/android/content/pm/PackageInstaller.SessionParams#setRequireUserAction(int)): documentazione API Android, non sorgenti; USER_ACTION_REQUIRED e flussi di sessione, implementazione originale Java. Documentazione CC BY 4.0, esempi Apache-2.0 non copiati. Risolve conferma di sistema; difficoltà media, rischio varianti produttore e permessi, prova fisica necessaria.
+- [Release REST GitHub](https://docs.github.com/en/rest/releases/releases#create-a-release): documentazione pubblica, make_latest=false, draft e asset; nessun sorgente o algoritmo copiato. Pubblicatore originale Node, senza dipendenze. Risolve APK pubblico senza cambiare latest desktop; rischio autorizzazioni/rete, gestito con verifica e download anonimi. Nessun materiale GPL/AGPL consultato e nessuna copia di codice o nuova libreria runtime.

@@ -51,3 +51,7 @@ Rete assente/errore: “Aggiornamento non disponibile. Puoi continuare a lavorar
 - node scripts/update-confirm-smoke.mjs: pacchetto Windows reale, riconoscimento installazione/versione simulati; Annulla e chiusura normale non installano, consenso esplicito richiesto. Lo spawn è sostituito da uno spy: nessun installer viene realmente eseguito.
 
 Installazione su computer puliti, UAC e completamento effettivo dell’installer, sostituzione di una vera AppImage mentre è in uso, hardware Mac e arresti improvvisi non sono certificati da questi test. Gli esiti effettivi, comprese prove fallite e ripetute, sono nel report. Fonti API consultate senza copia di codice: [worker_threads](https://nodejs.org/api/worker_threads.html) e [HTTPS](https://nodejs.org/api/https.html).
+
+## Android build 3 — 28 novembre 2026
+
+Trasporto nativo Java separato da quello Node desktop: github.com e release-assets.githubusercontent.com soltanto, Release del repository CosmoNetinfo/CosmOffice e redirect limitati al suo percorso asset. TLS 1.2/1.3 con certificato e hostname verificati; nessun dato personale nelle richieste. Default spento, singolo controllo manuale; timer opzionale ogni sei ore solo in primo piano, nessun controllo immediato all’avvio. Il WebView non naviga in rete. Disattivare interrompe il controllo. SHA-256, package, versione e stessa firma prima di conferma app + installatore Android. Da build 1/2 serve un aggiornamento manuale una volta. Pubblicazione Android separata con make_latest=false; desktop invariato. Prove effettive e limiti nel report corrente.

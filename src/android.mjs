@@ -13,6 +13,7 @@ if (isAndroid) {
       let reply; try { reply = JSON.parse(data); } catch { return; }
       if (reply.event === 'back') { window.dispatchEvent(new Event('cosmoffice:android-back')); return; }
       if (reply.event === 'theme') { dark = reply.dark === true; window.dispatchEvent(new Event('cosmoffice:android-theme')); return; }
+      if (reply.event === 'update') { window.dispatchEvent(new CustomEvent('cosmoffice:android-update', { detail: reply.state })); return; }
       const call = waiting.get(reply.id); if (!call) return;
       waiting.delete(reply.id); clearTimeout(call.timer);
       if (reply.ok) call.resolve(reply.value); else call.reject(new Error(reply.error || 'Operazione Android non riuscita.'));

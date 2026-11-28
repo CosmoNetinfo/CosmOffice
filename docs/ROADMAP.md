@@ -96,3 +96,9 @@ Cloud obbligatorio, telemetria, nuove funzioni AI, presentazioni complete, macro
 Le altre proposte rimangono sospese; nessun motore scelto.
 
 Pubblicazione 0.2.3 del 25 novembre: Windows e Linux pubblici, main bbad3f6 con sei lavori CI verdi. Recupero DMG riuscito nella run 45608286513 dopo il difetto del controllo monoarchitettura, senza spostare il tag né cambiare l’app; audit dei file e prove fisiche restano distinti.
+
+## Aggiornamento 28 novembre — Android build 3
+
+1. In verifica: updater nativo, default spento, manuale/periodico in primo piano, SHA-256/firma e installazione confermata. Pubblicazione separata dopo CI verde.
+2. Da provare: PDF corretto e aggiornamento sul telefono fisico, tastiera/gesti e varianti produttore. AND-014 aperto.
+3. Desktop 0.2.3 pubblico invariato. Nessuna nuova idea dello studio o scelta del motore implementata.

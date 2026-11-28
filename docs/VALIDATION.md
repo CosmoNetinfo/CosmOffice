@@ -222,3 +222,9 @@ Prima pipeline tag 45606125748: controllo comune e Linux verdi; i job Mac 139180
 Release 0.2.3 pubblica ordinaria, id 458039039, con nove asset (quattro installer, quattro sidecar e manifesto). Recupero Mac 45608286513: tre lavori success, controllo delle licenze/ASAR e hdiutil/lipo/assenza Developer ID nei due DMG. Windows/Linux scaricati senza account e SHA uguali a manifesto/sidecar/digest GitHub; vecchia 0.2.2 verificata invariata. Dettagli e audit completo dei quattro file nel report finale.
 
 Audit completo: quattro installer scaricati senza account, SHA-256 identici a manifesto, sidecar e digest GitHub; contenuti delle note uguali al generatore dopo sola normalizzazione CRLF/LF (primo confronto esatto fallito per fine riga Windows). Estratto anche il payload del vero installer Windows scaricato: LICENSE e avvisi byte-identici ai sorgenti, versione 0.2.3, LICENSE presente nell’ASAR. Smoke aggiornamenti post-pubblicazione scarica la 0.2.3 con hash 0eef1275a813b0fe0ebee6e141deebc101aab410f855c46e1c2280462111fd18 e installed false; zero richieste all’avvio e rete spenta al termine.
+
+## 28 novembre — aggiornamenti Android
+
+Unitari: 80/80 passati; browser Android con ponte simulato passato dopo correzione interruttore/attesa ACK. Politica Java eseguita su JVM: HTTPS, host, repository, redirect e TLS. Gradle assembla debug/test/release e lint; APK reale controllato e firmato con medesimo certificato. Tre PDF senza API pagina/worker passano. Output integrali nel report.
+
+Nuova CI prevista: nove casi nativi, peer di aggiornamento simulato per errori/hash/firma/timer/cancel; vero PackageInstaller 3→4 con consenso Android e bozze conservate; ultimo probe con Wi-Fi attivo, contatori UID invariati all’avvio e richiesta GitHub manuale. Queste prove non sono dichiarate riuscite prima di leggerne l’esito. Non sostituiscono telefono fisico/firma di distribuzione. Desktop, suite browser e Open XML continuano a essere richiesti.

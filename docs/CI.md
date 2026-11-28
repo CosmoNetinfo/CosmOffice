@@ -79,3 +79,7 @@ Verifica del 25 novembre 2026: aggiunta la run della preparazione 0.2.3; i risul
 Gli screenshot del README sono già stati verificati dopo il push: nove PNG HTTP 200, byte identici ai file locali, riferimenti presenti nella pagina GitHub pubblica. Nessun computer pulito o Mac fisico collaudato.
 
 Release v0.2.3, run [45606125748](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45606125748): controllo comune, Windows, Linux e pubblicazione riusciti; due job Mac falliti nel controllo risorse per file dell’altra architettura mancante. Release ordinaria inizialmente Windows/Linux; completamento Mac [45608286513](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/45608286513) riuscito in tutti e tre i lavori. Tutti e quattro gli installer pubblici sono stati scaricati senza account con hash verificati. Tag invariato.
+
+## CI osservata prima dell’updater Android build 3
+
+Commit 045cea6: [desktop 46119064190](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46119064190), sei lavori success. [Android 46119064203](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46119064203), tentativo 1 fallito per ANR del Pixel Launcher sopra DocumentsUI; tentativo 2 success con otto casi. L’ANR è stato controllato nella cattura, non nascosto. Nuovo commit updater: run ancora da avviare al momento della scrittura; esito sarà registrato dopo osservazione.

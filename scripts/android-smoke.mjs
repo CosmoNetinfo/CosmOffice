@@ -84,5 +84,26 @@ for (const [name, target] of samples) {
   const hash = data => createHash('sha256').update(data).digest('hex');
   assert.equal(hash(await readFile(`tests/fixtures/${name}`)), hash(await readFile(`test-results/android/emulator/originale-${target}`)), 'originale riscritto');
 }
-const result = { result: 'PASS', emulator: true, physicalDevice: false, tests: 8, realAndroidPicker: true, realClipboard: true, exportedFilesCheckedIndependently: true, originalFilesUnchanged: true, guestNetworkDisabled: true };
+const result = { result: 'PASS', emulator: true, physicalDevice: false, tests: 9, realAndroidPicker: true, realClipboard: true, exportedFilesCheckedIndependently: true, originalFilesUnchanged: true, guestNetworkDisabledDuringDocuments: true, updatesOffByDefault: true, updatePolicyHashCertificateCancelTested: true };
+// Only this emulator: allow the app to request an installation; Android's Update
+// confirmation is still clicked through the real system UI, not bypassed by adb.
+run('shell', 'appops', 'set', 'it.cosmonet.cosmoffice', 'REQUEST_INSTALL_PACKAGES', 'allow');
+const upgrade = spawnSync(adb, ['shell','am','instrument','-w','-r','it.cosmonet.cosmoffice.test/it.cosmonet.cosmoffice.UpdateInstallInstrumentation'], {encoding:'utf8',timeout:180000,maxBuffer:3*1024*1024,windowsHide:true});
+const upgradeLog=(upgrade.stdout||'')+(upgrade.stderr||'');await writeFile('test-results/android/upgrade-install.log',upgradeLog);
+assert.match(upgradeLog,/USER_CONFIRMATION_REQUIRED/); // process termination alone is never success
+let installed = false;
+for (const end = Date.now() + 45000; Date.now() < end;) {
+  if (/versionCode=4\b/.test(run('shell','dumpsys','package','it.cosmonet.cosmoffice'))) { installed = true; break; }
+  await new Promise(resolve => setTimeout(resolve, 200));
+}
+assert.ok(installed,'Android deve avere realmente installato il codice superiore');
+const preserved=spawnSync(adb,['shell','am','instrument','-w','-r','-e','mode','verify','it.cosmonet.cosmoffice.test/it.cosmonet.cosmoffice.UpdateInstallInstrumentation'],{encoding:'utf8',timeout:180000,maxBuffer:3*1024*1024,windowsHide:true});
+const preservedLog=(preserved.stdout||'')+(preserved.stderr||'');await writeFile('test-results/android/upgrade-preservation.log',preservedLog);
+assert.equal(preserved.status,0);assert.match(preservedLog,/INSTRUMENTATION_RESULT: upgrade=PASS/);assert.doesNotMatch(preservedLog,/upgrade=FAIL/);
+result.realAndroidInstallerConfirmation=true;result.realUpgradePreservesFourDraftsAndTheme=true;
+run('shell','settings','put','global','airplane_mode_on','0');run('shell','svc','wifi','enable');
+await new Promise(resolve=>setTimeout(resolve,3000));run('shell','am','force-stop','it.cosmonet.cosmoffice');
+const online=spawnSync(adb,['shell','am','instrument','-w','-r','-e','mode','online','it.cosmonet.cosmoffice.test/it.cosmonet.cosmoffice.UpdateInstallInstrumentation'],{encoding:'utf8',timeout:180000,maxBuffer:3*1024*1024,windowsHide:true});
+const onlineLog=(online.stdout||'')+(online.stderr||'');await writeFile('test-results/android/update-online.log',onlineLog);assert.equal(online.status,0);assert.match(onlineLog,/INSTRUMENTATION_RESULT: online=PASS/);
+result.liveGitHubCheck=true;result.zeroUidBytesAtStartup=true;result.networkEnabledForUpdateProbe=true;
 await writeFile('test-results/android/emulator-report.json', JSON.stringify(result, null, 2)); console.log(JSON.stringify(result, null, 2));

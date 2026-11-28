@@ -4,62 +4,52 @@ Le modifiche rilevanti sono documentate in italiano secondo [Keep a Changelog](h
 
 ## [Non rilasciato]
 
+Nessuna ulteriore novità pianificata in questa modifica.
+
+## [0.2.3-android.3] - 2026-11-28
+
 ### Aggiunto
 
-- Verifica Android completa nell’emulatore: otto casi funzionali, quattro export controllati indipendentemente, originali invariati; APK release firmato localmente e payload confrontato con la CI. Nessuna Release Android pubblica, telefono fisico e resa visiva completa ancora da collaudare.
-
-- Prima implementazione APK Android offline (Android 10+), Activity Java e WebView con asset incorporati; selettore di sistema per apertura e salvataggio di copie DOCX/XLSX/PDF/Markdown, limite 10 MB.
-- Compilazione APK, controllo permessi/licenze e prove native su emulatore nella CI Android separata; firma privata locale, checksum e verifica del certificato. Nessuna chiave in Git o nella CI.
+- Anteprima APK Android 10+, firmata con la chiave CosmOffice; pubblicazione separata dalla Release desktop, con SHA-256 e manifesto di aggiornamento. Nessun account o telemetria.
+- Aggiornamenti nativi da GitHub: pulsante «Controlla aggiornamenti ora», download verificato, conferma nell’app e nell’installatore Android. Facoltativi controlli ogni sei ore mentre l’app resta in primo piano, spenti di default.
+- Test di politica HTTPS, host, redirect, annullamento, hash e certificato. Prova CI dell’installatore Android con un APK futuro solo di test, verifica di quattro bozze e tema dopo l’aggiornamento e controllo live della rete. Gli esiti osservati sono nel report, non dedotti dalla presenza dei test.
 
 ### Modificato
 
-- Documentati gli esiti della Release pubblica desktop 0.2.3 e del completamento DMG; nessuna sostituzione dei pacchetti pubblici.
-
-- Adattamenti della piattaforma Android: tasto Indietro, appunti del rapporto sicuro, tema sistema, Informazioni e aggiornamenti manuali dell’APK. Desktop invariato nella politica di rete.
+- versionCode 3, versionName 0.2.3, stessa chiave delle build precedenti. Da build 1/2 occorre installare manualmente questa build una volta; poi si usa il pulsante per versioni Android con codice superiore.
+- Permessi Internet e richiesta di installazione aggiunti per il solo aggiornamento nativo. WebView e service worker continuano a bloccare la rete. Host ammessi: github.com e release-assets.githubusercontent.com, solo Release di CosmoNetinfo/CosmOffice.
 
 ### Corretto
 
-- Android build 2: apertura PDF su WebView senza `Promise.withResolvers`, difetto segnalato dal titolare su telefono fisico. Compatibilità originale incorporata prima dei moduli e del worker PDF; prove senza API su tre campioni, nessuna nuova dipendenza. Stessa firma e package, `versionCode` incrementato per aggiornamento. Nuova prova sul telefono ancora da eseguire.
-
-- Driver Android: selezione/cancellazione confermate prima della digitazione e salvataggio della cella tramite il normale onBlur; aggiunti dati tecnici sul focus solo nel test. L’ultima run 32232a6 è tornata alla Home durante l’immissione B3: causa precisa ancora da isolare, nessuna perdita di dati dichiarata né modifica al prodotto.
-
-- Test nativo Android: riconoscimento del titolo dei pulsanti dei modelli separato dalla didascalia. PDF round trip passato nel secondo tentativo CI f60184a; DOCX/XLSX esportati senza errori SDK e PDF verificato con Poppler. Collaudo Markdown/appunti ancora aperto.
-
-- Build Android: distribuzione di compatibilità della stessa versione PDF.js, dopo errore confermato `URL.parse is not a function` su WebView 124. API e worker locali; core-js MIT attribuito integralmente. Collaudo PDF completo ancora da osservare, desktop e motori invariati.
-
-- Collaudo Android: Word e fogli di calcolo verificati anche sui file esportati, con Mammoth ed ExcelJS. Aggiunta diagnostica del solo campione PDF nel test nativo: l’apertura resta bloccata e non viene dichiarata funzionante.
-
-- Driver Android per celle/Markdown: attesa della finestra pronta, immissione tramite tastiera e conferma; controllo di B2/B3 prima e dopo il salvataggio. Raccolta degli output parziali senza mascherare errori. DOCX round trip passato nella sesta run, resto del collaudo aperto.
-
-- Catture Android: attesa del disegno WebView prima degli screenshot dell’app, dopo aver rilevato una Home fotografata troppo presto. Collaudo completo ancora in corso.
-
-- Driver Android: selettore reale tramite azioni di accessibilità, conferma del nome e attesa dell’export/riapertura; il solo ritorno del click non determina successo. Corretto il tentativo a coordinate che non selezionava il file nel runner.
-
-- Test Android al cold boot: attesa limitata a 90 secondi per scrittura/rilettura reali nella Download, copia dei soli byte e verifica SHA-256. La precedente preparazione è tornata a fallire: bug riaperto, nessuna dichiarazione di collaudo completo.
-
-- Test nativo Android: attesa della finestra DocumentsUI prima del campo nome; screenshot da file privati e raccolta obbligatoria. Seconda CI con avvio PASS e DOCX incompleto; nessun successo complessivo dichiarato.
-
-- Preparazione campioni del test Android: passaggio tramite cartella temporanea e copia nella Download come shell, con SHA-256 verificato prima dell’avvio; nessun permesso aggiunto all’app. Prima CI interrotta su adb push, prova nativa non ancora riuscita.
-
-- Controllo risorse DMG: verifica dell’architettura del job singolo, mantenendo la richiesta di entrambi i DMG nel controllo predefinito.
-
-- Gestione Indietro compatibile con il target Android recente e conferma del salvataggio solo dopo chiusura dello stream del provider.
+- Inclusa la correzione PDF di build 2: supporto Promise.withResolvers nella pagina e nel vero worker, senza cambiare motore. Test su tre PDF anche senza l’API, con rotazione, salvataggio e riapertura.
+- L’interruttore Android attende la conferma nativa e non torna accidentalmente allo stato precedente durante il salvataggio.
 
 ### Rimosso
 
-- Nessuna funzione desktop rimossa. Stampa/esportazione DOCX→PDF non disponibili nell’APK.
+- Nessuna funzione desktop rimossa. La Release desktop 0.2.3 e /releases/latest restano invariati.
 
 ### Limiti noti
 
-- Prima anteprima Android ancora da collaudare completamente; non equivalenza alle suite Office. Nessuna pubblicazione Android nelle Release desktop e nessun aggiornamento automatico Android. Limite 10 MB per trasferimento, inclusi backup.
+- Anteprima, non equivalenza a Office. Limite 10 MB per trasferimento Android; niente stampa, conversione Word→PDF o OCR. Gli usuali limiti DOCX/XLSX/PDF restano validi.
+- Nessuna installazione silenziosa. Android può richiedere l’autorizzazione a installare da CosmOffice. I periodici non funzionano con l’app chiusa o in background.
+- Alcune catture dell’emulatore mostrano il frame precedente (AND-014); non certificano completamente la resa visiva.
 
 ### Prove mancanti
 
-- Telefono/tablet fisico, tastiera virtuale e gesti, selettori di fornitori cloud, prestazioni su dispositivi con poca memoria. Esiti osservati dell’emulatore nel report corrente.
+- Build 3 su telefono fisico, conferma della correzione PDF sul telefono che aveva segnalato il problema, aggiornamento con chiave pubblica su un dispositivo reale e varianti Android dei produttori. Non si deduce il collaudo da una compilazione riuscita.
 
 ### Prossimi passi
 
-- Completare e leggere le prove native, poi installare l’APK firmato su Android reale; conservare chiave e password fuori Git con backup riservato.
+- Installare sopra l’APK precedente, provare PDF e selettori sul telefono, conservare un backup riservato della chiave. Raccogliere il rapporto senza documenti personali nei commenti del post Facebook di CosmOffice.
+
+### Cosa ti aspetti da CosmOffice?
+
+- Che documenti apri?
+- Cosa ti aspetti da CosmOffice?
+- Quale funzione ti manca?
+- Cosa ti ha bloccato?
+
+Rispondi nei commenti del post Facebook di CosmOffice, senza documenti o dati personali.
 
 ## [0.2.3] - 2026-11-25
 

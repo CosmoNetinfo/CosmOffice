@@ -1,5 +1,5 @@
-import { isAndroid } from './android.mjs';
-import React, { useRef, useState } from 'react';
+import { isAndroid, androidCall } from './android.mjs';
+import React, { useEffect, useRef, useState } from 'react';
 import { Palette, FileText, Grid2X2, BookOpen, HardDrive, RefreshCw, Download, Upload, Trash2, Check, ArrowLeft, SlidersHorizontal } from 'lucide-react';
 import { usePreferences, DEFAULTS } from './preferences.jsx';
 import { PersonalDictionary } from './Spelling.jsx';
@@ -12,6 +12,31 @@ const tabs = [['appearance', 'Aspetto', Palette], ['write', 'Documenti', FileTex
 const bytesLabel = bytes => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 function Row({ title, description, children }) { return <div className="setting-row"><div><strong>{title}</strong><p>{description}</p></div><div className="setting-control">{children}</div></div>; }
 function Group({ title, description, children }) { return <section className="settings-group"><div className="settings-group-title"><h2>{title}</h2>{description && <p>{description}</p>}</div><div className="settings-panel">{children}</div></section>; }
+function AndroidUpdates({ onInstallUpdate, onError }) {
+  const [changing, setChanging] = useState(false);
+  const [state, setState] = useState({ phase: 'idle', message: 'Controlli spenti di default. Nessuna connessione all’avvio.', automatic: false, networkActive: false, versionCode: 3 });
+  useEffect(() => {
+    let alive = true;
+    const event = value => { if (alive) setState(value.detail); };
+    window.addEventListener('cosmoffice:android-update', event);
+    androidCall('updates', { action: 'status' }).then(value => { if (alive) setState(value); }).catch(() => onError('Stato aggiornamenti non disponibile.'));
+    return () => { alive = false; window.removeEventListener('cosmoffice:android-update', event); };
+  }, []);
+  const action = async (name, extra = {}) => { try { setState(await androidCall('updates', { action: name, ...extra })); } catch { onError('Operazione aggiornamenti non disponibile. Puoi continuare offline.'); } };
+  const toggleAutomatic = async enabled => {
+    const previous = state.automatic; setChanging(true); setState(value => ({ ...value, automatic: enabled }));
+    try { setState(await androidCall('updates', { action: 'automatic', enabled })); }
+    catch { setState(value => ({ ...value, automatic: previous, phase: 'error', message: 'Cambio del consenso non confermato. Riapri le impostazioni per verificarlo.' })); onError('Consenso aggiornamenti non confermato.'); }
+    finally { setChanging(false); }
+  };
+  return <Group title="Aggiornamenti Android da GitHub">
+    <Row title={`Anteprima Android · build ${state.versionCode}`} description={state.automatic ? 'Hai attivato anche i controlli ogni sei ore mentre l’app è aperta. Nessun controllo all’avvio.' : 'CosmOffice contatta GitHub soltanto quando premi il pulsante. Altrimenti non contatta nessuno.'}><button className="button secondary" disabled={state.networkActive} onClick={() => action('check')}>Controlla aggiornamenti ora</button></Row>
+    <Row title="Stato aggiornamenti" description={state.message}>{state.networkActive && <button className="button secondary" onClick={() => action('cancel')}>Annulla controllo</button>}</Row>
+    <Row title="Controlli periodici facoltativi" description="Spenti di default. Se li attivi, l’app controlla e scarica dalle Release del progetto ogni sei ore mentre resta in primo piano. Nessun documento o dato personale viene inviato."><label className="switch"><input type="checkbox" aria-label="Aggiornamenti automatici Android" disabled={changing} checked={state.automatic} onChange={event => toggleAutomatic(event.target.checked)}/><span/></label></Row>
+    {state.phase === 'ready' && <Row title="Aggiornamento verificato" description="SHA-256, identificativo e certificato verificati. L’installazione richiede la tua conferma e quella di Android."><button className="button primary" onClick={() => Promise.resolve(onInstallUpdate()).catch(() => onError('Installazione non avviata. Puoi continuare a lavorare.'))}>Installa aggiornamento Android</button></Row>}
+    <Row title="Documenti sempre offline" description="Solo il controllo aggiornamenti usa HTTPS verso GitHub e i suoi asset. Il WebView non può collegarsi alla rete. File fino a 10 MB; stampa e Word→PDF restano desktop."/>
+  </Group>;
+}
 export default function SettingsPage({ documents, refresh, onBack, onReport, onGuided, update, onError, onInstallUpdate, version }) {
   const { settings, setSetting, reset, importSettings, storageError } = usePreferences();
   const [tab, setTab] = useState('appearance'), [busy, setBusy] = useState(false), [message, setMessage] = useState(''), [confirmClear, setConfirmClear] = useState(false);
@@ -79,11 +104,11 @@ export default function SettingsPage({ documents, refresh, onBack, onReport, onG
       <Group title="Le tue preferenze, anche altrove">
         <Row title="Esporta impostazioni" description="Salva un file JSON con le tue regolazioni, senza documenti."><button className="button secondary" disabled={busy} onClick={() => run(async () => { const bytes = new TextEncoder().encode(JSON.stringify({ format: 'cosmoffice-preferences', version: 1, settings }, null, 2)); const result = await saveFile('CosmOffice-impostazioni.json', bytes, 'application/json'); if (result) setMessage('Impostazioni esportate.'); })}><Download size={16}/> Esporta</button></Row>
         <Row title="Importa impostazioni" description="Applica le preferenze salvate da CosmOffice."><button className="button secondary" disabled={busy} onClick={() => preferencesInput.current.click()}><Upload size={16}/> Importa</button><input hidden type="file" ref={preferencesInput} accept=".json" onChange={importPreferences}/></Row>
-        <Row title="Ripristina valori predefiniti" description="Ripristina l’aspetto e le preferenze. I documenti rimangono nell’archivio."><button className="button secondary" onClick={() => { reset(); setMessage('Preferenze riportate ai valori predefiniti.'); }}>Ripristina preferenze</button></Row>
+        <Row title="Ripristina valori predefiniti" description="Ripristina l’aspetto e le preferenze. I documenti rimangono nell’archivio."><button className="button secondary" onClick={() => run(async () => { await reset(); setMessage('Preferenze riportate ai valori predefiniti.'); })}>Ripristina preferenze</button></Row>
       </Group>
       <Group title="Gestisci l’archivio locale"><Row title="Svuota l’archivio" description="Elimina le copie e le bozze salvate dentro CosmOffice. Esporta prima un backup. I file sul disco rimangono intatti."><button className="button danger-outline" disabled={busy || !documents.length} onClick={() => setConfirmClear(true)}><Trash2 size={16}/> Svuota archivio</button></Row></Group>
     </>}
-    {tab === 'updates' && isAndroid && <Group title="Android offline"><Row title="Aggiornamenti dell’APK" description="Installa manualmente una nuova versione ufficiale firmata con la stessa chiave. L’app Android non ha il permesso Internet e non contatta nessun server."/><Row title="Limiti dell’anteprima Android" description="Apertura e salvataggio fino a 10 MB per file. Stampa ed esportazione dei documenti in PDF restano disponibili nell’app desktop; su Android puoi leggere, ruotare e salvare i PDF."/></Group>}
+    {tab === 'updates' && isAndroid && <AndroidUpdates onInstallUpdate={onInstallUpdate} onError={onError}/>}
     {tab === 'updates' && !isAndroid && <>
       <div className="settings-about"><img src="./brand/suite.svg" alt=""/><div><h2>CosmOffice</h2><p>Versione {version} · Anteprima desktop</p></div></div>
       <Group title="Aggiornamenti da GitHub Releases">

@@ -16,6 +16,7 @@ try {
   });
   await page.addInitScript(() => {
     window.androidSaved = []; window.androidCalls = [];
+    window.androidUpdateStatus = { phase: 'idle', message: 'Nessuna connessione all’avvio.', automatic: false, networkActive: false, versionCode: 3 };
     window.addEventListener('load', () => {
       window.androidPortStarted = true;
       const { port1, port2 } = new MessageChannel();
@@ -26,6 +27,11 @@ try {
         else if (call.operation === 'save') { window.androidSaved.push(call); value = { name: call.name }; }
         else if (call.operation === 'clipboard') { window.androidCopied = call.text; value = true; }
         else if (call.operation === 'finish') { window.androidFinished = true; value = true; }
+        else if (call.operation === 'updates') {
+          if (call.action === 'automatic') window.androidUpdateStatus.automatic = call.enabled;
+          if (call.action === 'check') window.androidUpdateStatus.message = 'La versione Android installata è aggiornata.';
+          value = { ...window.androidUpdateStatus };
+        }
         port1.postMessage(JSON.stringify({ id: call.id, ok: true, value }));
       };
       window.dispatchEvent(new MessageEvent('message', { data: 'cosmoffice:native-port:v1', origin: 'null', source: null, ports: [port2] }));
@@ -52,8 +58,14 @@ try {
   await page.getByRole('heading', { name: 'Il tuo spazio di lavoro.' }).waitFor();
   await page.getByRole('button', { name: 'Impostazioni', exact: true }).click();
   await page.getByRole('button', { name: 'Aggiornamenti', exact: true }).click();
-  await page.getByRole('heading', { name: 'Android offline' }).waitFor();
-  assert.equal(await page.getByRole('checkbox', { name: 'Aggiornamenti automatici' }).count(), 0);
+  await page.getByRole('heading', { name: 'Aggiornamenti Android da GitHub' }).waitFor();
+  assert.equal(await page.getByRole('checkbox', { name: 'Aggiornamenti automatici Android' }).isChecked(), false);
+  await page.getByRole('button', { name: 'Controlla aggiornamenti ora' }).click();
+  await page.getByText('La versione Android installata è aggiornata.', { exact: true }).waitFor();
+  await page.getByRole('checkbox', { name: 'Aggiornamenti automatici Android' }).check();
+  await page.getByRole('checkbox', { name: 'Aggiornamenti automatici Android' }).uncheck();
+  await page.waitForFunction(() => window.androidUpdateStatus.automatic === false);
+  assert.equal(await page.evaluate(() => window.androidUpdateStatus.automatic), false);
   await page.getByRole('button', { name: 'Segnala un problema', exact: true }).click();
   await page.getByRole('button', { name: 'Copia rapporto', exact: true }).click();
   await page.waitForFunction(() => window.androidCopied);

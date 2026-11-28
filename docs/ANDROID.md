@@ -1,14 +1,14 @@
 # CosmOffice per Android — anteprima in collaudo
 
-Prima implementazione nativa, versione 0.2.3 / versionCode 1, identificativo `it.cosmonet.cosmoffice`. Android 10 minimo, Android System WebView aggiornato. Nessun pacchetto iOS. Lo stato delle prove effettive è nel [report corrente](report/ULTIMO.md): un APK compilato e firmato non dimostra da solo che tutti gli editor funzionino sul telefono.
+Prima implementazione nativa, versione 0.2.3 / versionCode 3, identificativo `it.cosmonet.cosmoffice`. Android 10 minimo, Android System WebView aggiornato. Nessun pacchetto iOS. Lo stato delle prove effettive è nel [report corrente](report/ULTIMO.md): un APK compilato e firmato non dimostra da solo che tutti gli editor funzionino sul telefono.
 
 ## File e privacy
 
-Gli editor, il lessico italiano, worker/font/decoder PDF e licenze sono incorporati. Nessun account, telemetria o invio automatico; il manifest non richiede **alcun permesso**, nemmeno Internet. Il WebView intercetta l’origine riservata `https://appassets.androidplatform.net` e legge gli asset del pacchetto: non è un sito remoto. Richieste e navigazioni esterne sono bloccate. Backup automatico Android disabilitato.
+Gli editor, il lessico italiano, worker/font/decoder PDF e licenze sono incorporati. Nessun account, telemetria o invio automatico; i soli permessi sono **Internet** e **richiesta di installazione**, usati dal trasporto nativo degli aggiornamenti. Il WebView intercetta l’origine riservata `https://appassets.androidplatform.net` e legge gli asset del pacchetto: non è un sito remoto. Richieste e navigazioni esterne sono bloccate. Backup automatico Android disabilitato.
 
-«Apri un file» usa il selettore Android; «Esporta» crea una copia tramite il selettore. Non vengono richiesti accesso generale ai file o permessi di installazione. Il provider selezionato dall’utente potrebbe essere un servizio cloud: la sua rete appartiene al provider, non a CosmOffice; per lavorare completamente offline scegliere file locali. L’originale non viene riscritto. Bozze, impostazioni e parole personali restano nei dati locali dell’app; disinstallando si possono perdere. Esportare prima una copia.
+«Apri un file» usa il selettore Android; «Esporta» crea una copia tramite il selettore. Non viene richiesto accesso generale ai file. L’autorizzazione a installare da CosmOffice viene richiesta solo dopo conferma dell’aggiornamento. Il provider selezionato dall’utente potrebbe essere un servizio cloud: la sua rete appartiene al provider, non a CosmOffice; per lavorare completamente offline scegliere file locali. L’originale non viene riscritto. Bozze, impostazioni e parole personali restano nei dati locali dell’app; disinstallando si possono perdere. Esportare prima una copia.
 
-Limite **10 MB per file** nel ponte di apertura e salvataggio, inclusa l’esportazione dei backup: il ponte usa copie Base64 in memoria. L’importazione di backup, preferenze e immagini usa invece il file input del WebView e mantiene i limiti desktop già presenti (backup 48 MB di contenuti); non è il percorso Base64. I limiti DOCX/XLSX/PDF della versione desktop restano validi. Niente stampa né conversione Word→PDF su Android; lettura/rotazione/salvataggio PDF restano previsti. Nessuna promessa di fedeltà Office aggiuntiva. Nessun aggiornamento automatico dell’APK: installare manualmente le future versioni ufficiali firmate con la stessa chiave.
+Limite **10 MB per file** nel ponte di apertura e salvataggio, inclusa l’esportazione dei backup: il ponte usa copie Base64 in memoria. L’importazione di backup, preferenze e immagini usa invece il file input del WebView e mantiene i limiti desktop già presenti (backup 48 MB di contenuti); non è il percorso Base64. I limiti DOCX/XLSX/PDF della versione desktop restano validi. Niente stampa né conversione Word→PDF su Android; lettura/rotazione/salvataggio PDF restano previsti. Nessuna promessa di fedeltà Office aggiuntiva. Aggiornamenti nativi disponibili dalla build 3, spenti di default: vedere la sezione seguente.
 
 ## Compilare
 
@@ -21,9 +21,9 @@ gradle -p android --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :
 node scripts/android-check-apk.mjs
 ```
 
-`android:prepare` compila Vite e rigenera soltanto asset Android e icona dal nostro SVG. Campioni originali del corpus sono copiati nel solo APK di test. `ANDROID_HOME` indica l’SDK. Il controllo legge l’APK release reale, verifica zero permessi, versione, file legali identici, dizionario e componenti PDF. L’APK release è **unsigned** e non distribuibile prima della firma; il debug ha la chiave debug, inadatta agli aggiornamenti pubblici.
+`android:prepare` compila Vite e rigenera soltanto asset Android e icona dal nostro SVG. Campioni originali del corpus sono copiati nel solo APK di test. `ANDROID_HOME` indica l’SDK. Il controllo legge l’APK release reale, verifica i soli due permessi autorizzati, versione, file legali identici, dizionario e componenti PDF. L’APK release è **unsigned** e non distribuibile prima della firma; il debug ha la chiave debug, inadatta agli aggiornamenti pubblici.
 
-Il workflow [APK Android offline](../.github/workflows/android.yml) compila separatamente dalla suite desktop e prova l’emulatore API 35 x86_64. Gli artifact richiedono accesso a GitHub: non sono una Release pubblica Android. Nessun APK aggiunto alla Release desktop 0.2.3, nessun tag creato.
+Il workflow [APK Android offline](../.github/workflows/android.yml) compila separatamente dalla suite desktop e prova l’emulatore API 35 x86_64. Gli artifact richiedono accesso a GitHub: non sono il download pubblico. La pubblicazione firmata avviene separatamente, solo dopo CI verde e confronto con l’unsigned CI; esito e link nel report. Nessun APK aggiunto alla Release desktop 0.2.3.
 
 ## Firma privata e checksum
 
@@ -68,3 +68,17 @@ node scripts/android-smoke.mjs
 Il test rifiuta i telefoni fisici, spegne la rete guest prima di installare, apre i veri selettori Android e controlla otto passaggi: Home/permessi, DOCX, XLSX, PDF, Markdown, Informazioni/tema, appunti del rapporto, richiesta esterna bloccata. Salva e riapre i file; sul computer controlla i file esportati con lettori indipendenti e SHA-256 degli originali. Screenshot e log in `test-results/android/`. Word è modificato via DOM; celle e Markdown usano focus DOM, tasti Android verificati e normale blur. I comandi dell’app sono guidati via DOM, mentre selettori e appunti sono reali. Non provano tastiera virtuale o gesti tattili. Nessun dato personale nei campioni.
 
 Non provati finché dichiarato nel report: installazione e aggiornamento su telefono/tablet fisico, tastiera/gesti, Android 10/16, provider cloud, rotazioni dello schermo, risorse limitate e arresti forzati. Consultare sempre gli esiti reali della run, non dedurre successo dalla presenza del workflow.
+
+## Build 3: aggiornamenti autorizzati
+
+Il WebView e i service worker restano bloccati. Il solo AndroidUpdater nativo usa HTTPS con verifica di certificato/hostname e TLS 1.2/1.3, senza fallback in chiaro. Nessun account, cookie impostato dall’app, contenuto documentale o identificativo personale nelle richieste. Intestazioni fisse minime. Audit in memoria limitato a tipo evento e host.
+
+Host esatti: github.com (elenco e download delle sole Release CosmoNetinfo/CosmOffice), release-assets.githubusercontent.com (solo redirect di un download autorizzato, percorso repository GitHub 1466711071). Ogni redirect è verificato prima della connessione. Nessuna richiesta ad api.github.com nell’app; l’API e uploads.github.com servono esclusivamente allo script di pubblicazione del titolare.
+
+Nuovo profilo: controlli automatici spenti e nessuna richiesta all’avvio. Le vecchie preferenze del renderer non costituiscono consenso: l’opzione Android è nativa e separata. Il pulsante esegue una sola ricerca e spegne il trasporto al termine. L’opzione esplicita abilita un timer di sei ore solo in primo piano: nessun controllo immediato all’avvio o all’attivazione, nessuna attività in background. Disattivazione e annullamento interrompono anche la richiesta in corso.
+
+Prima dell’installazione: SHA-256 e dimensione, package it.cosmonet.cosmoffice, codice superiore e medesimo certificato dell’app installata. La conferma nativa segue il salvataggio delle bozze; PackageInstaller richiede anche il consenso Android. Nessuna installazione silenziosa. Da build 1/2 installare a mano la build 3 una volta, senza disinstallare.
+
+La CI costruisce un APK debug di prova con codice 4 (non pubblico), quindi la normale build 3. Il test installa il 4 tramite il vero installatore, verifica quattro bozze e tema e prova la rete reale GitHub con contatori UID a zero all’avvio. Il peer dei test hash/certificato è simulato; l’installazione, i file e le verifiche di firma sono reali. Risultati osservati nel report: non sostituiscono il telefono fisico con firma di distribuzione.
+
+Pubblicazione del titolare: scripts/android-publish-local.mjs richiede main pulito, entrambe le CI verdi del medesimo commit, APK locale firmato e prova di uguaglianza con l’unsigned CI. Crea la Release ordinaria android-v0.2.3-3 con make_latest=false, manifesto e checksum, poi riscarica gli asset senza credenziali. Chiave e password non vanno su GitHub. /releases/latest desktop non cambia.

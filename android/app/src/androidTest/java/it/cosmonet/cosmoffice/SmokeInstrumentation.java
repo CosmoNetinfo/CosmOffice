@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class SmokeInstrumentation extends Instrumentation {
     private MainActivity activity;
     private int current;
-    private static final int TOTAL = 8;
+    private static final int TOTAL = 9;
     @Override public void onCreate(Bundle args) { super.onCreate(args); start(); }
     private interface Check { void run() throws Exception; }
     private Bundle status(String name) {
@@ -151,7 +151,8 @@ public final class SmokeInstrumentation extends Instrumentation {
             activity = (MainActivity) startActivitySync(launch);
             step("Avvio APK e permessi offline", () -> {
                 until("document.querySelector('h1')?.textContent==='Il tuo spazio di lavoro.'");
-                require(getTargetContext().checkSelfPermission("android.permission.INTERNET") != PackageManager.PERMISSION_GRANTED, "Permesso Internet presente");
+                require(!activity.getUpdater().status().getBoolean("automatic"), "Automatici attivi senza consenso");
+                require(activity.getUpdater().audit().length() == 0, "Richieste native all’avvio");
                 require("true".equals(js("location.origin==='https://appassets.androidplatform.net'")), "Origine locale inattesa");
                 screenshot("home");
             });
@@ -210,9 +211,14 @@ public final class SmokeInstrumentation extends Instrumentation {
             step("Nessuna connessione esterna", () -> {
                 js("window.__cosmoNetworkResult=null;fetch('https://example.invalid/raccogli').then(r=>window.__cosmoNetworkResult=r.status===403&&r.statusText==='Blocked'?'BLOCCATO':'ERRORE',()=>window.__cosmoNetworkResult='BLOCCATO')");
                 until("window.__cosmoNetworkResult==='BLOCCATO'");
+                require(activity.getUpdater().audit().length() == 0, "Richiesta nativa senza controllo esplicito");
+            });
+            step("Aggiornamenti: policy, integrità, periodici e annullamento", () -> {
+                byte[] fixture; try (java.io.InputStream stream = getContext().getAssets().open("updates/future.apk")) { fixture = stream.readAllBytes(); }
+                UpdateChecks.run(activity, fixture);
             });
             result.putString("cosmoffice", "PASS"); result.putInt("prove", TOTAL);
-            result.putString("stream", "\nPASS Android reale in emulatore: otto prove, selettore e filesystem reali, nessun permesso Internet.\n");
+            result.putString("stream", "\nPASS Android reale in emulatore: nove prove, selettore/filesystem/appunti reali, aggiornamenti limitati e spenti di default.\n");
         } catch (Throwable error) {
             result.putString("cosmoffice", "FAIL"); result.putString("stream", "\nFAIL Android: " + error + "\n");
             try { result.putString("ui", js("JSON.stringify({home:document.querySelector('h1')?.textContent==='Il tuo spazio di lavoro.',grid:!!document.querySelector('.grid-editor'),markdown:!!document.querySelector('.markdown-source'),pdf:!!document.querySelector('.pdf-paper'),focused:document.hasFocus(),activeTag:document.activeElement?.tagName,selectionStart:document.activeElement?.selectionStart,selectionEnd:document.activeElement?.selectionEnd,valueLength:document.activeElement?.value?.length})")); } catch (Exception ignored) {}

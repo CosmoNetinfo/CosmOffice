@@ -1,4 +1,4 @@
-import { isAndroid, androidDark } from './android.mjs';
+import { isAndroid, androidDark, androidCall } from './android.mjs';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export const DEFAULTS = Object.freeze({ theme: 'system', accent: 'blue', customAccent: '#2865d8', uiScale: 100, density: 'comfortable', compactSidebar: false, writerFont: 'Calibri', writerFontSize: 12, writerZoom: 100, writerPaper: 'A4', writerOrientation: 'portrait', writerMargin: 20, lineHeight: 1.65, spellcheck: true, gridLocale: 'it-IT', decimalPlaces: 2, gridRows: 40, gridCols: 12, gridLines: true, csvDelimiter: ';', pdfZoom: 110, rememberPdfPage: true, automaticUpdates: false });
@@ -19,8 +19,17 @@ export function validatePreferences(value) {
 const Context = createContext(null);
 const KEY = 'cosmoffice.preferences.v1';
 export function PreferencesProvider({ children }) {
-  const [settings, setSettings] = useState(() => { try { const saved = JSON.parse(localStorage.getItem(KEY)); if (saved && saved.updatesPolicy !== 2) saved.automaticUpdates = false; return validatePreferences(saved); } catch { return { ...DEFAULTS }; } });
+  const [settings, setSettings] = useState(() => { try { const saved = JSON.parse(localStorage.getItem(KEY)); if (saved && (isAndroid || saved.updatesPolicy !== 2)) saved.automaticUpdates = false; return validatePreferences(saved); } catch { return { ...DEFAULTS }; } });
   const [storageError, setStorageError] = useState(false);
+  useEffect(() => {
+    if (!isAndroid) return;
+    let alive = true;
+    const apply = value => { if (alive && typeof value?.automatic === 'boolean') setSettings(previous => previous.automaticUpdates === value.automatic ? previous : { ...previous, automaticUpdates: value.automatic }); };
+    const event = value => apply(value.detail);
+    window.addEventListener('cosmoffice:android-update', event);
+    androidCall('updates', { action: 'status' }).then(apply).catch(() => {});
+    return () => { alive = false; window.removeEventListener('cosmoffice:android-update', event); };
+  }, []);
   useEffect(() => {
     try { localStorage.setItem(KEY, JSON.stringify({ ...settings, updatesPolicy: 2 })); setStorageError(false); } catch { setStorageError(true); }
     const root = document.documentElement;
@@ -39,7 +48,7 @@ export function PreferencesProvider({ children }) {
     }
     return () => { media.removeEventListener('change', applyTheme); if (isAndroid) window.removeEventListener('cosmoffice:android-theme', applyTheme); };
   }, [settings]);
-  const value = { settings, storageError, setSetting: (key, next) => setSettings(previous => validatePreferences({ ...previous, [key]: next })), reset: () => setSettings({ ...DEFAULTS }), importSettings: next => setSettings(previous => validatePreferences({ ...next, automaticUpdates: previous.automaticUpdates })) };
+  const value = { settings, storageError, setSetting: (key, next) => setSettings(previous => validatePreferences({ ...previous, [key]: next })), reset: async () => { if (isAndroid) await androidCall('updates', { action: 'automatic', enabled: false }); setSettings({ ...DEFAULTS }); }, importSettings: next => setSettings(previous => validatePreferences({ ...next, automaticUpdates: previous.automaticUpdates })) };
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 export function usePreferences() { return useContext(Context); }

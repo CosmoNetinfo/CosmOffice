@@ -57,6 +57,7 @@ public final class MainActivity extends Activity {
     private FrameLayout container;
     private WebMessagePort port;
     private Pending pending;
+    private AndroidUpdater updater;
     private ValueCallback<Uri[]> inputCallback;
     private static final class Pending {
         private final String id, name; private final byte[] bytes;
@@ -66,6 +67,10 @@ public final class MainActivity extends Activity {
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        updater = new AndroidUpdater(this, value -> {
+            try { send(new JSONObject().put("event", "update").put("state", value)); } catch (Exception ignored) {}
+        });
+        android.webkit.ServiceWorkerController.getInstance().getServiceWorkerWebSettings().setBlockNetworkLoads(true);
         container = new FrameLayout(this);
         container.setBackgroundColor(Color.rgb(17, 27, 43));
         setContentView(container);
@@ -208,6 +213,17 @@ public final class MainActivity extends Activity {
                     reply(id, new JSONObject().put("os", Build.VERSION.RELEASE.replaceAll("[^0-9.]", ""))
                         .put("architecture", Build.SUPPORTED_ABIS[0]).put("webview", version).put("dark", dark()));
                 }
+                case "updates" -> {
+                    switch (call.optString("action")) {
+                        case "status" -> { }
+                        case "check" -> updater.check();
+                        case "cancel" -> updater.cancel();
+                        case "automatic" -> updater.automatic(call.getBoolean("enabled"));
+                        case "install" -> updater.install();
+                        default -> { fail(id, "Comando aggiornamenti non valido."); return; }
+                    }
+                    reply(id, updater.status());
+                }
                 case "open" -> {
                     if (pending != null || inputCallback != null) { fail(id, "Completa prima il selettore file già aperto."); return; }
                     pending = new Pending(id, null, null);
@@ -324,6 +340,7 @@ public final class MainActivity extends Activity {
         super.onPause();
     }
     @Override protected void onDestroy() {
+        if (updater != null) updater.close();
         if (inputCallback != null) inputCallback.onReceiveValue(null);
         if (port != null) port.close();
         io.shutdown();
@@ -331,4 +348,8 @@ public final class MainActivity extends Activity {
         super.onDestroy();
     }
     public WebView getWebView() { return web; }
+    AndroidUpdater getUpdater() { return updater; }
+    @Override protected void onStart() { super.onStart(); if (updater != null) updater.lifecycle(true); }
+    @Override protected void onResume() { super.onResume(); if (updater != null) updater.installResult(); }
+    @Override protected void onStop() { if (updater != null) updater.lifecycle(false); super.onStop(); }
 }

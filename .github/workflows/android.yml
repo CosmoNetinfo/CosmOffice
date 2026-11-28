@@ -27,12 +27,18 @@ jobs:
         with:
           gradle-version: '8.13'
       - run: npm ci
+      - run: node scripts/android-policy-test.mjs
       - run: npm run android:prepare
       - run: npx playwright install --with-deps chromium
       - run: node scripts/android-pdf-browser.mjs
         env:
           COSMO_BROWSER: chromium
       - run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: APK futuro per il solo collaudo, stessa chiave debug e codice superiore
+        run: |
+          gradle -p android --no-daemon -PcosmoTestFixture :app:assembleDebug
+          mkdir -p android/app/src/androidTest/assets/updates
+          cp android/app/build/outputs/apk/debug/app-debug.apk android/app/src/androidTest/assets/updates/future.apk
       - run: gradle -p android --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:assembleRelease :app:lintDebug
       - run: node scripts/android-check-apk.mjs
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends poppler-utils

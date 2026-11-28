@@ -38,9 +38,9 @@ test('Ponte Android: byte binari e UTF-8 conservati, file vuoto e limite verific
   assert.throws(() => encodeAndroidBytes(new Uint8Array(ANDROID_FILE_LIMIT + 1)), /10 MB/);
   assert.throws(() => decodeAndroidBytes('!invalido!'));
 });
-test('Android: nessun permesso Internet, storage esteso o installazione pacchetti', async () => {
+test('Android: soli permessi di rete aggiornamenti e installazione confermata, nessuno storage esteso', async () => {
   const manifest = await readFile('android/app/src/main/AndroidManifest.xml', 'utf8');
-  assert.doesNotMatch(manifest, /<uses-permission\b/);
+  assert.deepEqual([...manifest.matchAll(/<uses-permission android:name="([^"]+)"/g)].map(match => match[1]).sort(), ['android.permission.INTERNET', 'android.permission.REQUEST_INSTALL_PACKAGES']);
   assert.match(manifest, /allowBackup="false"/);
   assert.match(manifest, /usesCleartextTraffic="false"/);
 });

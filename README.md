@@ -22,15 +22,15 @@ La 0.2.2 aggiunge la conservazione degli zeri iniziali e dei codici lunghi, il r
 
 Un controllo indipendente opzionale apre e risalva i campioni con LibreOffice (`DOCX → ODT → DOCX`, `XLSX → ODS → XLSX`) e verifica un PDF prodotto da quel motore. Non richiede LibreOffice per usare CosmOffice: serve solo ai test. La prova copre un corpus ristretto e non certifica Microsoft Office.
 
-## Android: prima anteprima di prova
+## Android: anteprima build 3
 
-**Build Android 2 in verifica:** corretto nel pacchetto il supporto a `Promise.withResolvers`, assente nel WebView del telefono del titolare e responsabile del rifiuto dei PDF. Stessa versione 0.2.3 e stessa firma, versionCode 2 per aggiornamento. Tre PDF passano la regressione senza API in pagina/worker; nuova conferma sul telefono ancora necessaria. [Esiti e limiti](docs/report/ULTIMO.md).
+APK per **Android 10 o successivo**, versione 0.2.3 / codice 3, con gli stessi editor locali. Preparazione della [Release Android separata](https://github.com/CosmoNetinfo/CosmOffice/releases/tag/android-v0.2.3-3): la pubblicazione effettiva e i download anonimi vengono confermati nel [report corrente](docs/report/ULTIMO.md). La Release desktop e /releases/latest restano invariati.
 
-Progetto APK nativo per **Android 10 o successivo**, con gli stessi editor locali. Non è ancora una Release Android pubblica: i pacchetti desktop 0.2.3 restano invariati. [Guida Android, compilazione e limiti](docs/ANDROID.md).
+Inclusa la correzione PDF per WebView senza Promise.withResolvers. Tre PDF passano nel browser senza l’API, anche nel worker; la conferma sul telefono del problema resta necessaria. Le prove native precedenti coprono otto casi nell’[emulatore](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46119064203). Esiti dei nuovi test e limiti nella [guida Android](docs/ANDROID.md).
 
-Otto casi funzionali passati nell’[emulatore della CI](https://github.com/CosmoNetinfo/CosmOffice/actions/runs/46110959197): apertura/modifica/salvataggio/riapertura DOCX e XLSX, PDF ruotato, creazione e riapertura Markdown, Informazioni/tema, appunti del rapporto e blocco rete. Export verificati indipendentemente, originali invariati. L’APK firmato è stato generato localmente; l’artifact della CI è unsigned, da firmare. Nessun telefono fisico collaudato; alcune catture dell’emulatore mostrano frame precedenti e non certificano la resa visiva completa.
+**Aggiornamenti spenti di default.** In Impostazioni premi «Controlla aggiornamenti ora» per una sola ricerca. Oppure attiva i controlli ogni sei ore mentre l’app resta in primo piano. La rete nativa è limitata a github.com e release-assets.githubusercontent.com, solo Release di CosmoNetinfo/CosmOffice. HTTPS verificato, SHA-256, stessa firma, codice superiore, conferma nell’app e nell’installatore Android. Nessun dato dei documenti inviato. Il WebView resta senza rete.
 
-L’APK non richiede il permesso Internet: aggiornamento manuale, nessun account o invio di dati. Il selettore Android apre un file e salva una nuova copia (limite 10 MB). Stampa ed esportazione DOCX→PDF restano desktop. Le prove del frontend nel browser non sostituiscono il collaudo dell’APK o di un telefono fisico; consultare il report corrente per gli esiti effettivi.
+Da build 1/2 installa questo APK manualmente una volta, senza disinstallare. Potrebbe servire autorizzare l’installazione da CosmOffice nelle impostazioni Android. Le versioni successive useranno il pulsante. Chiave privata mai pubblicata. Limite 10 MB per trasferimento; niente stampa o Word→PDF Android. Prove fisiche e resa completa non certificate.
 
 ## File Markdown (.md)
 

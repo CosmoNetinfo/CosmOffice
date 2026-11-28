@@ -21,3 +21,4 @@ scripts/openxml-validator/obj/
 /android/**/build/
 /android/app/src/main/assets/www/
 /android/app/src/androidTest/assets/fixtures/
+/android/app/src/androidTest/assets/updates/
